@@ -1,23 +1,9 @@
-import {
-  Area,
-  ComposedChart,
-  Line,
-  ResponsiveContainer,
-  Tooltip,
-  XAxis,
-  YAxis,
-} from "recharts";
+import { Area, ComposedChart, Line, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { sma } from "@/lib/finance/calculations";
 import type { SeriesPoint } from "@/lib/alphaVantage.types";
 import { useMemo } from "react";
 
-export function MainPriceChart({
-  series,
-  up,
-}: {
-  series: SeriesPoint[];
-  up: boolean;
-}) {
+export function MainPriceChart({ series, up }: { series: SeriesPoint[]; up: boolean }) {
   const color = up ? "#00D17A" : "#FF4D4F";
 
   const data = useMemo(() => {
@@ -45,10 +31,7 @@ export function MainPriceChart({
         <XAxis dataKey="date" hide />
         <YAxis
           hide
-          domain={[
-            (dataMin: number) => dataMin * 0.98,
-            (dataMax: number) => dataMax * 1.02,
-          ]}
+          domain={[(dataMin: number) => dataMin * 0.98, (dataMax: number) => dataMax * 1.02]}
         />
         <Tooltip
           cursor={{ stroke: "rgba(255,255,255,0.35)", strokeDasharray: "3 3" }}

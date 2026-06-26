@@ -1,10 +1,5 @@
 import { QueryClient } from "@tanstack/react-query";
-import {
-  Outlet,
-  Link,
-  createRootRouteWithContext,
-  useRouter,
-} from "@tanstack/react-router";
+import { Outlet, Link, createRootRouteWithContext, useRouter } from "@tanstack/react-router";
 import { type ReactNode } from "react";
 
 function NotFoundComponent() {
@@ -64,13 +59,11 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
   );
 }
 
-export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
-  {
-    component: RootComponent,
-    notFoundComponent: NotFoundComponent,
-    errorComponent: ErrorComponent,
-  },
-);
+export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
+  component: RootComponent,
+  notFoundComponent: NotFoundComponent,
+  errorComponent: ErrorComponent,
+});
 
 function RootComponent() {
   return (

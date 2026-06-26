@@ -97,16 +97,15 @@ export interface TickerCellProps {
 export function TickerCell({ symbol, assetClass, className }: TickerCellProps) {
   const base = getAssetMeta(symbol);
   const cls = assetClass ?? inferAssetClass(symbol);
-  const meta: AssetMeta = base.assetClass === cls ? base : ({ ...base, assetClass: cls } as AssetMeta);
+  const meta: AssetMeta =
+    base.assetClass === cls ? base : ({ ...base, assetClass: cls } as AssetMeta);
 
   return (
     <span className={cn("inline-flex min-w-0 items-center gap-1.5", className)}>
       <span className="flex h-[22px] w-[22px] shrink-0 items-center justify-center overflow-hidden rounded-md bg-white/5 backdrop-blur-sm ring-1 ring-white/10">
         <LogoBox meta={meta} />
       </span>
-      <span className="truncate text-[11px] font-semibold tabular-nums text-white">
-        {symbol}
-      </span>
+      <span className="truncate text-[11px] font-semibold tabular-nums text-white">{symbol}</span>
     </span>
   );
 }

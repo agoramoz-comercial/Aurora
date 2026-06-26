@@ -93,9 +93,7 @@ export function AlertEngine({ data }: { data: TickerSnapshot | undefined }) {
   return (
     <GlassCard className="lg:h-full lg:min-h-0 !p-4">
       <div className="flex shrink-0 items-center justify-between">
-        <Pill className="!px-3 !py-1 !text-[12px] !font-semibold">
-          Alert engine
-        </Pill>
+        <Pill className="!px-3 !py-1 !text-[12px] !font-semibold">Alert engine</Pill>
         <span className="text-[10px] uppercase tracking-[0.25em] text-white/45">
           {alerts.length} active
         </span>
@@ -117,10 +115,7 @@ export function AlertEngine({ data }: { data: TickerSnapshot | undefined }) {
                 <Icon size={12} />
               </span>
               <div className="min-w-0">
-                <p
-                  className="truncate text-[11px] font-semibold"
-                  style={{ color: tone.color }}
-                >
+                <p className="truncate text-[11px] font-semibold" style={{ color: tone.color }}>
                   {a.title}
                 </p>
                 <p className="truncate text-[10px] text-white/55">{a.detail}</p>

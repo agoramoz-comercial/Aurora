@@ -91,8 +91,7 @@ export function annualizedVol(closes: number[]): number | null {
     rets.push(Math.log(closes[i] / closes[i - 1]));
   }
   const mean = rets.reduce((a, b) => a + b, 0) / rets.length;
-  const variance =
-    rets.reduce((a, b) => a + (b - mean) ** 2, 0) / (rets.length - 1);
+  const variance = rets.reduce((a, b) => a + (b - mean) ** 2, 0) / (rets.length - 1);
   return Math.sqrt(variance) * Math.sqrt(252);
 }
 
@@ -108,10 +107,7 @@ export function maxDrawdown(closes: number[]): number | null {
   return mdd; // negative
 }
 
-export function sliceSeriesByTimeframe(
-  series: SeriesPoint[],
-  tf: string,
-): SeriesPoint[] {
+export function sliceSeriesByTimeframe(series: SeriesPoint[], tf: string): SeriesPoint[] {
   const days: Record<string, number> = {
     "1M": 22,
     "3M": 66,
@@ -230,4 +226,3 @@ export function classifyVaR(v: number | null): Verdict {
   if (a <= 0.04) return "warn";
   return "bad";
 }
-

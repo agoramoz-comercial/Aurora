@@ -11,12 +11,7 @@ import {
   YAxis,
 } from "recharts";
 import type { ReactNode } from "react";
-import {
-  areaPeakIndex,
-  areaSeries,
-  barPeakValue,
-  barSeries,
-} from "@/data/aurora";
+import { areaPeakIndex, areaSeries, barPeakValue, barSeries } from "@/data/aurora";
 
 function TooltipPill({ children }: { children: ReactNode }) {
   return (
@@ -49,11 +44,7 @@ export function AreaChartViz() {
               ) : null
             }
           />
-          <ReferenceLine
-            x={peakLabel}
-            stroke="rgba(255,255,255,0.35)"
-            strokeDasharray="3 3"
-          />
+          <ReferenceLine x={peakLabel} stroke="rgba(255,255,255,0.35)" strokeDasharray="3 3" />
           <Area
             type="monotone"
             dataKey="value"
@@ -95,9 +86,7 @@ export function BarChartViz() {
             cursor={{ fill: "rgba(255,255,255,0.06)" }}
             content={({ active, payload }) =>
               active && payload && payload.length ? (
-                <TooltipPill>
-                  {Number(payload[0].value).toLocaleString()}
-                </TooltipPill>
+                <TooltipPill>{Number(payload[0].value).toLocaleString()}</TooltipPill>
               ) : null
             }
           />
@@ -105,11 +94,7 @@ export function BarChartViz() {
             {barSeries.map((entry, i) => (
               <Cell
                 key={entry.label}
-                fill={
-                  i === peakIndex
-                    ? "rgba(255,255,255,0.55)"
-                    : "rgba(255,255,255,0.28)"
-                }
+                fill={i === peakIndex ? "rgba(255,255,255,0.55)" : "rgba(255,255,255,0.28)"}
               />
             ))}
           </Bar>

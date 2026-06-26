@@ -38,12 +38,7 @@ export function RsiChart({ series }: { series: SeriesPoint[] }) {
     <ResponsiveContainer width="100%" height="100%">
       <LineChart data={data} margin={{ top: 4, right: 8, left: 0, bottom: 0 }}>
         <YAxis hide domain={[0, 100]} />
-        <ReferenceArea
-          y1={70}
-          y2={100}
-          fill="#FF4D4F"
-          fillOpacity={0.08}
-        />
+        <ReferenceArea y1={70} y2={100} fill="#FF4D4F" fillOpacity={0.08} />
         <ReferenceArea y1={0} y2={30} fill="#00D17A" fillOpacity={0.08} />
         <ReferenceLine y={70} stroke="#FF4D4F" strokeOpacity={0.4} strokeDasharray="3 3" />
         <ReferenceLine y={30} stroke="#00D17A" strokeOpacity={0.4} strokeDasharray="3 3" />

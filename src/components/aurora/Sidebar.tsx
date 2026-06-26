@@ -1,4 +1,4 @@
-import { BarChart3, Home, LayoutGrid, Plus, Settings } from "lucide-react";
+import { BarChart3, Home, LayoutGrid, Plus, Settings, Briefcase } from "lucide-react";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 
@@ -6,6 +6,7 @@ const items = [
   { id: "home", icon: Home, label: "Home" },
   { id: "grid", icon: LayoutGrid, label: "Overview" },
   { id: "bars", icon: BarChart3, label: "Analytics" },
+  { id: "portfolio", icon: Briefcase, label: "Portfolio" },
   { id: "settings", icon: Settings, label: "Settings" },
 ];
 
@@ -40,12 +41,7 @@ export function Sidebar({ active, onSelect, orientation = "vertical" }: SidebarP
           <Icon size={18} strokeWidth={1.75} />
         </button>
       ))}
-      <div
-        className={cn(
-          "bg-white/20",
-          horizontal ? "mx-1 h-8 w-px" : "my-1 h-px w-8",
-        )}
-      />
+      <div className={cn("bg-white/20", horizontal ? "mx-1 h-8 w-px" : "my-1 h-px w-8")} />
       <button
         aria-label="New"
         aria-pressed={active === "new"}

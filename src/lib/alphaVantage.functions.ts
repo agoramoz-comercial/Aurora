@@ -1,16 +1,7 @@
 import type { TickerSnapshot } from "./alphaVantage.types";
 import { buildBaselineSnapshot } from "./finance/baseline";
 
-const ALLOWED = new Set([
-  "AAPL",
-  "MSFT",
-  "NVDA",
-  "TSLA",
-  "AMZN",
-  "GOOGL",
-  "META",
-  "AMD",
-]);
+const ALLOWED = new Set(["AAPL", "MSFT", "NVDA", "TSLA", "AMZN", "GOOGL", "META", "AMD"]);
 
 /**
  * Returns a full TickerSnapshot for a given symbol using deterministic baseline
@@ -30,9 +21,7 @@ export async function getTickerSnapshot(opts: {
 /**
  * Returns compact watchlist rows for the given symbols.
  */
-export async function getWatchlist(opts: {
-  data: { symbols: string[] };
-}): Promise<
+export async function getWatchlist(opts: { data: { symbols: string[] } }): Promise<
   {
     symbol: string;
     name: string;

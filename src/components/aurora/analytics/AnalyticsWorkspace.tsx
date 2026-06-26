@@ -68,12 +68,8 @@ function Metric({
         <span className="truncate text-[11px] text-white/65">{label}</span>
       </div>
       <div className="flex items-baseline gap-1.5">
-        <span className="text-[12px] font-semibold tabular-nums text-white">
-          {value}
-        </span>
-        {hint ? (
-          <span className="text-[10px] text-white/40">{hint}</span>
-        ) : null}
+        <span className="text-[12px] font-semibold tabular-nums text-white">{value}</span>
+        {hint ? <span className="text-[10px] text-white/40">{hint}</span> : null}
       </div>
     </div>
   );
@@ -129,9 +125,7 @@ export function AnalyticsWorkspace() {
     <div className="flex min-h-0 flex-1 flex-col">
       <header className="flex shrink-0 flex-wrap items-center justify-between gap-3">
         <div className="flex min-w-0 items-center gap-2">
-          <Pill className="!px-4 !py-1.5 !text-[15px] !font-semibold">
-            Analytics
-          </Pill>
+          <Pill className="!px-4 !py-1.5 !text-[15px] !font-semibold">Analytics</Pill>
           <SourceBadge src={data?.source} />
           {data?.rateLimited && (
             <span className="text-[10px] uppercase tracking-[0.18em] text-[#FFB020]">
@@ -147,9 +141,7 @@ export function AnalyticsWorkspace() {
               aria-pressed={symbol === t}
               className={cn(
                 "glass-pill px-2.5 py-1 text-[11px] font-semibold tabular-nums transition",
-                symbol === t
-                  ? "bg-white/30 text-white"
-                  : "text-white/70 hover:text-white",
+                symbol === t ? "bg-white/30 text-white" : "text-white/70 hover:text-white",
               )}
             >
               {t}
@@ -201,9 +193,7 @@ export function AnalyticsWorkspace() {
         <GlassCard className="sm:col-span-2 lg:col-span-8 lg:h-full lg:min-h-0 !p-4">
           <div className="flex shrink-0 flex-wrap items-center justify-between gap-2">
             <div className="flex flex-wrap items-center gap-2">
-              <Pill className="!px-3 !py-1 !text-[12px] !font-semibold">
-                Close · {tf}
-              </Pill>
+              <Pill className="!px-3 !py-1 !text-[12px] !font-semibold">Close · {tf}</Pill>
               <span className="flex items-center gap-1 text-[10px] text-white/60">
                 <span className="h-0.5 w-3 rounded-full bg-[#74C7FF]" /> SMA20
               </span>
@@ -224,36 +214,24 @@ export function AnalyticsWorkspace() {
           </div>
           <div className="mt-2 flex shrink-0 items-center justify-between">
             <Pill className="!px-2.5 !py-0.5 !text-[10px]">RSI(14)</Pill>
-            <span className="text-[10px] text-white/45">
-              30 oversold · 70 overbought
-            </span>
+            <span className="text-[10px] text-white/45">30 oversold · 70 overbought</span>
           </div>
           <div className="relative mt-1 min-h-[100px] flex-1 lg:min-h-0">
-            {slicedSeries.length > 14 ? (
-              <RsiChart series={slicedSeries} />
-            ) : (
-              <Skeleton />
-            )}
+            {slicedSeries.length > 14 ? <RsiChart series={slicedSeries} /> : <Skeleton />}
           </div>
         </GlassCard>
 
         <GlassCard className="sm:col-span-2 lg:col-span-4 lg:h-full lg:min-h-0 !p-4">
           <div className="flex shrink-0 items-center justify-between">
-            <Pill className="!px-3 !py-1 !text-[12px] !font-semibold">
-              Watchlist
-            </Pill>
-            <span className="text-[10px] uppercase tracking-[0.25em] text-white/40">
-              6 symbols
-            </span>
+            <Pill className="!px-3 !py-1 !text-[12px] !font-semibold">Watchlist</Pill>
+            <span className="text-[10px] uppercase tracking-[0.25em] text-white/40">6 symbols</span>
           </div>
           <div className="mt-2 flex min-h-[240px] flex-1 flex-col lg:min-h-0">
             {watch && watch.length ? (
               <Watchlist
                 rows={watch}
                 active={symbol}
-                onSelect={(s) =>
-                  setSymbol(s as (typeof TICKERS)[number])
-                }
+                onSelect={(s) => setSymbol(s as (typeof TICKERS)[number])}
               />
             ) : (
               <Skeleton />
@@ -280,9 +258,7 @@ export function AnalyticsWorkspace() {
 }
 
 function Skeleton() {
-  return (
-    <div className="glass-soft h-full w-full animate-pulse rounded-2xl" />
-  );
+  return <div className="glass-soft h-full w-full animate-pulse rounded-2xl" />;
 }
 
 function PriceCard({
@@ -310,10 +286,7 @@ function PriceCard({
         >
           {data ? `$${formatNum(data.price)}` : "—"}
         </div>
-        <div
-          className="mt-0.5 text-[11px] font-semibold tabular-nums"
-          style={{ color: accent }}
-        >
+        <div className="mt-0.5 text-[11px] font-semibold tabular-nums" style={{ color: accent }}>
           {data
             ? `${up ? "▲" : "▼"} ${formatNum(Math.abs(data.change))} (${formatPct(data.changePct)})`
             : "—"}
@@ -333,9 +306,7 @@ function DayRangeCard({ data }: { data: TickerSnapshot | undefined }) {
       : 50;
   return (
     <GlassCard className="lg:h-full lg:min-h-0 justify-between !p-4">
-      <Pill className="self-start !px-2.5 !py-1 !text-[11px] text-white/70">
-        Day range
-      </Pill>
+      <Pill className="self-start !px-2.5 !py-1 !text-[11px] text-white/70">Day range</Pill>
       <div className="mt-1">
         <div className="flex items-baseline justify-between text-[11px] tabular-nums text-white/80">
           <span>L ${formatNum(data?.dayLow ?? null)}</span>
@@ -363,14 +334,11 @@ function DayRangeCard({ data }: { data: TickerSnapshot | undefined }) {
 function Week52Card({ data }: { data: TickerSnapshot | undefined }) {
   const pos =
     data && data.week52High && data.week52Low && data.week52High > data.week52Low
-      ? ((data.price - data.week52Low) / (data.week52High - data.week52Low)) *
-        100
+      ? ((data.price - data.week52Low) / (data.week52High - data.week52Low)) * 100
       : 50;
   return (
     <GlassCard className="lg:h-full lg:min-h-0 justify-between !p-4">
-      <Pill className="self-start !px-2.5 !py-1 !text-[11px] text-white/70">
-        52w range
-      </Pill>
+      <Pill className="self-start !px-2.5 !py-1 !text-[11px] text-white/70">52w range</Pill>
       <div className="mt-1">
         <div className="flex items-baseline justify-between text-[11px] tabular-nums text-white/80">
           <span>${formatNum(data?.week52Low ?? null)}</span>
@@ -397,9 +365,7 @@ function Week52Card({ data }: { data: TickerSnapshot | undefined }) {
 function ValuationCard({ data }: { data: TickerSnapshot | undefined }) {
   return (
     <GlassCard className="lg:h-full lg:min-h-0 !p-4">
-      <Pill className="shrink-0 !px-3 !py-1 !text-[12px] !font-semibold">
-        Valuation
-      </Pill>
+      <Pill className="shrink-0 !px-3 !py-1 !text-[12px] !font-semibold">Valuation</Pill>
       <div className="mt-2 flex min-h-0 flex-1 flex-col justify-around">
         <Metric
           label="P/E"
@@ -432,9 +398,7 @@ function ValuationCard({ data }: { data: TickerSnapshot | undefined }) {
 function ProfitabilityCard({ data }: { data: TickerSnapshot | undefined }) {
   return (
     <GlassCard className="lg:h-full lg:min-h-0 !p-4">
-      <Pill className="shrink-0 !px-3 !py-1 !text-[12px] !font-semibold">
-        Profitability
-      </Pill>
+      <Pill className="shrink-0 !px-3 !py-1 !text-[12px] !font-semibold">Profitability</Pill>
       <div className="mt-2 flex min-h-0 flex-1 flex-col justify-around">
         <Metric
           label="Gross margin"
@@ -463,18 +427,12 @@ function ProfitabilityCard({ data }: { data: TickerSnapshot | undefined }) {
 
 function SentimentCard({ data }: { data: TickerSnapshot | undefined }) {
   const distFromHigh =
-    data?.week52High && data.price
-      ? (data.price - data.week52High) / data.week52High
-      : null;
+    data?.week52High && data.price ? (data.price - data.week52High) / data.week52High : null;
   const macdBull =
-    data?.macd !== null && data?.macdSignal !== null && data
-      ? data.macd > data.macdSignal
-      : null;
+    data?.macd !== null && data?.macdSignal !== null && data ? data.macd > data.macdSignal : null;
   return (
     <GlassCard className="lg:h-full lg:min-h-0 !p-4">
-      <Pill className="shrink-0 !px-3 !py-1 !text-[12px] !font-semibold">
-        Sentiment
-      </Pill>
+      <Pill className="shrink-0 !px-3 !py-1 !text-[12px] !font-semibold">Sentiment</Pill>
       <div className="mt-2 flex min-h-0 flex-1 flex-col justify-around">
         <Metric
           label="RSI(14)"
@@ -484,11 +442,7 @@ function SentimentCard({ data }: { data: TickerSnapshot | undefined }) {
         />
         <Metric
           label="MACD"
-          value={
-            data?.macd !== null && data?.macd !== undefined
-              ? data.macd.toFixed(2)
-              : "—"
-          }
+          value={data?.macd !== null && data?.macd !== undefined ? data.macd.toFixed(2) : "—"}
           verdict={macdBull === null ? "neutral" : macdBull ? "good" : "bad"}
           hint={macdBull === null ? undefined : macdBull ? "bull" : "bear"}
         />

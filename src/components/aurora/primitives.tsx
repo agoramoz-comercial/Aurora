@@ -30,8 +30,7 @@ export function Avatar({ initials }: { initials: string }) {
       aria-hidden
       className="grid h-9 w-9 shrink-0 place-items-center rounded-full text-[11px] font-semibold text-white/90"
       style={{
-        background:
-          "linear-gradient(135deg, rgba(255,255,255,0.35), rgba(255,255,255,0.1))",
+        background: "linear-gradient(135deg, rgba(255,255,255,0.35), rgba(255,255,255,0.1))",
         border: "1px solid rgba(255,255,255,0.35)",
         boxShadow: "inset 0 1px 0 rgba(255,255,255,0.4)",
       }}

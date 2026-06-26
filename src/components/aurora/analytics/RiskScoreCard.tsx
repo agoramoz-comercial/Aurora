@@ -37,21 +37,14 @@ function Row({
           className="h-2 w-2 rounded-full"
           style={{
             background: verdictColor[verdict],
-            boxShadow:
-              verdict !== "neutral"
-                ? `0 0 8px ${verdictColor[verdict]}88`
-                : "none",
+            boxShadow: verdict !== "neutral" ? `0 0 8px ${verdictColor[verdict]}88` : "none",
           }}
         />
         <span className="truncate text-[11px] text-white/65">{label}</span>
       </div>
       <div className="flex items-baseline gap-1.5">
-        <span className="text-[12px] font-semibold tabular-nums text-white">
-          {value}
-        </span>
-        {hint ? (
-          <span className="text-[10px] text-white/40">{hint}</span>
-        ) : null}
+        <span className="text-[12px] font-semibold tabular-nums text-white">{value}</span>
+        {hint ? <span className="text-[10px] text-white/40">{hint}</span> : null}
       </div>
     </div>
   );
@@ -72,15 +65,12 @@ export function RiskScoreCard({ data }: { data: TickerSnapshot | undefined }) {
     if (dd !== null) s -= Math.max(0, Math.min(20, Math.abs(dd) * 60));
     return Math.max(0, Math.min(100, Math.round(s)));
   })();
-  const scoreColor =
-    score >= 65 ? "#00D17A" : score >= 40 ? "#FFB020" : "#FF4D4F";
+  const scoreColor = score >= 65 ? "#00D17A" : score >= 40 ? "#FFB020" : "#FF4D4F";
 
   return (
     <GlassCard className="lg:h-full lg:min-h-0 !p-4">
       <div className="flex shrink-0 items-center justify-between">
-        <Pill className="!px-3 !py-1 !text-[12px] !font-semibold">
-          Risk score
-        </Pill>
+        <Pill className="!px-3 !py-1 !text-[12px] !font-semibold">Risk score</Pill>
         <span
           className="text-[18px] font-semibold tabular-nums"
           style={{ color: scoreColor, textShadow: `0 0 12px ${scoreColor}66` }}
@@ -95,27 +85,10 @@ export function RiskScoreCard({ data }: { data: TickerSnapshot | undefined }) {
           verdict={classifySharpe(sharpe)}
           hint=">1 good"
         />
-        <Row
-          label="Sortino"
-          value={formatNum(sortino)}
-          verdict={classifySharpe(sortino)}
-        />
-        <Row
-          label="σ annual"
-          value={formatPct(vol, 1)}
-          verdict={classifyVol(vol)}
-        />
-        <Row
-          label="Max DD"
-          value={formatPct(dd, 1)}
-          verdict={classifyDrawdown(dd)}
-        />
-        <Row
-          label="VaR 95%"
-          value={formatPct(v95, 2)}
-          verdict={classifyVaR(v95)}
-          hint="1d"
-        />
+        <Row label="Sortino" value={formatNum(sortino)} verdict={classifySharpe(sortino)} />
+        <Row label="σ annual" value={formatPct(vol, 1)} verdict={classifyVol(vol)} />
+        <Row label="Max DD" value={formatPct(dd, 1)} verdict={classifyDrawdown(dd)} />
+        <Row label="VaR 95%" value={formatPct(v95, 2)} verdict={classifyVaR(v95)} hint="1d" />
       </div>
     </GlassCard>
   );

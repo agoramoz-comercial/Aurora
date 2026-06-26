@@ -71,7 +71,11 @@ export const kpiCards: { id: string; primary: Kpi; secondary: Kpi }[] = [
 ];
 
 export const microCards: { id: string; primary: Kpi; secondary: Kpi }[] = [
-  { id: "m1", primary: { label: "Churn", value: "1.8%" }, secondary: { label: "−0.3 pts", value: "" } },
+  {
+    id: "m1",
+    primary: { label: "Churn", value: "1.8%" },
+    secondary: { label: "−0.3 pts", value: "" },
+  },
   { id: "m2", primary: { label: "NPS", value: "62" }, secondary: { label: "+4 pts", value: "" } },
 ];
 

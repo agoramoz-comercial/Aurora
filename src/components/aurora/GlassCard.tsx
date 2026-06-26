@@ -7,13 +7,7 @@ export const cardVariants: Variants = {
   show: { opacity: 1, y: 0, transition: { duration: 0.5, ease: [0.22, 1, 0.36, 1] } },
 };
 
-export function GlassCard({
-  children,
-  className,
-}: {
-  children: ReactNode;
-  className?: string;
-}) {
+export function GlassCard({ children, className }: { children: ReactNode; className?: string }) {
   return (
     <motion.section
       variants={cardVariants}
