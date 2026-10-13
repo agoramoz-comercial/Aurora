@@ -4,3 +4,11 @@ Dockerfile
 docker/
 docker-compose.yml
 nginx.conf
+
+# The Vercel CLI does not read .gitignore: local-only folders that are
+# gitignored would otherwise be uploaded by `vercel` from a working copy.
+ECC-main/
+*.exe
+dist/
+.idea/
+.vscode/
