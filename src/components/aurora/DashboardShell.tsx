@@ -1,6 +1,15 @@
-import { motion, AnimatePresence } from "framer-motion";
-import { LayoutTemplate, Plus } from "lucide-react";
-import { useState } from "react";
+import { motion, AnimatePresence, MotionConfig } from "framer-motion";
+import { AlertTriangle, Plus } from "lucide-react";
+import {
+  Component,
+  Suspense,
+  lazy,
+  useCallback,
+  useEffect,
+  useState,
+  type ErrorInfo,
+  type ReactNode,
+} from "react";
 import roomBg from "@/assets/room-bg.jpg";
 import {
   goals,
@@ -12,20 +21,57 @@ import {
   teamSelectedId,
   timeframes,
 } from "@/data/aurora";
-import { Sidebar } from "./Sidebar";
-import { BottomDock } from "./BottomDock";
-import { GlassCard, cardVariants } from "./GlassCard";
-import { AreaChartViz, BarChartViz } from "./Charts";
-import { Avatar, EmptyState, Pill, ProgressBar, WorkspaceHeader } from "./primitives";
-import { AnalyticsWorkspace } from "./analytics/AnalyticsWorkspace";
-import { HomeWorkspace } from "./home/HomeWorkspace";
-import { BusinessPlanWorkspace } from "./businessPlan/BusinessPlanWorkspace";
-import { BenchmarkWorkspace } from "./benchmark/BenchmarkWorkspace";
-import { TeslaModelWorkspace } from "./teslaModel/TeslaModelWorkspace";
-import { MarketplaceWorkspace } from "./marketplace/MarketplaceWorkspace";
+import { BrokerStoreProvider, useBrokerStore } from "@/data/brokerStore";
 import { MarketplaceStoreProvider } from "@/data/marketplaceStore";
 import { PortfolioStoreProvider } from "@/data/portfolioStore";
 import { cn } from "@/lib/utils";
+import { Sidebar } from "./Sidebar";
+import { BottomDock } from "./BottomDock";
+import { CommandPalette } from "./CommandPalette";
+import { GlassCard, cardVariants } from "./GlassCard";
+import { AreaChartViz, BarChartViz } from "./Charts";
+import {
+  ActionButton,
+  Avatar,
+  EmptyState,
+  Pill,
+  ProgressBar,
+  WorkspaceHeader,
+  formatUsd,
+} from "./primitives";
+import { BrokerMark } from "./brokers/BrokerMark";
+import type { SectionId } from "./navigation";
+
+// Workspaces load on first visit: the shell paints immediately and heavy
+// modules (models, TradingView charts) only download when opened.
+const HomeWorkspace = lazy(() =>
+  import("./home/HomeWorkspace").then((m) => ({ default: m.HomeWorkspace })),
+);
+const AnalyticsWorkspace = lazy(() =>
+  import("./analytics/AnalyticsWorkspace").then((m) => ({ default: m.AnalyticsWorkspace })),
+);
+const BrokersWorkspace = lazy(() =>
+  import("./brokers/BrokersWorkspace").then((m) => ({ default: m.BrokersWorkspace })),
+);
+const BenchmarkWorkspace = lazy(() =>
+  import("./benchmark/BenchmarkWorkspace").then((m) => ({ default: m.BenchmarkWorkspace })),
+);
+const BusinessPlanWorkspace = lazy(() =>
+  import("./businessPlan/BusinessPlanWorkspace").then((m) => ({
+    default: m.BusinessPlanWorkspace,
+  })),
+);
+const TeslaModelWorkspace = lazy(() =>
+  import("./teslaModel/TeslaModelWorkspace").then((m) => ({ default: m.TeslaModelWorkspace })),
+);
+const MarketplaceWorkspace = lazy(() =>
+  import("./marketplace/MarketplaceWorkspace").then((m) => ({
+    default: m.MarketplaceWorkspace,
+  })),
+);
+const SettingsWorkspace = lazy(() =>
+  import("./settings/SettingsWorkspace").then((m) => ({ default: m.SettingsWorkspace })),
+);
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -35,72 +81,145 @@ const containerVariants = {
   },
 };
 
-const sectionTitles: Record<string, string> = {
-  home: "Notícias",
-  grid: "Ollympius Dashboard",
-  bars: "Analytics",
-  benchmarkPage: "Benchmark & Projeções",
-  businessPlan: "Plano de Negócios",
-  teslaModel: "Modelo Financeiro & DCF Hub (TSLA · MSFT · GOOGL · AAPL · NVDA · AMZN)",
-  marketplace: "Marketplace",
-  settings: "Settings",
-  new: "New workspace",
-};
+const PREFS_KEY = "aurora-prefs-v1";
 
-export function DashboardShell({ defaultActive = "home" }: { defaultActive?: string }) {
-  const [active, setActive] = useState(defaultActive);
+function loadReduceMotion(): boolean {
+  try {
+    return JSON.parse(localStorage.getItem(PREFS_KEY) ?? "{}").reduceMotion === true;
+  } catch {
+    return false;
+  }
+}
+
+export function DashboardShell({ defaultActive = "home" }: { defaultActive?: SectionId }) {
+  return (
+    <BrokerStoreProvider>
+      <Shell defaultActive={defaultActive} />
+    </BrokerStoreProvider>
+  );
+}
+
+function Shell({ defaultActive }: { defaultActive: SectionId }) {
+  const [active, setActive] = useState<SectionId>(defaultActive);
+  const [paletteOpen, setPaletteOpen] = useState(false);
+  const [wizardSignal, setWizardSignal] = useState(0);
+  const [reduceMotion, setReduceMotion] = useState(loadReduceMotion);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(PREFS_KEY, JSON.stringify({ reduceMotion }));
+    } catch {
+      // Preference stays in memory for this session.
+    }
+  }, [reduceMotion]);
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
+        e.preventDefault();
+        setPaletteOpen((o) => !o);
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
+
+  const openPalette = useCallback(() => setPaletteOpen(true), []);
+  const addBroker = useCallback(() => {
+    setActive("brokers");
+    setWizardSignal((n) => n + 1);
+  }, []);
+
+  let workspace: ReactNode;
+  switch (active) {
+    case "grid":
+      workspace = <OverviewContent onNavigate={setActive} />;
+      break;
+    case "home":
+      workspace = <HomeWorkspace />;
+      break;
+    case "bars":
+      workspace = <AnalyticsWorkspace />;
+      break;
+    case "brokers":
+      workspace = <BrokersWorkspace wizardSignal={wizardSignal} />;
+      break;
+    case "benchmarkPage":
+      workspace = (
+        <PortfolioStoreProvider>
+          <BenchmarkWorkspace />
+        </PortfolioStoreProvider>
+      );
+      break;
+    case "businessPlan":
+      workspace = (
+        <PortfolioStoreProvider>
+          <BusinessPlanWorkspace />
+        </PortfolioStoreProvider>
+      );
+      break;
+    case "teslaModel":
+      workspace = <TeslaModelWorkspace />;
+      break;
+    case "marketplace":
+      workspace = (
+        <MarketplaceStoreProvider>
+          <MarketplaceWorkspace />
+        </MarketplaceStoreProvider>
+      );
+      break;
+    case "settings":
+      workspace = (
+        <SettingsWorkspace reduceMotion={reduceMotion} onReduceMotion={setReduceMotion} />
+      );
+      break;
+  }
 
   return (
-    <div
-      className="relative min-h-screen w-full text-white lg:h-screen lg:overflow-hidden"
-      style={{ fontFamily: "var(--font-display)" }}
-    >
-      <img
-        src={roomBg}
-        alt=""
-        aria-hidden
-        width={1920}
-        height={1216}
-        className="pointer-events-none fixed inset-0 -z-20 h-full w-full object-cover"
-      />
+    <MotionConfig reducedMotion={reduceMotion ? "always" : "user"}>
       <div
-        aria-hidden
-        className="pointer-events-none fixed inset-0 -z-10"
-        style={{
-          background: "linear-gradient(180deg, rgba(0,0,0,0.05) 0%, rgba(0,0,0,0.18) 100%)",
-        }}
-      />
+        className="relative min-h-screen w-full text-white lg:h-screen lg:overflow-hidden"
+        style={{ fontFamily: "var(--font-display)" }}
+      >
+        <img
+          src={roomBg}
+          alt=""
+          aria-hidden
+          width={1920}
+          height={1216}
+          className="pointer-events-none fixed inset-0 -z-20 h-full w-full object-cover"
+        />
+        <div
+          aria-hidden
+          className="pointer-events-none fixed inset-0 -z-10"
+          style={{
+            background: "linear-gradient(180deg, rgba(0,0,0,0.05) 0%, rgba(0,0,0,0.18) 100%)",
+          }}
+        />
 
-      <main className="relative mx-auto flex min-h-screen w-full max-w-[1560px] flex-col gap-3 px-3 py-4 sm:gap-4 sm:px-4 sm:py-5 lg:h-full lg:min-h-0 lg:px-8 lg:py-6">
-        <div className="flex justify-center lg:hidden">
-          <Sidebar active={active} onSelect={setActive} orientation="horizontal" />
-        </div>
-
-        <div className="flex flex-col gap-3 sm:gap-4 lg:min-h-0 lg:flex-1 lg:flex-row lg:items-stretch lg:gap-5">
-          <div className="hidden items-center lg:flex">
-            <Sidebar active={active} onSelect={setActive} />
+        <main className="relative mx-auto flex min-h-screen w-full max-w-[1560px] flex-col gap-3 px-3 py-4 sm:gap-4 sm:px-4 sm:py-5 lg:h-full lg:min-h-0 lg:px-8 lg:py-6">
+          <div className="flex justify-center lg:hidden">
+            <Sidebar
+              active={active}
+              onSelect={setActive}
+              onCommand={openPalette}
+              orientation="horizontal"
+            />
           </div>
 
-          <motion.section
-            initial={{ opacity: 0, scale: 0.985 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-            className="glass flex min-w-0 flex-1 flex-col p-4 md:p-5 lg:min-h-0"
-            style={{ borderRadius: 28 }}
-          >
-            <AnimatePresence mode="wait">
-              {active === "grid" ? (
-                <motion.div
-                  key="overview"
-                  initial={{ opacity: 0, y: 6 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -6 }}
-                  transition={{ duration: 0.3 }}
-                  className="flex flex-1 flex-col lg:min-h-0"
-                >
-                  <OverviewContent />
-                </motion.div>
-              ) : (
+          <div className="flex flex-col gap-3 sm:gap-4 lg:min-h-0 lg:flex-1 lg:flex-row lg:items-stretch lg:gap-5">
+            <div className="hidden items-center lg:flex">
+              <Sidebar active={active} onSelect={setActive} onCommand={openPalette} />
+            </div>
+
+            <motion.section
+              initial={{ opacity: 0, scale: 0.985 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+              className="glass flex min-w-0 flex-1 flex-col p-4 md:p-5 lg:min-h-0"
+              style={{ borderRadius: 28 }}
+            >
+              <AnimatePresence mode="wait">
                 <motion.div
                   key={active}
                   initial={{ opacity: 0, y: 6 }}
@@ -109,71 +228,144 @@ export function DashboardShell({ defaultActive = "home" }: { defaultActive?: str
                   transition={{ duration: 0.3 }}
                   className="flex flex-1 flex-col lg:min-h-0"
                 >
-                  {active === "home" ? (
-                    <HomeWorkspace />
-                  ) : active === "bars" ? (
-                    <AnalyticsWorkspace />
-                  ) : active === "benchmarkPage" ? (
-                    <PortfolioStoreProvider>
-                      <BenchmarkWorkspace />
-                    </PortfolioStoreProvider>
-                  ) : active === "businessPlan" ? (
-                    <PortfolioStoreProvider>
-                      <BusinessPlanWorkspace />
-                    </PortfolioStoreProvider>
-                  ) : active === "teslaModel" ? (
-                    <TeslaModelWorkspace />
-                  ) : active === "marketplace" ? (
-                    <MarketplaceStoreProvider>
-                      <MarketplaceWorkspace />
-                    </MarketplaceStoreProvider>
-                  ) : (
-                    <EmptyEnvironment title={sectionTitles[active] ?? "Workspace"} />
-                  )}
+                  <WorkspaceBoundary onHome={() => setActive("grid")}>
+                    <Suspense fallback={<WorkspaceSkeleton />}>{workspace}</Suspense>
+                  </WorkspaceBoundary>
                 </motion.div>
-              )}
-            </AnimatePresence>
-          </motion.section>
-        </div>
+              </AnimatePresence>
+            </motion.section>
+          </div>
 
-        <div className="hidden shrink-0 justify-center sm:flex">
-          <BottomDock />
-        </div>
-      </main>
-    </div>
-  );
-}
+          <div className="hidden shrink-0 justify-center sm:flex">
+            <BottomDock onNavigate={setActive} onCommand={openPalette} />
+          </div>
+        </main>
 
-function EmptyEnvironment({ title }: { title: string }) {
-  return (
-    <div className="flex min-h-0 flex-1 flex-col">
-      <WorkspaceHeader title={title} subtitle="Ambiente vazio · pronto a compor" />
-      <div className="flex min-h-0 flex-1 items-center justify-center p-6">
-        <EmptyState
-          icon={LayoutTemplate}
-          title={title}
-          hint="Este espaço ainda não tem módulos. Escolha outra aba na barra lateral."
-          className="w-full max-w-md"
+        <CommandPalette
+          open={paletteOpen}
+          onOpenChange={setPaletteOpen}
+          onNavigate={setActive}
+          onAddBroker={addBroker}
         />
       </div>
+    </MotionConfig>
+  );
+}
+
+/**
+ * Contains a failing workspace (render error or a chunk that failed to load)
+ * so the shell, navigation and other sections keep working. Remounted per
+ * section via the parent's `key`, which clears the error on navigation.
+ */
+class WorkspaceBoundary extends Component<
+  { children: ReactNode; onHome: () => void },
+  { error: Error | null }
+> {
+  state = { error: null as Error | null };
+
+  static getDerivedStateFromError(error: Error) {
+    return { error };
+  }
+
+  componentDidCatch(error: Error, info: ErrorInfo) {
+    console.error("Workspace failed", error, info.componentStack);
+  }
+
+  render() {
+    if (!this.state.error) return this.props.children;
+    return (
+      <div className="flex min-h-0 flex-1 items-center justify-center p-6">
+        <EmptyState
+          icon={AlertTriangle}
+          title="Esta secção não carregou"
+          hint="As restantes secções continuam disponíveis. Tente novamente ou volte à visão geral."
+          className="w-full max-w-md"
+          action={
+            <div className="mt-2 flex gap-2">
+              <ActionButton tone="ghost" onClick={() => this.setState({ error: null })}>
+                Tentar novamente
+              </ActionButton>
+              <ActionButton onClick={this.props.onHome}>Visão geral</ActionButton>
+            </div>
+          }
+        />
+      </div>
+    );
+  }
+}
+
+/** Placeholder with the shape of a workspace while its chunk downloads. */
+function WorkspaceSkeleton() {
+  return (
+    <div className="flex min-h-0 flex-1 flex-col gap-4" aria-busy="true" aria-label="A carregar">
+      <div className="h-9 w-56 animate-pulse rounded-full bg-white/10 motion-reduce:animate-none" />
+      <div className="grid grid-cols-2 gap-2.5 lg:grid-cols-4">
+        {[0, 1, 2, 3].map((i) => (
+          <div
+            key={i}
+            className="glass h-[78px] animate-pulse motion-reduce:animate-none"
+            style={{ animationDelay: `${i * 80}ms` }}
+          />
+        ))}
+      </div>
+      <div className="glass min-h-[240px] flex-1 animate-pulse motion-reduce:animate-none" />
     </div>
   );
 }
 
-function OverviewContent() {
+/** Overview tile summarising connected broker accounts; opens Corretoras. */
+function BrokersTile({ onOpen }: { onOpen: () => void }) {
+  const { connections, totals } = useBrokerStore();
+  const marks = [...new Set(connections.map((c) => c.brokerId))].slice(0, 4);
+  return (
+    <motion.button
+      type="button"
+      variants={cardVariants}
+      whileHover={{ y: -2 }}
+      onClick={onOpen}
+      aria-label={`Corretoras: ${totals.accounts} contas, ${formatUsd(totals.value)}`}
+      className="glass relative flex min-h-[120px] min-w-0 flex-col justify-between p-4 text-left text-white transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60 lg:h-full lg:min-h-0 before:pointer-events-none before:absolute before:inset-x-0 before:top-0 before:h-px before:rounded-t-[20px] before:bg-gradient-to-r before:from-transparent before:via-white/60 before:to-transparent"
+    >
+      <div className="flex items-center justify-between gap-2">
+        <Pill className="!px-2.5 !py-1 !text-[11px] text-white/70">Corretoras</Pill>
+        {marks.length ? (
+          <span className="flex -space-x-1.5">
+            {marks.map((id) => (
+              <BrokerMark key={id} brokerId={id} size={20} className="ring-2 ring-black/30" />
+            ))}
+          </span>
+        ) : (
+          <span className="grid h-6 w-6 place-items-center rounded-lg border border-dashed border-white/35">
+            <Plus size={12} />
+          </span>
+        )}
+      </div>
+      <div className="flex items-end justify-between gap-2">
+        <span className="text-xl font-semibold tabular-nums text-white">
+          {totals.accounts ? formatUsd(totals.value) : "Ligar conta"}
+        </span>
+        <Pill tone="mute" className="!text-[10px]">
+          {totals.accounts} conta{totals.accounts === 1 ? "" : "s"}
+        </Pill>
+      </div>
+    </motion.button>
+  );
+}
+
+function OverviewContent({ onNavigate }: { onNavigate: (id: SectionId) => void }) {
   return (
     <>
       <WorkspaceHeader
         title="Ollympius Dashboard"
-        subtitle="Live performance overview · updated just now"
+        subtitle="Visão geral de desempenho · atualizado agora"
         right={
           <>
-            <Pill className="hidden sm:inline-flex">Overview</Pill>
+            <Pill className="hidden sm:inline-flex">Visão geral</Pill>
             <Pill className="hidden sm:inline-flex" tone="mute">
-              Reports
+              Relatórios
             </Pill>
             <Avatar initials="LV" />
-            <Pill className="hidden md:inline-flex">+ Invite team</Pill>
+            <Pill className="hidden md:inline-flex">+ Convidar equipa</Pill>
           </>
         }
       />
@@ -186,7 +378,7 @@ function OverviewContent() {
       >
         <GlassCard className="sm:col-span-2 lg:col-span-2 lg:h-full lg:min-h-0 !p-4">
           <div className="flex shrink-0 flex-wrap items-center justify-between gap-3">
-            <Pill className="!px-3 !py-1 !text-[12px] !font-semibold">Revenue trend</Pill>
+            <Pill className="!px-3 !py-1 !text-[12px] !font-semibold">Tendência de receita</Pill>
             <div className="flex gap-1.5">
               {timeframes.map((t, i) => (
                 <Pill
@@ -216,15 +408,17 @@ function OverviewContent() {
         </GlassCard>
 
         <GlassCard className="lg:h-full lg:min-h-0 !p-4">
-          <Pill className="shrink-0 !px-3 !py-1 !text-[12px] !font-semibold">Weekly volume</Pill>
-          <p className="mt-1 shrink-0 text-[11px] text-white/55">Conversions per week</p>
+          <Pill className="shrink-0 !px-3 !py-1 !text-[12px] !font-semibold">Volume semanal</Pill>
+          <p className="mt-1 shrink-0 text-[11px] text-white/55">Conversões por semana</p>
           <div className="relative mt-2 min-h-[160px] flex-1 lg:min-h-0">
             <BarChartViz />
           </div>
         </GlassCard>
 
         <GlassCard className="lg:h-full lg:min-h-0 !p-4">
-          <Pill className="shrink-0 !px-3 !py-1 !text-[12px] !font-semibold">Recent activity</Pill>
+          <Pill className="shrink-0 !px-3 !py-1 !text-[12px] !font-semibold">
+            Atividade recente
+          </Pill>
           <ul className="mt-2 flex flex-1 flex-col gap-1.5 lg:min-h-0 lg:overflow-hidden">
             {recentActivity.map((row) => (
               <li key={row.id} className="flex items-center gap-2.5 rounded-xl px-1 py-0.5">
@@ -257,9 +451,9 @@ function OverviewContent() {
 
         <GlassCard className="lg:h-full lg:min-h-0 !p-4">
           <div className="flex shrink-0 items-center justify-between">
-            <Pill className="!px-3 !py-1 !text-[12px] !font-semibold">Goals</Pill>
+            <Pill className="!px-3 !py-1 !text-[12px] !font-semibold">Metas</Pill>
             <button
-              aria-label="Add goal"
+              aria-label="Adicionar meta"
               className="glass-soft grid h-7 w-7 place-items-center text-white/80 hover:bg-white/25"
             >
               <Plus size={14} />
@@ -280,9 +474,9 @@ function OverviewContent() {
 
         <GlassCard className="lg:h-full lg:min-h-0 !p-4">
           <div className="flex shrink-0 items-center justify-between">
-            <Pill className="!px-3 !py-1 !text-[12px] !font-semibold">Team</Pill>
+            <Pill className="!px-3 !py-1 !text-[12px] !font-semibold">Equipa</Pill>
             <button
-              aria-label="Add member"
+              aria-label="Adicionar membro"
               className="glass-soft grid h-7 w-7 place-items-center text-white/80 hover:bg-white/25"
             >
               <Plus size={14} />
@@ -335,19 +529,7 @@ function OverviewContent() {
           </GlassCard>
         ))}
 
-        <motion.button
-          variants={cardVariants}
-          whileHover={{ y: -2 }}
-          className="glass grid min-h-[120px] place-items-center lg:h-full lg:min-h-0 text-white/60 transition hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60"
-          aria-label="Add card"
-        >
-          <span
-            className="grid h-10 w-10 place-items-center rounded-2xl"
-            style={{ border: "1px dashed rgba(255,255,255,0.4)" }}
-          >
-            <Plus size={18} />
-          </span>
-        </motion.button>
+        <BrokersTile onOpen={() => onNavigate("brokers")} />
       </motion.div>
     </>
   );

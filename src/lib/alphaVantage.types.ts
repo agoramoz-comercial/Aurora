@@ -1,6 +1,11 @@
 export interface SeriesPoint {
   date: string;
   close: number;
+  /** OHLC + volume are optional: baseline series carry them, external feeds may not. */
+  open?: number;
+  high?: number;
+  low?: number;
+  volume?: number;
 }
 
 export type DataSource = "live" | "partial" | "baseline";

@@ -7,6 +7,8 @@
  * colors (it writes SVG attributes), so the hex values live here once.
  */
 
+import { GlassTooltip } from "./charts/GlassTooltip";
+
 export const CHART = {
   accent: "#4a9eff",
   accentSoft: "rgba(74,158,255,0.35)",
@@ -52,10 +54,19 @@ export const tooltipStyle = {
 } as const;
 
 export const tooltipProps = {
+  content: GlassTooltip,
+  wrapperStyle: { outline: "none" },
   contentStyle: tooltipStyle,
   itemStyle: { color: "rgba(255,255,255,0.85)", fontSize: 11 },
   labelStyle: { color: "rgba(255,255,255,0.5)", fontSize: 10, marginBottom: 4 },
   cursor: { fill: "rgba(255,255,255,0.05)" },
+} as const;
+
+/** Hover dot for line/area series: accent ring on a white core. */
+export const activeDotProps = {
+  r: 4,
+  stroke: "#ffffff",
+  strokeWidth: 2,
 } as const;
 
 export const legendProps = {

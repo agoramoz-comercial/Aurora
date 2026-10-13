@@ -38,35 +38,35 @@ export type ActivityRow = {
 };
 
 export const recentActivity: ActivityRow[] = [
-  { id: "a1", initials: "OC", name: "Olivia Chen", note: "New subscription", value: "+$240" },
-  { id: "a2", initials: "MR", name: "Marco Rivera", note: "Upgraded to Pro", value: "+$89" },
-  { id: "a3", initials: "AS", name: "Aiko Sato", note: "Annual renewal", value: "+$1.2k" },
+  { id: "a1", initials: "OC", name: "Olivia Chen", note: "Nova subscrição", value: "+$240" },
+  { id: "a2", initials: "MR", name: "Marco Rivera", note: "Upgrade para Pro", value: "+$89" },
+  { id: "a3", initials: "AS", name: "Aiko Sato", note: "Renovação anual", value: "+$1.2k" },
 ];
 
 export const teamMembers: ActivityRow[] = [
-  { id: "t1", initials: "JT", name: "Jordan Tate", note: "Design lead", value: "Online" },
-  { id: "t2", initials: "PN", name: "Priya Nair", note: "Engineering", value: "Focus" },
-  { id: "t3", initials: "LV", name: "Luca Verdi", note: "Product", value: "Away" },
+  { id: "t1", initials: "JT", name: "Jordan Tate", note: "Líder de design", value: "Online" },
+  { id: "t2", initials: "PN", name: "Priya Nair", note: "Engenharia", value: "Foco" },
+  { id: "t3", initials: "LV", name: "Luca Verdi", note: "Produto", value: "Ausente" },
 ];
 export const teamSelectedId = "t2";
 
 export type GoalRow = { id: string; label: string; progress: number; value: string };
 export const goals: GoalRow[] = [
-  { id: "g1", label: "Monthly revenue", progress: 72, value: "72%" },
-  { id: "g2", label: "Conversion rate", progress: 48, value: "48%" },
+  { id: "g1", label: "Receita mensal", progress: 72, value: "72%" },
+  { id: "g2", label: "Taxa de conversão", progress: 48, value: "48%" },
 ];
 
 export type Kpi = { label: string; value: string };
 export const kpiCards: { id: string; primary: Kpi; secondary: Kpi }[] = [
   {
     id: "k1",
-    primary: { label: "Active users", value: "12,480" },
-    secondary: { label: "+8.4% this week", value: "" },
+    primary: { label: "Utilizadores ativos", value: "12,480" },
+    secondary: { label: "+8.4% esta semana", value: "" },
   },
   {
     id: "k2",
-    primary: { label: "Sessions", value: "38,210" },
-    secondary: { label: "+3.1% this week", value: "" },
+    primary: { label: "Sessões", value: "38,210" },
+    secondary: { label: "+3.1% esta semana", value: "" },
   },
 ];
 
@@ -83,15 +83,7 @@ export const timeframes = ["1D", "1W", "1M", "1Y"] as const;
 export type Timeframe = (typeof timeframes)[number];
 
 export const heroStats: { label: string; value: string }[] = [
-  { label: "Revenue", value: "$84.2k" },
-  { label: "Sessions", value: "38.2k" },
-  { label: "Avg order", value: "$54" },
-];
-
-export type DockChip = { id: string; label: string; value: string };
-export const dockChips: DockChip[] = [
-  { id: "d1", label: "Inbox", value: "12" },
-  { id: "d2", label: "Tasks", value: "5" },
-  { id: "d3", label: "Calendar", value: "Today" },
-  { id: "d4", label: "Profile", value: "You" },
+  { label: "Receita", value: "$84.2k" },
+  { label: "Sessões", value: "38.2k" },
+  { label: "Ticket médio", value: "$54" },
 ];

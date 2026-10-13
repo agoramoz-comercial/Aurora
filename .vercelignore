@@ -1,0 +1,6 @@
+# Source spreadsheets and container tooling are not part of the static build.
+*.xlsx
+Dockerfile
+docker/
+docker-compose.yml
+nginx.conf

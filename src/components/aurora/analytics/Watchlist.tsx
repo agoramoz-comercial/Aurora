@@ -34,7 +34,7 @@ export function Watchlist({
             <button
               onClick={() => onSelect(r.symbol)}
               className={cn(
-                "group grid w-full grid-cols-[36px_minmax(0,1fr)_52px_44px] items-center gap-2 rounded-2xl px-1.5 py-1 text-left transition sm:grid-cols-[44px_minmax(0,1fr)_64px_56px]",
+                "group grid w-full grid-cols-[66px_minmax(0,1fr)_60px_48px] items-center gap-2 rounded-2xl px-1.5 py-1 text-left transition sm:grid-cols-[78px_minmax(0,1fr)_68px_56px]",
                 selected ? "bg-white/15" : "hover:bg-white/8",
               )}
               style={
