@@ -20,8 +20,7 @@ import type { TickerSnapshot } from "@/lib/alphaVantage.types";
 import { GlassCard } from "../GlassCard";
 import { Pill, SegmentedTabs, TickerChips, WorkspaceHeader } from "../primitives";
 import { cn } from "@/lib/utils";
-import { MainPriceChart } from "./MainPriceChart";
-import { RsiChart } from "./RsiChart";
+import { MainPriceChart, type PriceMode } from "./MainPriceChart";
 import { Watchlist } from "./Watchlist";
 import { RiskScoreCard } from "./RiskScoreCard";
 import { AlertEngine } from "./AlertEngine";
@@ -97,6 +96,7 @@ function SourceBadge({ src }: { src: TickerSnapshot["source"] | undefined }) {
 export function AnalyticsWorkspace() {
   const [symbol, setSymbol] = useState<(typeof TICKERS)[number]>("AAPL");
   const [tf, setTf] = useState<(typeof TIMEFRAMES)[number]>("3M");
+  const [mode, setMode] = useState<PriceMode>("candles");
 
   const { data } = useQuery({
     queryKey: ["av", symbol],
@@ -181,38 +181,42 @@ export function AnalyticsWorkspace() {
         <GlassCard className="sm:col-span-2 lg:col-span-8 lg:h-full lg:min-h-0 !p-4">
           <div className="flex shrink-0 flex-wrap items-center justify-between gap-2">
             <div className="flex flex-wrap items-center gap-2">
-              <Pill className="!px-3 !py-1 !text-[12px] !font-semibold">Close · {tf}</Pill>
-              <span className="flex items-center gap-1 text-[10px] text-white/60">
-                <span className="h-0.5 w-3 rounded-full bg-[var(--aurora-accent)]" /> SMA20
-              </span>
-              <span className="flex items-center gap-1 text-[10px] text-white/60">
-                <span className="h-0.5 w-3 rounded-full bg-[var(--aurora-warn)]" /> SMA50
+              <Pill className="!px-3 !py-1 !text-[12px] !font-semibold">Preço · {tf}</Pill>
+              <span className="hidden text-[10px] text-white/45 md:inline">
+                Volume · SMA20/50 · RSI14 · arraste e role para zoom
               </span>
             </div>
-            <span className="text-[10px] uppercase tracking-[0.25em] text-white/40">
-              Alpha Vantage
-            </span>
+            <SegmentedTabs
+              size="sm"
+              tabs={[
+                { id: "candles" as const, label: "Velas" },
+                { id: "area" as const, label: "Área" },
+              ]}
+              active={mode}
+              onSelect={setMode}
+            />
           </div>
-          <div className="relative mt-2 min-h-[220px] flex-[1.6] lg:min-h-0">
-            {slicedSeries.length > 1 ? (
-              <MainPriceChart series={slicedSeries} up={up} />
+          <div className="relative mt-2 min-h-[340px] flex-1 lg:min-h-0">
+            {slicedSeries.length > 1 && data ? (
+              <MainPriceChart
+                series={slicedSeries}
+                full={data.series}
+                up={up}
+                mode={mode}
+                symbol={symbol}
+              />
             ) : (
               <Skeleton />
             )}
-          </div>
-          <div className="mt-2 flex shrink-0 items-center justify-between">
-            <Pill className="!px-2.5 !py-0.5 !text-[10px]">RSI(14)</Pill>
-            <span className="text-[10px] text-white/45">30 oversold · 70 overbought</span>
-          </div>
-          <div className="relative mt-1 min-h-[100px] flex-1 lg:min-h-0">
-            {slicedSeries.length > 14 ? <RsiChart series={slicedSeries} /> : <Skeleton />}
           </div>
         </GlassCard>
 
         <GlassCard className="sm:col-span-2 lg:col-span-4 lg:h-full lg:min-h-0 !p-4">
           <div className="flex shrink-0 items-center justify-between">
             <Pill className="!px-3 !py-1 !text-[12px] !font-semibold">Watchlist</Pill>
-            <span className="text-[10px] uppercase tracking-[0.25em] text-white/40">6 symbols</span>
+            <span className="text-[10px] uppercase tracking-[0.25em] text-white/40">
+              6 símbolos
+            </span>
           </div>
           <div className="mt-2 flex min-h-[240px] flex-1 flex-col lg:min-h-0">
             {watch && watch.length ? (
@@ -262,7 +266,7 @@ function PriceCard({
   return (
     <GlassCard className="lg:h-full lg:min-h-0 justify-between !p-4">
       <div className="flex shrink-0 items-center justify-between">
-        <Pill className="!px-2.5 !py-1 !text-[11px] text-white/70">Price</Pill>
+        <Pill className="!px-2.5 !py-1 !text-[11px] text-white/70">Preço</Pill>
         <span className="text-[10px] uppercase tracking-[0.18em] text-white/40">
           {data?.symbol ?? ""}
         </span>
@@ -294,7 +298,7 @@ function DayRangeCard({ data }: { data: TickerSnapshot | undefined }) {
       : 50;
   return (
     <GlassCard className="lg:h-full lg:min-h-0 justify-between !p-4">
-      <Pill className="self-start !px-2.5 !py-1 !text-[11px] text-white/70">Day range</Pill>
+      <Pill className="self-start !px-2.5 !py-1 !text-[11px] text-white/70">Intervalo do dia</Pill>
       <div className="mt-1">
         <div className="flex items-baseline justify-between text-[11px] tabular-nums text-white/80">
           <span>L ${formatNum(data?.dayLow ?? null)}</span>
@@ -326,7 +330,7 @@ function Week52Card({ data }: { data: TickerSnapshot | undefined }) {
       : 50;
   return (
     <GlassCard className="lg:h-full lg:min-h-0 justify-between !p-4">
-      <Pill className="self-start !px-2.5 !py-1 !text-[11px] text-white/70">52w range</Pill>
+      <Pill className="self-start !px-2.5 !py-1 !text-[11px] text-white/70">Intervalo 52 sem.</Pill>
       <div className="mt-1">
         <div className="flex items-baseline justify-between text-[11px] tabular-nums text-white/80">
           <span>${formatNum(data?.week52Low ?? null)}</span>
@@ -386,7 +390,7 @@ function ValuationCard({ data }: { data: TickerSnapshot | undefined }) {
 function ProfitabilityCard({ data }: { data: TickerSnapshot | undefined }) {
   return (
     <GlassCard className="lg:h-full lg:min-h-0 !p-4">
-      <Pill className="shrink-0 !px-3 !py-1 !text-[12px] !font-semibold">Profitability</Pill>
+      <Pill className="shrink-0 !px-3 !py-1 !text-[12px] !font-semibold">Rentabilidade</Pill>
       <div className="mt-2 flex min-h-0 flex-1 flex-col justify-around">
         <Metric
           label="Gross margin"
@@ -420,7 +424,7 @@ function SentimentCard({ data }: { data: TickerSnapshot | undefined }) {
     data?.macd !== null && data?.macdSignal !== null && data ? data.macd > data.macdSignal : null;
   return (
     <GlassCard className="lg:h-full lg:min-h-0 !p-4">
-      <Pill className="shrink-0 !px-3 !py-1 !text-[12px] !font-semibold">Sentiment</Pill>
+      <Pill className="shrink-0 !px-3 !py-1 !text-[12px] !font-semibold">Sentimento</Pill>
       <div className="mt-2 flex min-h-0 flex-1 flex-col justify-around">
         <Metric
           label="RSI(14)"

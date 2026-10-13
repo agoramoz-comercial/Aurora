@@ -1,89 +1,103 @@
-import { Area, ComposedChart, Line, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
-import { sma } from "@/lib/finance/calculations";
-import type { SeriesPoint } from "@/lib/alphaVantage.types";
 import { useMemo } from "react";
+import type { SeriesPoint } from "@/lib/alphaVantage.types";
 import { CHART } from "../chartTheme";
+import {
+  TvChart,
+  type TvBar,
+  type TvLine,
+  type TvOscillator,
+  type TvPoint,
+  type TvVolume,
+} from "../charts/TvChart";
 
-export function MainPriceChart({ series, up }: { series: SeriesPoint[]; up: boolean }) {
-  const color = up ? CHART.positive : CHART.negative;
+export type PriceMode = "candles" | "area";
 
-  const data = useMemo(() => {
-    return series.map((p, i) => {
-      const window20 = series.slice(Math.max(0, i - 19), i + 1).map((s) => s.close);
-      const window50 = series.slice(Math.max(0, i - 49), i + 1).map((s) => s.close);
-      return {
-        date: p.date,
-        close: p.close,
-        sma20: window20.length === 20 ? sma(window20, 20) : null,
-        sma50: window50.length === 50 ? sma(window50, 50) : null,
-      };
-    });
-  }, [series]);
+/** Rolling simple moving average over the full history, emitted only from `from` onwards. */
+function rollingSma(full: SeriesPoint[], period: number, from: string): TvPoint[] {
+  const out: TvPoint[] = [];
+  let sum = 0;
+  full.forEach((p, i) => {
+    sum += p.close;
+    if (i >= period) sum -= full[i - period]!.close;
+    if (i >= period - 1 && p.date >= from) {
+      out.push({ time: p.date, value: Math.round((sum / period) * 100) / 100 });
+    }
+  });
+  return out;
+}
+
+/** RSI(period) over the full history (simple average of gains/losses), windowed from `from`. */
+function rollingRsi(full: SeriesPoint[], period: number, from: string): TvPoint[] {
+  const out: TvPoint[] = [];
+  for (let i = period; i < full.length; i++) {
+    if (full[i]!.date < from) continue;
+    let gain = 0;
+    let loss = 0;
+    for (let j = i - period + 1; j <= i; j++) {
+      const diff = full[j]!.close - full[j - 1]!.close;
+      if (diff >= 0) gain += diff;
+      else loss -= diff;
+    }
+    const rsi = loss === 0 ? 100 : 100 - 100 / (1 + gain / loss);
+    out.push({ time: full[i]!.date, value: Math.round(rsi * 10) / 10 });
+  }
+  return out;
+}
+
+/**
+ * Price panel for the Analytics workspace: candles (or area) with volume,
+ * SMA20/SMA50 overlays and an RSI(14) pane sharing the time axis. Indicators
+ * are computed on the full history and then windowed, so short timeframes
+ * still show valid values from their first bar.
+ */
+export function MainPriceChart({
+  series,
+  full,
+  up,
+  mode,
+  symbol,
+}: {
+  series: SeriesPoint[];
+  full: SeriesPoint[];
+  up: boolean;
+  mode: PriceMode;
+  symbol: string;
+}) {
+  const { candles, area, volume, lines, rsi } = useMemo(() => {
+    const from = series[0]?.date ?? "";
+    const candles: TvBar[] = series.map((p) => ({
+      time: p.date,
+      open: p.open ?? p.close,
+      high: p.high ?? p.close,
+      low: p.low ?? p.close,
+      close: p.close,
+    }));
+    const area: TvPoint[] = series.map((p) => ({ time: p.date, value: p.close }));
+    const volume: TvVolume[] = series
+      .filter((p) => p.volume !== undefined)
+      .map((p) => ({ time: p.date, value: p.volume!, up: p.close >= (p.open ?? p.close) }));
+    const lines: TvLine[] = [
+      { id: "sma20", label: "SMA20", color: CHART.accent, data: rollingSma(full, 20, from) },
+      { id: "sma50", label: "SMA50", color: CHART.warn, data: rollingSma(full, 50, from) },
+    ];
+    const rsi: TvOscillator = {
+      label: "RSI14",
+      color: CHART.violet,
+      data: rollingRsi(full, 14, from),
+      bands: [30, 70],
+    };
+    return { candles, area, volume, lines, rsi };
+  }, [series, full]);
 
   return (
-    <ResponsiveContainer width="100%" height="100%">
-      <ComposedChart data={data} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
-        <defs>
-          <linearGradient id="mpcFill" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor={color} stopOpacity={0.5} />
-            <stop offset="100%" stopColor={color} stopOpacity={0} />
-          </linearGradient>
-        </defs>
-        <XAxis dataKey="date" hide />
-        <YAxis
-          hide
-          domain={[(dataMin: number) => dataMin * 0.98, (dataMax: number) => dataMax * 1.02]}
-        />
-        <Tooltip
-          cursor={{ stroke: "rgba(255,255,255,0.35)", strokeDasharray: "3 3" }}
-          content={({ active, payload }) =>
-            active && payload && payload.length ? (
-              <div className="glass-pill flex gap-2 px-2.5 py-1 text-[10px] font-semibold tabular-nums text-white shadow-lg">
-                <span>${Number(payload[0]?.payload?.close).toFixed(2)}</span>
-                {payload[0]?.payload?.sma20 ? (
-                  <span className="text-[var(--aurora-accent)]">
-                    20:${Number(payload[0].payload.sma20).toFixed(2)}
-                  </span>
-                ) : null}
-                {payload[0]?.payload?.sma50 ? (
-                  <span className="text-[var(--aurora-warn)]">
-                    50:${Number(payload[0].payload.sma50).toFixed(2)}
-                  </span>
-                ) : null}
-                <span className="text-white/55">{payload[0]?.payload?.date}</span>
-              </div>
-            ) : null
-          }
-        />
-        <Area
-          type="monotone"
-          dataKey="close"
-          stroke={color}
-          strokeWidth={2}
-          fill="url(#mpcFill)"
-          isAnimationActive={false}
-          activeDot={{ r: 4, fill: color, stroke: "white", strokeWidth: 2 }}
-        />
-        <Line
-          type="monotone"
-          dataKey="sma20"
-          stroke={CHART.accent}
-          strokeWidth={1.25}
-          dot={false}
-          isAnimationActive={false}
-          connectNulls
-        />
-        <Line
-          type="monotone"
-          dataKey="sma50"
-          stroke={CHART.warn}
-          strokeWidth={1.25}
-          strokeDasharray="4 3"
-          dot={false}
-          isAnimationActive={false}
-          connectNulls
-        />
-      </ComposedChart>
-    </ResponsiveContainer>
+    <TvChart
+      label={symbol}
+      candles={mode === "candles" ? candles : undefined}
+      area={mode === "area" ? area : undefined}
+      areaColor={up ? CHART.positive : CHART.negative}
+      lines={lines}
+      volume={volume}
+      oscillator={rsi}
+    />
   );
 }

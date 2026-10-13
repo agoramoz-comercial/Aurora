@@ -83,8 +83,8 @@ function buildAlerts(d: TickerSnapshot): Alert[] {
       id: "calm",
       severity: "info",
       icon: Shield,
-      title: "No active alerts",
-      detail: "All risk thresholds within tolerance",
+      title: "Sem alertas ativos",
+      detail: "Todos os limiares de risco dentro da tolerância",
     });
   return a.slice(0, 5);
 }
@@ -94,7 +94,7 @@ export function AlertEngine({ data }: { data: TickerSnapshot | undefined }) {
   return (
     <GlassCard className="lg:h-full lg:min-h-0 !p-4">
       <div className="flex shrink-0 items-center justify-between">
-        <Pill className="!px-3 !py-1 !text-[12px] !font-semibold">Alert engine</Pill>
+        <Pill className="!px-3 !py-1 !text-[12px] !font-semibold">Motor de alertas</Pill>
         <span className="text-[10px] uppercase tracking-[0.25em] text-white/45">
           {alerts.length} active
         </span>

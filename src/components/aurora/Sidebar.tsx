@@ -1,35 +1,16 @@
-import {
-  BarChart3,
-  Home,
-  LayoutGrid,
-  Plus,
-  Settings,
-  FileCheck,
-  Building2,
-  FileSpreadsheet,
-  Gem,
-} from "lucide-react";
+import { Command } from "lucide-react";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
-
-const items = [
-  { id: "home", icon: Home, label: "Notícias" },
-  { id: "grid", icon: LayoutGrid, label: "Ollympius Dashboard" },
-  { id: "bars", icon: BarChart3, label: "Analytics" },
-  { id: "benchmarkPage", icon: Building2, label: "Benchmark & Projeções" },
-  { id: "businessPlan", icon: FileCheck, label: "Plano de Negócios" },
-  { id: "teslaModel", icon: FileSpreadsheet, label: "Modelo Financeiro & DCF Hub" },
-  { id: "marketplace", icon: Gem, label: "Marketplace" },
-  { id: "settings", icon: Settings, label: "Settings" },
-];
+import { SECTIONS, type SectionId } from "./navigation";
 
 interface SidebarProps {
-  active: string;
-  onSelect: (id: string) => void;
+  active: SectionId;
+  onSelect: (id: SectionId) => void;
+  onCommand: () => void;
   orientation?: "vertical" | "horizontal";
 }
 
-export function Sidebar({ active, onSelect, orientation = "vertical" }: SidebarProps) {
+export function Sidebar({ active, onSelect, onCommand, orientation = "vertical" }: SidebarProps) {
   const horizontal = orientation === "horizontal";
   return (
     <motion.nav
@@ -42,7 +23,7 @@ export function Sidebar({ active, onSelect, orientation = "vertical" }: SidebarP
         horizontal ? "no-scrollbar w-fit max-w-full flex-row overflow-x-auto" : "w-[60px] flex-col",
       )}
     >
-      {items.map(({ id, icon: Icon, label }) => (
+      {SECTIONS.map(({ id, icon: Icon, label }) => (
         <button
           key={id}
           title={label}
@@ -57,14 +38,12 @@ export function Sidebar({ active, onSelect, orientation = "vertical" }: SidebarP
       ))}
       <div className={cn("shrink-0 bg-white/20", horizontal ? "mx-1 h-8 w-px" : "my-1 h-px w-8")} />
       <button
-        aria-label="New"
-        title="New workspace"
-        aria-pressed={active === "new"}
-        data-active={active === "new"}
-        onClick={() => onSelect("new")}
-        className="glass-soft grid h-11 w-11 shrink-0 place-items-center text-white/85 transition hover:bg-white/25 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60 data-[active=true]:bg-[rgba(74,158,255,0.22)] data-[active=true]:text-white"
+        aria-label="Abrir paleta de comandos (Ctrl+K)"
+        title="Comandos · ⌘K"
+        onClick={onCommand}
+        className="glass-soft grid h-11 w-11 shrink-0 place-items-center text-white/85 transition hover:bg-white/25 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60"
       >
-        <Plus size={18} strokeWidth={1.75} />
+        <Command size={17} strokeWidth={1.75} />
       </button>
     </motion.nav>
   );

@@ -505,6 +505,45 @@ export function IconButton({
   );
 }
 
+/** Text button for workspace actions: accent primary, quiet glass, or destructive. */
+export function ActionButton({
+  children,
+  onClick,
+  icon: Icon,
+  tone = "primary",
+  type = "button",
+  disabled,
+  className,
+}: {
+  children: ReactNode;
+  onClick?: () => void;
+  icon?: React.ElementType;
+  tone?: "primary" | "ghost" | "danger";
+  type?: "button" | "submit";
+  disabled?: boolean;
+  className?: string;
+}) {
+  return (
+    <button
+      type={type}
+      onClick={onClick}
+      disabled={disabled}
+      className={cn(
+        "inline-flex h-9 shrink-0 items-center justify-center gap-1.5 rounded-full px-3.5 text-[12px] font-semibold whitespace-nowrap transition-[background-color,box-shadow,color,transform] duration-150 active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60 disabled:pointer-events-none disabled:opacity-45",
+        tone === "primary" &&
+          "bg-[var(--aurora-accent)] text-white shadow-[0_0_16px_rgba(74,158,255,0.45)] hover:shadow-[0_0_22px_rgba(74,158,255,0.65)]",
+        tone === "ghost" && "bg-white/8 text-white/80 hover:bg-white/14 hover:text-white",
+        tone === "danger" &&
+          "border border-red-500/30 bg-red-500/15 text-red-200 hover:bg-red-500/25",
+        className,
+      )}
+    >
+      {Icon ? <Icon size={14} strokeWidth={2} /> : null}
+      {children}
+    </button>
+  );
+}
+
 /** Dashed placeholder for empty lists and unbuilt workspaces. */
 export function EmptyState({
   icon: Icon,
