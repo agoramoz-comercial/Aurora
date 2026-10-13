@@ -10,11 +10,12 @@ import {
 import type { TickerSnapshot } from "@/lib/alphaVantage.types";
 import { GlassCard } from "../GlassCard";
 import { Pill } from "../primitives";
+import { CHART } from "../chartTheme";
 
 const verdictColor: Record<Verdict, string> = {
-  good: "#00D17A",
-  warn: "#FFB020",
-  bad: "#FF4D4F",
+  good: CHART.positive,
+  warn: CHART.warn,
+  bad: CHART.negative,
   neutral: "rgba(255,255,255,0.5)",
 };
 
@@ -65,7 +66,7 @@ export function RiskScoreCard({ data }: { data: TickerSnapshot | undefined }) {
     if (dd !== null) s -= Math.max(0, Math.min(20, Math.abs(dd) * 60));
     return Math.max(0, Math.min(100, Math.round(s)));
   })();
-  const scoreColor = score >= 65 ? "#00D17A" : score >= 40 ? "#FFB020" : "#FF4D4F";
+  const scoreColor = score >= 65 ? CHART.positive : score >= 40 ? CHART.warn : CHART.negative;
 
   return (
     <GlassCard className="lg:h-full lg:min-h-0 !p-4">

@@ -2,6 +2,7 @@ import { AlertTriangle, TrendingDown, TrendingUp, Activity, Shield } from "lucid
 import type { TickerSnapshot } from "@/lib/alphaVantage.types";
 import { GlassCard } from "../GlassCard";
 import { Pill } from "../primitives";
+import { CHART } from "../chartTheme";
 
 type Severity = "info" | "warn" | "danger";
 
@@ -14,9 +15,9 @@ interface Alert {
 }
 
 const sevTone: Record<Severity, { color: string; bg: string }> = {
-  info: { color: "#74C7FF", bg: "rgba(116,199,255,0.12)" },
-  warn: { color: "#FFB020", bg: "rgba(255,176,32,0.12)" },
-  danger: { color: "#FF4D4F", bg: "rgba(255,77,79,0.14)" },
+  info: { color: CHART.accent, bg: "rgba(74,158,255,0.12)" },
+  warn: { color: CHART.warn, bg: "rgba(251,191,36,0.12)" },
+  danger: { color: CHART.negative, bg: "rgba(248,113,113,0.14)" },
 };
 
 function buildAlerts(d: TickerSnapshot): Alert[] {

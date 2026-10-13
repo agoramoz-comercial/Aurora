@@ -1,4 +1,5 @@
 import { Area, AreaChart, ResponsiveContainer } from "recharts";
+import { CHART } from "../chartTheme";
 
 export function Sparkline({
   values,
@@ -9,7 +10,7 @@ export function Sparkline({
   up: boolean;
   height?: number;
 }) {
-  const color = up ? "#00D17A" : "#FF4D4F";
+  const color = up ? CHART.positive : CHART.negative;
   const data = values.map((v, i) => ({ i, v }));
   const id = `sp-${color.slice(1)}-${values.length}-${Math.round(values[0] ?? 0)}`;
   return (

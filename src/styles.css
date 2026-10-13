@@ -156,6 +156,77 @@
   --aurora-glass-shadow:
     0 12px 40px rgba(0, 0, 0, 0.32), inset 0 1px 0 rgba(255, 255, 255, 0.18),
     inset 0 -1px 0 rgba(255, 255, 255, 0.04);
+
+  /* Semantic palette — the only colors a workspace should reach for. */
+  --aurora-positive: #4ade80;
+  --aurora-negative: #f87171;
+  --aurora-warn: #fbbf24;
+  --aurora-violet: #c084fc;
+  --aurora-teal: #2dd4bf;
+  --aurora-surface-1: rgba(255, 255, 255, 0.04);
+  --aurora-surface-2: rgba(255, 255, 255, 0.07);
+  --aurora-hairline: rgba(255, 255, 255, 0.08);
+  --aurora-ink-deep: rgba(8, 12, 22, 0.96);
+  --aurora-ease: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+html {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1,
+h2,
+h3 {
+  text-wrap: balance;
+}
+
+@keyframes aurora-marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@keyframes aurora-progress {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+@utility ticker-marquee {
+  animation: aurora-marquee 48s linear infinite;
+  &:hover {
+    animation-play-state: paused;
+  }
+}
+
+@utility no-scrollbar {
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+@utility thin-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.12) transparent;
+}
+
+@utility img-outline {
+  outline: 1px solid rgba(255, 255, 255, 0.1);
+  outline-offset: -1px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ticker-marquee {
+    animation: none;
+  }
 }
 
 @theme inline {

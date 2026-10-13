@@ -3,6 +3,7 @@ import { Sparkline } from "./Sparkline";
 import { formatNum, formatPct } from "@/lib/finance/calculations";
 import { TickerCell } from "./TickerCell";
 import type { AssetClass } from "@/lib/assets/types";
+import { CHART } from "../chartTheme";
 
 export interface WatchRow {
   symbol: string;
@@ -55,7 +56,7 @@ export function Watchlist({
               </span>
               <span
                 className="text-right text-[11px] font-semibold tabular-nums"
-                style={{ color: up ? "#00D17A" : "#FF4D4F" }}
+                style={{ color: up ? CHART.positive : CHART.negative }}
               >
                 {up ? "+" : ""}
                 {formatPct(r.changePct)}

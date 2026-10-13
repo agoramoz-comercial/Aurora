@@ -2,9 +2,10 @@ import { Area, ComposedChart, Line, ResponsiveContainer, Tooltip, XAxis, YAxis }
 import { sma } from "@/lib/finance/calculations";
 import type { SeriesPoint } from "@/lib/alphaVantage.types";
 import { useMemo } from "react";
+import { CHART } from "../chartTheme";
 
 export function MainPriceChart({ series, up }: { series: SeriesPoint[]; up: boolean }) {
-  const color = up ? "#00D17A" : "#FF4D4F";
+  const color = up ? CHART.positive : CHART.negative;
 
   const data = useMemo(() => {
     return series.map((p, i) => {
@@ -40,12 +41,12 @@ export function MainPriceChart({ series, up }: { series: SeriesPoint[]; up: bool
               <div className="glass-pill flex gap-2 px-2.5 py-1 text-[10px] font-semibold tabular-nums text-white shadow-lg">
                 <span>${Number(payload[0]?.payload?.close).toFixed(2)}</span>
                 {payload[0]?.payload?.sma20 ? (
-                  <span className="text-[#74C7FF]">
+                  <span className="text-[var(--aurora-accent)]">
                     20:${Number(payload[0].payload.sma20).toFixed(2)}
                   </span>
                 ) : null}
                 {payload[0]?.payload?.sma50 ? (
-                  <span className="text-[#FFB020]">
+                  <span className="text-[var(--aurora-warn)]">
                     50:${Number(payload[0].payload.sma50).toFixed(2)}
                   </span>
                 ) : null}
@@ -66,7 +67,7 @@ export function MainPriceChart({ series, up }: { series: SeriesPoint[]; up: bool
         <Line
           type="monotone"
           dataKey="sma20"
-          stroke="#74C7FF"
+          stroke={CHART.accent}
           strokeWidth={1.25}
           dot={false}
           isAnimationActive={false}
@@ -75,7 +76,7 @@ export function MainPriceChart({ series, up }: { series: SeriesPoint[]; up: bool
         <Line
           type="monotone"
           dataKey="sma50"
-          stroke="#FFB020"
+          stroke={CHART.warn}
           strokeWidth={1.25}
           strokeDasharray="4 3"
           dot={false}

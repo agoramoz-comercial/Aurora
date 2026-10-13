@@ -1,5 +1,5 @@
 import { motion, AnimatePresence } from "framer-motion";
-import { Plus } from "lucide-react";
+import { LayoutTemplate, Plus } from "lucide-react";
 import { useState } from "react";
 import roomBg from "@/assets/room-bg.jpg";
 import {
@@ -16,9 +16,14 @@ import { Sidebar } from "./Sidebar";
 import { BottomDock } from "./BottomDock";
 import { GlassCard, cardVariants } from "./GlassCard";
 import { AreaChartViz, BarChartViz } from "./Charts";
-import { Avatar, Pill, ProgressBar } from "./primitives";
+import { Avatar, EmptyState, Pill, ProgressBar, WorkspaceHeader } from "./primitives";
 import { AnalyticsWorkspace } from "./analytics/AnalyticsWorkspace";
-import { PortfolioWorkspace } from "./portfolio/PortfolioWorkspace";
+import { HomeWorkspace } from "./home/HomeWorkspace";
+import { BusinessPlanWorkspace } from "./businessPlan/BusinessPlanWorkspace";
+import { BenchmarkWorkspace } from "./benchmark/BenchmarkWorkspace";
+import { TeslaModelWorkspace } from "./teslaModel/TeslaModelWorkspace";
+import { MarketplaceWorkspace } from "./marketplace/MarketplaceWorkspace";
+import { MarketplaceStoreProvider } from "@/data/marketplaceStore";
 import { PortfolioStoreProvider } from "@/data/portfolioStore";
 import { cn } from "@/lib/utils";
 
@@ -31,15 +36,18 @@ const containerVariants = {
 };
 
 const sectionTitles: Record<string, string> = {
-  home: "Home",
-  grid: "Overview",
+  home: "Notícias",
+  grid: "Ollympius Dashboard",
   bars: "Analytics",
-  portfolio: "Portfolio",
+  benchmarkPage: "Benchmark & Projeções",
+  businessPlan: "Plano de Negócios",
+  teslaModel: "Modelo Financeiro & DCF Hub (TSLA · MSFT · GOOGL · AAPL · NVDA · AMZN)",
+  marketplace: "Marketplace",
   settings: "Settings",
   new: "New workspace",
 };
 
-export function DashboardShell({ defaultActive = "grid" }: { defaultActive?: string }) {
+export function DashboardShell({ defaultActive = "home" }: { defaultActive?: string }) {
   const [active, setActive] = useState(defaultActive);
 
   return (
@@ -101,12 +109,24 @@ export function DashboardShell({ defaultActive = "grid" }: { defaultActive?: str
                   transition={{ duration: 0.3 }}
                   className="flex flex-1 flex-col lg:min-h-0"
                 >
-                  {active === "bars" ? (
+                  {active === "home" ? (
+                    <HomeWorkspace />
+                  ) : active === "bars" ? (
                     <AnalyticsWorkspace />
-                  ) : active === "portfolio" ? (
+                  ) : active === "benchmarkPage" ? (
                     <PortfolioStoreProvider>
-                      <PortfolioWorkspace />
+                      <BenchmarkWorkspace />
                     </PortfolioStoreProvider>
+                  ) : active === "businessPlan" ? (
+                    <PortfolioStoreProvider>
+                      <BusinessPlanWorkspace />
+                    </PortfolioStoreProvider>
+                  ) : active === "teslaModel" ? (
+                    <TeslaModelWorkspace />
+                  ) : active === "marketplace" ? (
+                    <MarketplaceStoreProvider>
+                      <MarketplaceWorkspace />
+                    </MarketplaceStoreProvider>
                   ) : (
                     <EmptyEnvironment title={sectionTitles[active] ?? "Workspace"} />
                   )}
@@ -127,14 +147,14 @@ export function DashboardShell({ defaultActive = "grid" }: { defaultActive?: str
 function EmptyEnvironment({ title }: { title: string }) {
   return (
     <div className="flex min-h-0 flex-1 flex-col">
-      <header className="shrink-0">
-        <Pill className="!px-4 !py-1.5 !text-[15px] !font-semibold">{title}</Pill>
-        <p className="mt-1.5 truncate text-[12px] text-white/60">
-          Empty environment · ready to compose
-        </p>
-      </header>
-      <div className="flex min-h-0 flex-1 items-center justify-center">
-        <span className="text-[13px] uppercase tracking-[0.3em] text-white/40">{title}</span>
+      <WorkspaceHeader title={title} subtitle="Ambiente vazio · pronto a compor" />
+      <div className="flex min-h-0 flex-1 items-center justify-center p-6">
+        <EmptyState
+          icon={LayoutTemplate}
+          title={title}
+          hint="Este espaço ainda não tem módulos. Escolha outra aba na barra lateral."
+          className="w-full max-w-md"
+        />
       </div>
     </div>
   );
@@ -143,22 +163,20 @@ function EmptyEnvironment({ title }: { title: string }) {
 function OverviewContent() {
   return (
     <>
-      <header className="grid shrink-0 grid-cols-[minmax(0,1fr)_auto] items-center gap-4">
-        <div className="min-w-0">
-          <Pill className="!px-4 !py-1.5 !text-[15px] !font-semibold">Ollympius Dashboard</Pill>
-          <p className="mt-1.5 truncate text-[12px] text-white/60">
-            Live performance overview · updated just now
-          </p>
-        </div>
-        <div className="flex shrink-0 items-center gap-2">
-          <Pill className="hidden sm:inline-flex">Overview</Pill>
-          <Pill className="hidden sm:inline-flex" tone="mute">
-            Reports
-          </Pill>
-          <Avatar initials="LV" />
-          <Pill className="hidden md:inline-flex">+ Invite team</Pill>
-        </div>
-      </header>
+      <WorkspaceHeader
+        title="Ollympius Dashboard"
+        subtitle="Live performance overview · updated just now"
+        right={
+          <>
+            <Pill className="hidden sm:inline-flex">Overview</Pill>
+            <Pill className="hidden sm:inline-flex" tone="mute">
+              Reports
+            </Pill>
+            <Avatar initials="LV" />
+            <Pill className="hidden md:inline-flex">+ Invite team</Pill>
+          </>
+        }
+      />
 
       <motion.div
         variants={containerVariants}

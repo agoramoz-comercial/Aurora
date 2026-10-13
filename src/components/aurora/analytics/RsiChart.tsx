@@ -8,6 +8,7 @@ import {
 } from "recharts";
 import type { SeriesPoint } from "@/lib/alphaVantage.types";
 import { useMemo } from "react";
+import { CHART } from "../chartTheme";
 
 function rsiSeries(closes: number[], period = 14): (number | null)[] {
   const out: (number | null)[] = new Array(closes.length).fill(null);
@@ -38,15 +39,15 @@ export function RsiChart({ series }: { series: SeriesPoint[] }) {
     <ResponsiveContainer width="100%" height="100%">
       <LineChart data={data} margin={{ top: 4, right: 8, left: 0, bottom: 0 }}>
         <YAxis hide domain={[0, 100]} />
-        <ReferenceArea y1={70} y2={100} fill="#FF4D4F" fillOpacity={0.08} />
-        <ReferenceArea y1={0} y2={30} fill="#00D17A" fillOpacity={0.08} />
-        <ReferenceLine y={70} stroke="#FF4D4F" strokeOpacity={0.4} strokeDasharray="3 3" />
-        <ReferenceLine y={30} stroke="#00D17A" strokeOpacity={0.4} strokeDasharray="3 3" />
+        <ReferenceArea y1={70} y2={100} fill={CHART.negative} fillOpacity={0.08} />
+        <ReferenceArea y1={0} y2={30} fill={CHART.positive} fillOpacity={0.08} />
+        <ReferenceLine y={70} stroke={CHART.negative} strokeOpacity={0.4} strokeDasharray="3 3" />
+        <ReferenceLine y={30} stroke={CHART.positive} strokeOpacity={0.4} strokeDasharray="3 3" />
         <ReferenceLine y={50} stroke="rgba(255,255,255,0.18)" />
         <Line
           type="monotone"
           dataKey="rsi"
-          stroke="#A78BFA"
+          stroke={CHART.violet}
           strokeWidth={1.5}
           dot={false}
           isAnimationActive={false}

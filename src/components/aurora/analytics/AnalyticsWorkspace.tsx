@@ -18,7 +18,7 @@ import {
 } from "@/lib/finance/calculations";
 import type { TickerSnapshot } from "@/lib/alphaVantage.types";
 import { GlassCard } from "../GlassCard";
-import { Pill } from "../primitives";
+import { Pill, SegmentedTabs, TickerChips, WorkspaceHeader } from "../primitives";
 import { cn } from "@/lib/utils";
 import { MainPriceChart } from "./MainPriceChart";
 import { RsiChart } from "./RsiChart";
@@ -26,14 +26,15 @@ import { Watchlist } from "./Watchlist";
 import { RiskScoreCard } from "./RiskScoreCard";
 import { AlertEngine } from "./AlertEngine";
 import { Sparkline } from "./Sparkline";
+import { CHART } from "../chartTheme";
 
 const TICKERS = ["AAPL", "MSFT", "NVDA", "TSLA", "AMZN", "GOOGL"] as const;
 const TIMEFRAMES = ["1M", "3M", "6M", "1Y"] as const;
 
 const verdictColor: Record<Verdict, string> = {
-  good: "#00D17A",
-  warn: "#FFB020",
-  bad: "#FF4D4F",
+  good: CHART.positive,
+  warn: CHART.warn,
+  bad: CHART.negative,
   neutral: "rgba(255,255,255,0.5)",
 };
 
@@ -77,9 +78,9 @@ function Metric({
 
 function SourceBadge({ src }: { src: TickerSnapshot["source"] | undefined }) {
   const map = {
-    live: { dot: "#00D17A", label: "Live" },
-    partial: { dot: "#FFB020", label: "Partial" },
-    baseline: { dot: "#A78BFA", label: "Demo" },
+    live: { dot: CHART.positive, label: "Live" },
+    partial: { dot: CHART.warn, label: "Partial" },
+    baseline: { dot: CHART.violet, label: "Demo" },
   } as const;
   const cfg = map[src ?? "baseline"];
   return (
@@ -119,54 +120,41 @@ export function AnalyticsWorkspace() {
   );
 
   const up = (data?.change ?? 0) >= 0;
-  const accent = up ? "#00D17A" : "#FF4D4F";
+  const accent = up ? CHART.positive : CHART.negative;
 
   return (
     <div className="flex min-h-0 flex-1 flex-col">
-      <header className="flex shrink-0 flex-wrap items-center justify-between gap-3">
-        <div className="flex min-w-0 items-center gap-2">
-          <Pill className="!px-4 !py-1.5 !text-[15px] !font-semibold">Analytics</Pill>
-          <SourceBadge src={data?.source} />
-          {data?.rateLimited && (
-            <span className="text-[10px] uppercase tracking-[0.18em] text-[#FFB020]">
-              API throttled
-            </span>
-          )}
-        </div>
-        <div className="flex flex-wrap items-center gap-1.5">
-          {TICKERS.map((t) => (
-            <button
-              key={t}
-              onClick={() => setSymbol(t)}
-              aria-pressed={symbol === t}
-              className={cn(
-                "glass-pill px-2.5 py-1 text-[11px] font-semibold tabular-nums transition",
-                symbol === t ? "bg-white/30 text-white" : "text-white/70 hover:text-white",
-              )}
-            >
-              {t}
-            </button>
-          ))}
-          <span className="mx-1 h-4 w-px bg-white/15" />
-          {TIMEFRAMES.map((t) => (
-            <button
-              key={t}
-              onClick={() => setTf(t)}
-              aria-pressed={tf === t}
-              className={cn(
-                "glass-pill px-2 py-1 text-[10px] font-semibold transition",
-                tf === t ? "bg-white/30 text-white" : "text-white/60",
-              )}
-            >
-              {t}
-            </button>
-          ))}
-        </div>
-      </header>
-      <p className="mt-1 truncate text-[12px] text-white/55">
-        {data?.name ?? symbol} · {data?.sector ?? "—"} ·{" "}
-        {data ? new Date(data.fetchedAt).toLocaleTimeString() : "connecting…"}
-      </p>
+      <WorkspaceHeader
+        title="Analytics"
+        subtitle={`${data?.name ?? symbol} · ${data?.sector ?? "—"} · ${
+          data ? new Date(data.fetchedAt).toLocaleTimeString() : "a ligar…"
+        }`}
+        badge={
+          <>
+            <SourceBadge src={data?.source} />
+            {data?.rateLimited && (
+              <span className="text-[10px] uppercase tracking-[0.18em] text-[var(--aurora-warn)]">
+                API throttled
+              </span>
+            )}
+          </>
+        }
+        right={
+          <SegmentedTabs
+            size="sm"
+            tabs={TIMEFRAMES.map((t) => ({ id: t, label: t }))}
+            active={tf}
+            onSelect={setTf}
+          />
+        }
+      />
+      <div className="mt-3 shrink-0">
+        <TickerChips
+          symbols={TICKERS}
+          active={symbol}
+          onSelect={(s) => setSymbol(s as (typeof TICKERS)[number])}
+        />
+      </div>
 
       <motion.div
         key={symbol}
@@ -195,10 +183,10 @@ export function AnalyticsWorkspace() {
             <div className="flex flex-wrap items-center gap-2">
               <Pill className="!px-3 !py-1 !text-[12px] !font-semibold">Close · {tf}</Pill>
               <span className="flex items-center gap-1 text-[10px] text-white/60">
-                <span className="h-0.5 w-3 rounded-full bg-[#74C7FF]" /> SMA20
+                <span className="h-0.5 w-3 rounded-full bg-[var(--aurora-accent)]" /> SMA20
               </span>
               <span className="flex items-center gap-1 text-[10px] text-white/60">
-                <span className="h-0.5 w-3 rounded-full bg-[#FFB020]" /> SMA50
+                <span className="h-0.5 w-3 rounded-full bg-[var(--aurora-warn)]" /> SMA50
               </span>
             </div>
             <span className="text-[10px] uppercase tracking-[0.25em] text-white/40">
