@@ -18,7 +18,15 @@ import {
   reputationFor,
 } from "@/lib/proofmarket/rules";
 export type OpenTab = "resumo" | "evidencias" | "contraditorio" | "historico";
-import { FeedPane, MessagesPane, ProfilePane, visionGlass } from "./social/VisionPanels";
+import {
+  auroraGlass,
+  ChatView,
+  FeedView,
+  ProfileView,
+  StepControl,
+  type Step,
+} from "./social/AuroraChat";
+import { AnimatePresence, motion } from "framer-motion";
 import { Drawer } from "../primitives";
 import { cn } from "@/lib/utils";
 import { ThesisDrawer } from "./ThesisDrawer";
@@ -35,8 +43,8 @@ type Overlay =
   | { kind: "builder" }
   | { kind: "controls" }
   | { kind: "reputation"; authorId: string }
+  | { kind: "pick"; convId: string }
   | null;
-type Pane = "perfil" | "feed" | "mensagens";
 
 export function ProofMarketWorkspace() {
   return (
@@ -51,16 +59,24 @@ function Workspace() {
   const [tab, setTab] = useState<FeedTab>("paraMim");
   const [query] = useState("");
   const [authorFilter, setAuthorFilter] = useState<string | null>(null);
-  const [pane, setPane] = useState<Pane>("feed");
+  const [step, setStep] = useState<Step>("feed");
+  const [profileId, setProfileId] = useState<string>(ME_ID);
+  const [openConv, setOpenConv] = useState<string | null>(null);
+  const [shareThesis, setShareThesis] = useState<Thesis | null>(null);
   const [overlay, setOverlay] = useState<Overlay>(null);
-  const [toast, setToast] = useState("");
+  const [toastMsg, setToastMsg] = useState<{
+    text: string;
+    action?: { label: string; run: () => void };
+  } | null>(null);
+  const setToast = (text: string, action?: { label: string; run: () => void }) =>
+    setToastMsg(text ? { text, action } : null);
   const today = iso(Date.now());
 
   useEffect(() => {
-    if (!toast) return;
-    const id = window.setTimeout(() => setToast(""), 6000);
+    if (!toastMsg) return;
+    const id = window.setTimeout(() => setToastMsg(null), 6000);
     return () => window.clearTimeout(id);
-  }, [toast]);
+  }, [toastMsg]);
 
   const q = query.trim().toLowerCase();
   const matches = (t: Thesis) =>
@@ -114,98 +130,214 @@ function Workspace() {
         }));
 
   const feedItems = authorFilter ? list.filter((i) => i.thesis.authorId === authorFilter) : list;
-  const share = async (t: Thesis) => {
-    const text = `${t.id} · ${latest(t).claim}`;
-    try {
-      await navigator.clipboard.writeText(text);
-      setToast(`Referência copiada: ${t.id}`);
-    } catch {
-      setToast(`Não foi possível copiar. Referência da tese: ${t.id}`);
-    }
+  const go = (s: Step) => {
+    setStep(s);
+    document.getElementById("ac-stage")?.scrollIntoView({ block: "nearest" });
   };
-  const paneCls = (id: Pane) =>
-    cn(
-      "flex h-[78vh] min-h-0 min-w-0 flex-col lg:h-auto [&>section]:flex-1",
-      pane !== id && "hidden lg:flex",
-    );
+  const toProfile = (authorId: string) => {
+    setProfileId(authorId);
+    setOverlay(null);
+    go("perfil");
+  };
+  const toMessage = (authorId: string) => {
+    setOpenConv(pm.conversationWith(authorId));
+    go("chat");
+  };
+  const unread = pm.conversations
+    .filter((c) => c.folder !== "pedidos")
+    .reduce((n, c) => n + c.unread, 0);
+  const shareTo = (convId: string, t: Thesis) => {
+    pm.sendMessage(convId, "", t.id);
+    const conv = pm.conversations.find((c) => c.id === convId);
+    setShareThesis(null);
+    setToast(`Enviada a ${conv?.name ?? "conversa"}.`, {
+      label: "Abrir chat",
+      run: () => {
+        setOpenConv(convId);
+        go("chat");
+      },
+    });
+  };
 
   return (
-    <div className="relative flex min-h-0 flex-1 flex-col">
+    <div className="relative flex min-h-0 flex-1 flex-col gap-3">
       <div
         aria-live="polite"
-        className="pointer-events-none absolute inset-x-0 top-1 z-30 flex justify-center px-4"
+        className="pointer-events-none absolute inset-x-0 top-[88px] z-40 flex justify-center px-4"
       >
-        {toast ? (
-          <p
-            className="pointer-events-auto flex items-center gap-2 rounded-full px-4 py-2 text-[12px] font-medium text-white"
-            style={visionGlass}
-          >
-            <CheckCircle2 size={14} aria-hidden className="text-[#86efac]" /> {toast}
-          </p>
-        ) : null}
+        <AnimatePresence>
+          {toastMsg ? (
+            <motion.p
+              key={toastMsg.text}
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              className="pointer-events-auto flex items-center gap-3 rounded-full px-4 py-2.5 text-[12.5px] font-medium text-white"
+              style={{ ...auroraGlass, borderRadius: 999, background: "rgba(20,17,15,0.94)" }}
+            >
+              <CheckCircle2 size={15} aria-hidden className="text-[#86efac]" /> {toastMsg.text}
+              {toastMsg.action ? (
+                <button
+                  type="button"
+                  onClick={() => {
+                    toastMsg.action!.run();
+                    setToastMsg(null);
+                  }}
+                  className="font-semibold text-[#93c5fd] hover:underline"
+                >
+                  {toastMsg.action.label}
+                </button>
+              ) : null}
+            </motion.p>
+          ) : null}
+        </AnimatePresence>
       </div>
+
+      <StepControl step={step} onStep={go} unread={unread} />
 
       <div
-        role="tablist"
-        aria-label="Painéis"
-        className="mx-auto mb-3 grid w-full max-w-[420px] grid-cols-3 gap-1 p-1 lg:hidden"
-        style={{ ...visionGlass, borderRadius: 999 }}
+        id="ac-stage"
+        role="tabpanel"
+        aria-labelledby={`ac-step-${step}`}
+        className="flex h-[calc(100dvh-210px)] min-h-[560px] flex-col lg:h-auto lg:min-h-0 lg:flex-1"
       >
-        {(
-          [
-            ["perfil", "Perfil"],
-            ["feed", "Feed"],
-            ["mensagens", "Mensagens"],
-          ] as const
-        ).map(([id, l]) => (
-          <button
-            key={id}
-            role="tab"
-            type="button"
-            aria-selected={pane === id}
-            onClick={() => setPane(id)}
-            className={cn(
-              "rounded-full py-1.5 text-[12px] font-semibold text-white/80",
-              pane === id && "bg-white/30 text-white",
-            )}
+        <AnimatePresence mode="wait" initial={false}>
+          <motion.div
+            key={step}
+            initial={{ opacity: 0, x: 24 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -24 }}
+            transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
+            className="flex min-h-0 flex-1 flex-col"
           >
-            {l}
-          </button>
-        ))}
+            {step === "feed" ? (
+              <FeedView
+                items={feedItems}
+                mode={tab}
+                onMode={setTab}
+                counts={{
+                  paraMim: paraMim.length,
+                  seguindo: seguindo.length,
+                  revisao: revisao.length,
+                }}
+                authorFilter={authorFilter}
+                onAuthor={setAuthorFilter}
+                onOpen={(id, t) => open(id, t ?? "resumo")}
+                onCounter={(id) => setOverlay({ kind: "counter", id })}
+                onReport={(id) => setOverlay({ kind: "report", id })}
+                onCreate={() => setOverlay({ kind: "builder" })}
+                onControls={() => setOverlay({ kind: "controls" })}
+                onProfile={toProfile}
+                onShare={setShareThesis}
+                onNext={() => toProfile(ME_ID)}
+                toast={setToast}
+              />
+            ) : step === "perfil" ? (
+              <ProfileView
+                authorId={profileId}
+                onOpen={(id) => open(id)}
+                onCreate={() => setOverlay({ kind: "builder" })}
+                onReview={(id) => setOverlay({ kind: "review", id })}
+                onMessage={toMessage}
+                onBackToMe={() => setProfileId(ME_ID)}
+                onNext={() => go("chat")}
+                toast={setToast}
+              />
+            ) : (
+              <ChatView
+                openId={openConv}
+                setOpenId={setOpenConv}
+                onOpenThesis={(id) => open(id)}
+                onProfile={toProfile}
+                onShareFromChat={(convId) => setOverlay({ kind: "pick", convId })}
+              />
+            )}
+          </motion.div>
+        </AnimatePresence>
       </div>
 
-      <div className="mx-auto grid w-full max-w-[1240px] min-h-0 flex-1 gap-4 lg:grid-cols-[minmax(0,0.92fr)_minmax(0,1.14fr)_minmax(0,0.92fr)] lg:gap-5">
-        <div className={cn(paneCls("perfil"), "lg:py-7")}>
-          <ProfilePane
-            onOpen={(id) => open(id)}
-            onCreate={() => setOverlay({ kind: "builder" })}
-            onReputation={() => setOverlay({ kind: "reputation", authorId: ME_ID })}
-            onReview={(id) => setOverlay({ kind: "review", id })}
-            onShare={() =>
-              setToast("Perfil de demonstração: a partilha pública fica disponível com servidor.")
-            }
-          />
+      <Drawer
+        open={!!shareThesis}
+        onClose={() => setShareThesis(null)}
+        width={420}
+        title="Partilhar num chat"
+      >
+        <div className="flex flex-col gap-2 p-5">
+          {shareThesis ? (
+            <p className="mb-2 rounded-[14px] bg-white/8 p-3 text-[12.5px] text-white/85">
+              <b className="text-white">{shareThesis.id}</b> · {latest(shareThesis).claim}
+            </p>
+          ) : null}
+          <ul className="flex flex-col gap-1">
+            {pm.authors
+              .filter((a) => a.id !== ME_ID)
+              .map((a) => (
+                <li key={a.id}>
+                  <button
+                    type="button"
+                    onClick={() => shareThesis && shareTo(pm.conversationWith(a.id), shareThesis)}
+                    className="flex w-full items-center gap-3 rounded-[14px] px-3 py-2.5 text-left text-[13px] text-white hover:bg-white/10"
+                  >
+                    <span className="grid h-10 w-10 place-items-center rounded-full bg-white/14 text-[12px] font-semibold">
+                      {a.initials}
+                    </span>
+                    <span className="flex-1">
+                      <span className="block font-semibold">{a.name}</span>
+                      <span className="block text-[11.5px] text-white/60">{a.handle}</span>
+                    </span>
+                    <span className="rounded-full bg-[var(--aurora-accent-strong)] px-3 py-1 text-[11.5px] font-semibold">
+                      Enviar
+                    </span>
+                  </button>
+                </li>
+              ))}
+          </ul>
+          <button
+            type="button"
+            onClick={async () => {
+              if (!shareThesis) return;
+              try {
+                await navigator.clipboard.writeText(
+                  `${shareThesis.id} · ${latest(shareThesis).claim}`,
+                );
+                setToast(`Referência copiada: ${shareThesis.id}`);
+              } catch {
+                setToast(`Referência da tese: ${shareThesis.id}`);
+              }
+              setShareThesis(null);
+            }}
+            className="mt-2 rounded-xl bg-white/10 py-2.5 text-[12.5px] font-semibold text-white hover:bg-white/16"
+          >
+            Copiar referência
+          </button>
         </div>
-        <div className={paneCls("feed")}>
-          <FeedPane
-            items={feedItems}
-            mode={tab}
-            onMode={setTab}
-            counts={{ paraMim: paraMim.length, seguindo: seguindo.length, revisao: revisao.length }}
-            onOpen={(id, t) => open(id, t ?? "resumo")}
-            onCounter={(id) => setOverlay({ kind: "counter", id })}
-            onReport={(id) => setOverlay({ kind: "report", id })}
-            onCreate={() => setOverlay({ kind: "builder" })}
-            onControls={() => setOverlay({ kind: "controls" })}
-            onAuthor={setAuthorFilter}
-            authorFilter={authorFilter}
-            onShare={share}
-          />
-        </div>
-        <div className={cn(paneCls("mensagens"), "lg:py-7")}>
-          <MessagesPane onAuthor={(a) => setOverlay({ kind: "reputation", authorId: a.id })} />
-        </div>
-      </div>
+      </Drawer>
+      <Drawer
+        open={overlay?.kind === "pick"}
+        onClose={() => setOverlay(null)}
+        width={420}
+        title="Escolher tese para partilhar"
+      >
+        <ul className="flex flex-col gap-1 p-5">
+          {pm.theses.map((t) => (
+            <li key={t.id}>
+              <button
+                type="button"
+                onClick={() => {
+                  if (overlay?.kind === "pick") shareTo(overlay.convId, t);
+                  setOverlay(null);
+                }}
+                className="flex w-full flex-col gap-0.5 rounded-[14px] px-3 py-2.5 text-left hover:bg-white/10"
+              >
+                <span className="text-[11.5px] font-semibold text-white/65">
+                  {t.id} · {t.entity.code ?? t.entity.name}
+                </span>
+                <span className="line-clamp-2 text-[13px] text-white">{latest(t).claim}</span>
+              </button>
+            </li>
+          ))}
+        </ul>
+      </Drawer>
 
       <Drawer
         open={overlay?.kind === "controls"}
@@ -248,6 +380,7 @@ function Workspace() {
             `Tese publicada: ${id} · versão 1.0. Não pode ser apagada; pode ser corrigida, arquivada ou revista.`,
           );
           setTab("seguindo");
+          setStep("feed");
           setOverlay({ kind: "thesis", id, tab: "resumo" });
         }}
       />

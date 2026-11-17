@@ -38,7 +38,7 @@ const containerVariants = {
 
 const sectionTitles: Record<string, string> = {
   home: "Notícias",
-  proofmarket: "ProofMarket",
+  proofmarket: "Aurora Chat",
   grid: "Ollympius Dashboard",
   bars: "Analytics",
   benchmarkPage: "Benchmark & Projeções",
@@ -69,7 +69,7 @@ export function DashboardShell({ defaultActive = "home" }: { defaultActive?: str
         aria-hidden
         className="pointer-events-none fixed inset-0 -z-10"
         style={{
-          background: "linear-gradient(180deg, rgba(0,0,0,0.05) 0%, rgba(0,0,0,0.18) 100%)",
+          background: "linear-gradient(180deg, rgba(8,6,5,0.34) 0%, rgba(8,6,5,0.52) 100%)",
         }}
       />
 

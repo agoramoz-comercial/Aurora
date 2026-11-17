@@ -75,7 +75,8 @@ type Action =
   | { type: "addCounter"; counter: CounterThesis }
   | { type: "addReport"; report: Report }
   | { type: "setPrefs"; prefs: FeedPrefs }
-  | { type: "sendMessage"; convId: string; text: string }
+  | { type: "sendMessage"; convId: string; text: string; thesisId?: string }
+  | { type: "startConversation"; conv: Conversation }
   | { type: "readConversation"; convId: string }
   | { type: "moveConversation"; convId: string; folder: Conversation["folder"] | null }
   | { type: "setNote"; note: string };
@@ -123,12 +124,22 @@ function reducer(state: State, a: Action): State {
                 ...c,
                 messages: [
                   ...c.messages,
-                  { id: `m${Date.now()}`, from: "me" as const, text: a.text, at: Date.now() },
+                  {
+                    id: `m${Date.now()}`,
+                    from: "me" as const,
+                    text: a.text,
+                    at: Date.now(),
+                    thesisId: a.thesisId,
+                  },
                 ],
               }
             : c,
         ),
       };
+    case "startConversation":
+      return state.conversations.some((c) => c.id === a.conv.id)
+        ? state
+        : { ...state, conversations: [a.conv, ...state.conversations] };
     case "readConversation":
       return {
         ...state,
@@ -212,7 +223,9 @@ interface Api extends State {
     context: string;
   }) => string;
   setPrefs: (p: FeedPrefs) => void;
-  sendMessage: (convId: string, text: string) => void;
+  sendMessage: (convId: string, text: string, thesisId?: string) => void;
+  /** Returns the id of the existing or new conversation with an author. */
+  conversationWith: (authorId: string) => string;
   readConversation: (convId: string) => void;
   moveConversation: (convId: string, folder: Conversation["folder"] | null) => void;
   setNote: (note: string) => void;
@@ -407,7 +420,28 @@ export function ProofMarketStoreProvider({ children }: { children: ReactNode }) 
       addCounter,
       report,
       setPrefs: (prefs) => dispatch({ type: "setPrefs", prefs }),
-      sendMessage: (convId, text) => dispatch({ type: "sendMessage", convId, text }),
+      sendMessage: (convId, text, thesisId) =>
+        dispatch({ type: "sendMessage", convId, text, thesisId }),
+      conversationWith: (authorId) => {
+        const found = state.conversations.find((c) => c.authorId === authorId);
+        if (found) return found.id;
+        const a = authorsById.get(authorId)!;
+        const id = `dm-${authorId}`;
+        dispatch({
+          type: "startConversation",
+          conv: {
+            id,
+            authorId,
+            name: a.name,
+            initials: a.initials,
+            verified: a.level !== "N1",
+            folder: "principal",
+            unread: 0,
+            messages: [],
+          },
+        });
+        return id;
+      },
       readConversation: (convId) => dispatch({ type: "readConversation", convId }),
       moveConversation: (convId, folder) => dispatch({ type: "moveConversation", convId, folder }),
       setNote: (note) => dispatch({ type: "setNote", note }),

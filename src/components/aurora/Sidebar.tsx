@@ -8,14 +8,14 @@ import {
   Building2,
   FileSpreadsheet,
   Gem,
-  Scale,
+  MessageCircleHeart,
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 
 const items = [
   { id: "home", icon: Home, label: "Notícias" },
-  { id: "proofmarket", icon: Scale, label: "ProofMarket" },
+  { id: "proofmarket", icon: MessageCircleHeart, label: "Aurora Chat" },
   { id: "grid", icon: LayoutGrid, label: "Ollympius Dashboard" },
   { id: "bars", icon: BarChart3, label: "Analytics" },
   { id: "benchmarkPage", icon: Building2, label: "Benchmark & Projeções" },

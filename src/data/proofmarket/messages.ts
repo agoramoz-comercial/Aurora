@@ -8,6 +8,8 @@ export interface Message {
   from: "me" | "them";
   text: string;
   at: number;
+  /** A thesis shared into the chat (Instagram-style "Share to chat"). */
+  thesisId?: string;
 }
 
 export interface Conversation {
