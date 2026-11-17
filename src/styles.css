@@ -146,6 +146,8 @@
 /* ===== Aurora Glass tokens ===== */
 :root {
   --aurora-accent: #4a9eff;
+  /* Accent for filled surfaces with white text: 5.2:1 contrast (WCAG AA). */
+  --aurora-accent-strong: #1d6ad0;
   --aurora-accent-glow: rgba(74, 158, 255, 0.45);
   --aurora-glass-bg: linear-gradient(
     135deg,

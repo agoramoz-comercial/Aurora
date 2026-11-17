@@ -353,7 +353,7 @@ export function AccentBadge({ children, className }: { children: ReactNode; clas
         "hidden items-center gap-1 rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.1em] text-white sm:inline-flex",
         className,
       )}
-      style={{ background: "var(--aurora-accent)", boxShadow: "0 0 14px rgba(74,158,255,0.4)" }}
+      style={{ background: "var(--aurora-accent-strong)", boxShadow: "0 0 14px rgba(74,158,255,0.4)" }}
     >
       {children}
     </span>
@@ -564,15 +564,48 @@ export function Drawer({
 }) {
   const titleId = useId();
   const titleRef = useRef<HTMLHeadingElement>(null);
+  const panelRef = useRef<HTMLElement>(null);
+  const returnTo = useRef<HTMLElement | null>(null);
+
+  /* Remember the trigger so focus can go back to it when the drawer closes. */
+  if (open && !returnTo.current && typeof document !== "undefined") {
+    returnTo.current = document.activeElement as HTMLElement | null;
+  }
 
   useEffect(() => {
     if (!open) return;
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose();
+      if (e.key === "Escape") {
+        e.stopPropagation();
+        onClose();
+        return;
+      }
+      if (e.key !== "Tab" || !panelRef.current) return;
+      /* Keep keyboard focus inside the modal (WCAG 2.4.3). */
+      const nodes = panelRef.current.querySelectorAll<HTMLElement>(
+        'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])',
+      );
+      const list = [...nodes].filter((n) => n.offsetParent !== null || n === document.activeElement);
+      if (!list.length) return;
+      const first = list[0]!;
+      const last = list[list.length - 1]!;
+      const inside = panelRef.current.contains(document.activeElement);
+      if (e.shiftKey && (document.activeElement === first || !inside)) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && (document.activeElement === last || !inside)) {
+        e.preventDefault();
+        first.focus();
+      }
     };
     window.addEventListener("keydown", onKey);
     titleRef.current?.focus();
-    return () => window.removeEventListener("keydown", onKey);
+    return () => {
+      window.removeEventListener("keydown", onKey);
+      const target = returnTo.current;
+      returnTo.current = null;
+      if (target && document.contains(target)) requestAnimationFrame(() => target.focus());
+    };
   }, [open, onClose]);
 
   if (typeof document === "undefined") return null;
@@ -594,6 +627,7 @@ export function Drawer({
             exit={{ opacity: 0, transition: { duration: 0.15 } }}
           />
           <motion.aside
+            ref={panelRef}
             role="dialog"
             aria-modal="true"
             aria-labelledby={titleId}

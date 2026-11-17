@@ -23,6 +23,7 @@ import { BusinessPlanWorkspace } from "./businessPlan/BusinessPlanWorkspace";
 import { BenchmarkWorkspace } from "./benchmark/BenchmarkWorkspace";
 import { TeslaModelWorkspace } from "./teslaModel/TeslaModelWorkspace";
 import { MarketplaceWorkspace } from "./marketplace/MarketplaceWorkspace";
+import { ProofMarketWorkspace } from "./proofmarket/ProofMarketWorkspace";
 import { MarketplaceStoreProvider } from "@/data/marketplaceStore";
 import { PortfolioStoreProvider } from "@/data/portfolioStore";
 import { cn } from "@/lib/utils";
@@ -37,6 +38,7 @@ const containerVariants = {
 
 const sectionTitles: Record<string, string> = {
   home: "Notícias",
+  proofmarket: "ProofMarket",
   grid: "Ollympius Dashboard",
   bars: "Analytics",
   benchmarkPage: "Benchmark & Projeções",
@@ -111,6 +113,8 @@ export function DashboardShell({ defaultActive = "home" }: { defaultActive?: str
                 >
                   {active === "home" ? (
                     <HomeWorkspace />
+                  ) : active === "proofmarket" ? (
+                    <ProofMarketWorkspace />
                   ) : active === "bars" ? (
                     <AnalyticsWorkspace />
                   ) : active === "benchmarkPage" ? (
