@@ -4,45 +4,27 @@
  * UF-08 report, UF-09 review. No orders, custody, copy trading or advice.
  */
 import { useEffect, useMemo, useState } from "react";
-import {
-  CheckCircle2,
-  Clock3,
-  Flag,
-  Gauge,
-  Inbox,
-  Plus,
-  Scale,
-  SlidersHorizontal,
-  Sparkles,
-  Users,
-} from "lucide-react";
-import {
-  AccentBadge,
-  EmptyState,
-  Pill,
-  SearchField,
-  SectionLabel,
-  SegmentedTabs,
-  StatTile,
-  WorkspaceHeader,
-} from "../primitives";
+import { CheckCircle2, Flag, Gauge, Scale, SlidersHorizontal } from "lucide-react";
+import { SectionLabel } from "../primitives";
 import { DEFAULT_PREFS, ProofMarketStoreProvider, useProofMarket } from "@/data/proofmarket/store";
 import { ME_ID } from "@/data/proofmarket/seed";
 import type { FeedPrefs, Thesis } from "@/data/proofmarket/types";
 import {
   daysBetween,
-  evidenceQuality,
   formatDate,
   iso,
   latest,
   rankFeed,
   reputationFor,
 } from "@/lib/proofmarket/rules";
-import { ThesisCard, type OpenTab } from "./ThesisCard";
+export type OpenTab = "resumo" | "evidencias" | "contraditorio" | "historico";
+import { FeedPane, MessagesPane, ProfilePane, visionGlass } from "./social/VisionPanels";
+import { Drawer } from "../primitives";
+import { cn } from "@/lib/utils";
 import { ThesisDrawer } from "./ThesisDrawer";
 import { ThesisBuilder } from "./ThesisBuilder";
 import { CounterBuilder, ReportDrawer, ReviewDrawer } from "./FlowDrawers";
-import { GhostButton, LevelTag, PrimaryButton, Tag } from "./atoms";
+import { GhostButton, LevelTag, Tag } from "./atoms";
 
 type FeedTab = "paraMim" | "seguindo" | "revisao";
 type Overlay =
@@ -51,7 +33,10 @@ type Overlay =
   | { kind: "report"; id: string }
   | { kind: "review"; id: string }
   | { kind: "builder" }
+  | { kind: "controls" }
+  | { kind: "reputation"; authorId: string }
   | null;
+type Pane = "perfil" | "feed" | "mensagens";
 
 export function ProofMarketWorkspace() {
   return (
@@ -64,7 +49,9 @@ export function ProofMarketWorkspace() {
 function Workspace() {
   const pm = useProofMarket();
   const [tab, setTab] = useState<FeedTab>("paraMim");
-  const [query, setQuery] = useState("");
+  const [query] = useState("");
+  const [authorFilter, setAuthorFilter] = useState<string | null>(null);
+  const [pane, setPane] = useState<Pane>("feed");
   const [overlay, setOverlay] = useState<Overlay>(null);
   const [toast, setToast] = useState("");
   const today = iso(Date.now());
@@ -114,14 +101,6 @@ function Workspace() {
     )
     .sort((a, b) => a.reviewDue.localeCompare(b.reviewDue));
 
-  const myDue = pm.theses.filter(
-    (t) => t.authorId === ME_ID && t.status === "ativa" && daysBetween(t.reviewDue, today) >= -7,
-  );
-  const active = pm.theses.filter((t) => t.status === "ativa");
-  const withCounter = active.filter((t) => pm.allCounters.some((c) => c.thesisId === t.id)).length;
-  const allSources = pm.theses.flatMap((t) => latest(t).sources);
-  const strong = pm.theses.reduce((n, t) => n + evidenceQuality(latest(t)).strong, 0);
-
   const open = (id: string, t: OpenTab = "resumo") => setOverlay({ kind: "thesis", id, tab: t });
   const list =
     tab === "paraMim"
@@ -134,172 +113,125 @@ function Workspace() {
               : ["Revisão devida, em atraso ou feita nos últimos 90 dias."],
         }));
 
-  return (
-    <div className="flex min-h-0 flex-1 flex-col">
-      <WorkspaceHeader
-        title="ProofMarket"
-        subtitle="Rede de investigação financeira · cada tese traz fontes, conflitos, cenários e data de revisão"
-        badge={<AccentBadge>Teses auditáveis</AccentBadge>}
-        right={
-          <>
-            <Pill className="hidden md:inline-flex" tone="mute">
-              Dados de demonstração
-            </Pill>
-            <PrimaryButton icon={Plus} onClick={() => setOverlay({ kind: "builder" })}>
-              Criar tese
-            </PrimaryButton>
-          </>
-        }
-      />
+  const feedItems = authorFilter ? list.filter((i) => i.thesis.authorId === authorFilter) : list;
+  const share = async (t: Thesis) => {
+    const text = `${t.id} · ${latest(t).claim}`;
+    try {
+      await navigator.clipboard.writeText(text);
+      setToast(`Referência copiada: ${t.id}`);
+    } catch {
+      setToast(`Não foi possível copiar. Referência da tese: ${t.id}`);
+    }
+  };
+  const paneCls = (id: Pane) =>
+    cn(
+      "flex h-[78vh] min-h-0 min-w-0 flex-col lg:h-auto [&>section]:flex-1",
+      pane !== id && "hidden lg:flex",
+    );
 
-      <div aria-live="polite" className="min-h-0">
+  return (
+    <div className="relative flex min-h-0 flex-1 flex-col">
+      <div
+        aria-live="polite"
+        className="pointer-events-none absolute inset-x-0 top-1 z-30 flex justify-center px-4"
+      >
         {toast ? (
           <p
-            className="mt-3 flex items-center gap-2 rounded-[12px] px-3 py-2 text-[12px] text-[#86efac]"
-            style={{ background: "rgba(74,222,128,0.1)", border: "1px solid rgba(74,222,128,0.3)" }}
+            className="pointer-events-auto flex items-center gap-2 rounded-full px-4 py-2 text-[12px] font-medium text-white"
+            style={visionGlass}
           >
-            <CheckCircle2 size={14} aria-hidden /> {toast}
+            <CheckCircle2 size={14} aria-hidden className="text-[#86efac]" /> {toast}
           </p>
         ) : null}
       </div>
 
-      <div className="thin-scrollbar mt-3 min-h-0 flex-1 overflow-y-auto pr-0.5">
-        <div className="grid grid-cols-2 gap-2.5 lg:grid-cols-4">
-          <StatTile
-            label="Teses ativas"
-            value={active.length}
-            footnote={`${pm.theses.length} no total, com histórico`}
-          />
-          <StatTile
-            label="Com contraditório"
-            value={`${active.length ? Math.round((withCounter / active.length) * 100) : 0}%`}
-            footnote="Teses ativas com ≥ 1 contra-tese"
-          />
-          <StatTile
-            label="Fontes fortes"
-            value={`${allSources.length ? Math.round((strong / allSources.length) * 100) : 0}%`}
-            footnote="Primárias ou oficiais, datadas"
-          />
-          <StatTile
-            label="As suas revisões"
-            value={myDue.length}
-            accent={myDue.length > 0}
-            footnote={myDue.length ? "Revisão devida agora" : "Nada pendente"}
+      <div
+        role="tablist"
+        aria-label="Painéis"
+        className="mx-auto mb-3 grid w-full max-w-[420px] grid-cols-3 gap-1 p-1 lg:hidden"
+        style={{ ...visionGlass, borderRadius: 999 }}
+      >
+        {(
+          [
+            ["perfil", "Perfil"],
+            ["feed", "Feed"],
+            ["mensagens", "Mensagens"],
+          ] as const
+        ).map(([id, l]) => (
+          <button
+            key={id}
+            role="tab"
+            type="button"
+            aria-selected={pane === id}
+            onClick={() => setPane(id)}
+            className={cn(
+              "rounded-full py-1.5 text-[12px] font-semibold text-white/80",
+              pane === id && "bg-white/30 text-white",
+            )}
+          >
+            {l}
+          </button>
+        ))}
+      </div>
+
+      <div className="mx-auto grid w-full max-w-[1240px] min-h-0 flex-1 gap-4 lg:grid-cols-[minmax(0,0.92fr)_minmax(0,1.14fr)_minmax(0,0.92fr)] lg:gap-5">
+        <div className={cn(paneCls("perfil"), "lg:py-7")}>
+          <ProfilePane
+            onOpen={(id) => open(id)}
+            onCreate={() => setOverlay({ kind: "builder" })}
+            onReputation={() => setOverlay({ kind: "reputation", authorId: ME_ID })}
+            onReview={(id) => setOverlay({ kind: "review", id })}
+            onShare={() =>
+              setToast("Perfil de demonstração: a partilha pública fica disponível com servidor.")
+            }
           />
         </div>
-
-        <div className="mt-4 grid gap-4 pb-2 lg:grid-cols-[minmax(0,1fr)_300px] lg:items-start">
-          <div className="flex min-w-0 flex-col gap-3">
-            <div className="flex flex-wrap items-center gap-2">
-              <SegmentedTabs
-                active={tab}
-                onSelect={setTab}
-                tabs={[
-                  { id: "paraMim", label: "Para mim", icon: Sparkles, count: paraMim.length },
-                  { id: "seguindo", label: "Seguindo", icon: Users, count: seguindo.length },
-                  { id: "revisao", label: "Revisão", icon: Clock3, count: revisao.length },
-                ]}
-              />
-              <SearchField
-                value={query}
-                onChange={setQuery}
-                placeholder="Pesquisar entidade, tema ou autor…"
-                className="min-w-[200px] flex-1"
-              />
-            </div>
-            <p className="text-[11px] text-white/45">
-              {tab === "paraMim"
-                ? pm.prefs.chronological
-                  ? "Ordem cronológica, sem ranking."
-                  : "Ordenado por qualidade das fontes, atualidade e diversidade de perspetivas. Nunca por tempo de leitura."
-                : tab === "seguindo"
-                  ? "Ordem cronológica estrita das teses e autores que segue."
-                  : "Teses com revisão devida, em atraso ou revistas recentemente."}
-              {pm.hidden.length ? (
-                <>
-                  {" "}
-                  <button
-                    type="button"
-                    className="font-semibold text-[var(--aurora-accent)] hover:underline"
-                    onClick={() => pm.hidden.forEach((id) => pm.toggleHidden(id))}
-                  >
-                    Mostrar {pm.hidden.length} oculta{pm.hidden.length > 1 ? "s" : ""}
-                  </button>
-                </>
-              ) : null}
-            </p>
-
-            {list.length ? (
-              <div className="flex flex-col gap-2.5">
-                {list.map(({ thesis, reasons }, i) => (
-                  <ThesisCard
-                    key={thesis.id}
-                    thesis={thesis}
-                    reasons={reasons}
-                    index={i}
-                    onOpen={open}
-                    onCounter={(id) => setOverlay({ kind: "counter", id })}
-                    onReport={(id) => setOverlay({ kind: "report", id })}
-                  />
-                ))}
-              </div>
-            ) : (
-              <EmptyState
-                icon={Inbox}
-                title={
-                  q
-                    ? "Nenhuma tese corresponde à pesquisa"
-                    : tab === "seguindo"
-                      ? "Ainda não segue nenhuma tese"
-                      : "Nada para rever"
-                }
-                hint={
-                  q
-                    ? "Tente outro nome, código ou tema."
-                    : tab === "seguindo"
-                      ? "Use Seguir num cartão para acompanhar revisões e contra-teses."
-                      : "Teses com revisão devida aparecem aqui."
-                }
-                action={
-                  q ? (
-                    <button
-                      type="button"
-                      onClick={() => setQuery("")}
-                      className="mt-1 rounded-full bg-white/10 px-3 py-1.5 text-[11px] font-semibold text-white/80 hover:bg-white/16"
-                    >
-                      Limpar pesquisa
-                    </button>
-                  ) : tab !== "paraMim" ? (
-                    <button
-                      type="button"
-                      onClick={() => setTab("paraMim")}
-                      className="mt-1 rounded-full bg-white/10 px-3 py-1.5 text-[11px] font-semibold text-white/80 hover:bg-white/16"
-                    >
-                      Ver Para mim
-                    </button>
-                  ) : undefined
-                }
-              />
-            )}
-          </div>
-
-          <aside className="flex min-w-0 flex-col gap-3 lg:sticky lg:top-0">
-            <DuePanel
-              due={myDue}
-              onReview={(id) => setOverlay({ kind: "review", id })}
-              onOpen={open}
-            />
-            <ReputationPanel />
-            <FeedControls prefs={pm.prefs} onChange={pm.setPrefs} />
-            <ReportsPanel />
-            <p className="px-1 text-[10.5px] leading-relaxed text-white/38">
-              A ProofMarket não executa ordens, não guarda ativos, não faz copy trading e não dá
-              aconselhamento financeiro. Os badges dizem apenas o que foi verificado.
-            </p>
-          </aside>
+        <div className={paneCls("feed")}>
+          <FeedPane
+            items={feedItems}
+            mode={tab}
+            onMode={setTab}
+            counts={{ paraMim: paraMim.length, seguindo: seguindo.length, revisao: revisao.length }}
+            onOpen={(id, t) => open(id, t ?? "resumo")}
+            onCounter={(id) => setOverlay({ kind: "counter", id })}
+            onReport={(id) => setOverlay({ kind: "report", id })}
+            onCreate={() => setOverlay({ kind: "builder" })}
+            onControls={() => setOverlay({ kind: "controls" })}
+            onAuthor={setAuthorFilter}
+            authorFilter={authorFilter}
+            onShare={share}
+          />
+        </div>
+        <div className={cn(paneCls("mensagens"), "lg:py-7")}>
+          <MessagesPane onAuthor={(a) => setOverlay({ kind: "reputation", authorId: a.id })} />
         </div>
       </div>
 
+      <Drawer
+        open={overlay?.kind === "controls"}
+        onClose={() => setOverlay(null)}
+        width={440}
+        title="Controlo do feed"
+      >
+        <div className="flex flex-col gap-3 p-5">
+          <FeedControls prefs={pm.prefs} onChange={pm.setPrefs} />
+          <ReportsPanel />
+          <p className="text-[11px] text-white/50">
+            O feed nunca é ordenado por tempo de leitura. Likes e seguidores não contam para a
+            reputação.
+          </p>
+        </div>
+      </Drawer>
+      <Drawer
+        open={overlay?.kind === "reputation"}
+        onClose={() => setOverlay(null)}
+        width={440}
+        title="Reputação por domínio"
+      >
+        <div className="flex flex-col gap-3 p-5">
+          {overlay?.kind === "reputation" ? <ReputationPanel initial={overlay.authorId} /> : null}
+        </div>
+      </Drawer>
       <ThesisDrawer
         thesisId={overlay?.kind === "thesis" ? overlay.id : null}
         initialTab={overlay?.kind === "thesis" ? overlay.tab : "resumo"}
@@ -364,61 +296,9 @@ function RailCard({
   );
 }
 
-function DuePanel({
-  due,
-  onReview,
-  onOpen,
-}: {
-  due: Thesis[];
-  onReview: (id: string) => void;
-  onOpen: (id: string) => void;
-}) {
-  const today = iso(Date.now());
-  return (
-    <RailCard title="As suas revisões" icon={Clock3}>
-      {due.length ? (
-        <ul className="flex flex-col gap-2">
-          {due.map((t) => {
-            const late = daysBetween(t.reviewDue, today);
-            return (
-              <li
-                key={t.id}
-                className="flex flex-col gap-1.5 rounded-[12px] p-2.5"
-                style={{ background: "var(--aurora-surface-1)" }}
-              >
-                <button
-                  type="button"
-                  onClick={() => onOpen(t.id)}
-                  className="text-left text-[12px] font-semibold leading-snug text-white/90 hover:underline"
-                >
-                  {latest(t).claim.slice(0, 90)}…
-                </button>
-                <div className="flex items-center justify-between gap-2">
-                  <Tag tone={late > 0 ? "warn" : "accent"}>
-                    {late > 0
-                      ? `Devida há ${late} dia${late > 1 ? "s" : ""}`
-                      : late === 0
-                        ? "Devida hoje"
-                        : `Em ${-late} dias`}
-                  </Tag>
-                  <GhostButton onClick={() => onReview(t.id)}>Rever</GhostButton>
-                </div>
-              </li>
-            );
-          })}
-        </ul>
-      ) : (
-        <p className="text-[11.5px] text-white/50">
-          Nenhuma revisão devida. Crédito por rever no prazo conta para a sua reputação.
-        </p>
-      )}
-    </RailCard>
-  );
-}
-
-function ReputationPanel() {
+function ReputationPanel({ initial = "ines" }: { initial?: string }) {
   const pm = useProofMarket();
-  const [authorId, setAuthorId] = useState("ines");
+  const [authorId, setAuthorId] = useState(initial);
   const author = pm.getAuthor(authorId);
   const dims = reputationFor(author, pm.theses);
   return (

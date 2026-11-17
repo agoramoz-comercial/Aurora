@@ -468,3 +468,22 @@ export function reputationFor(author: Author, theses: Thesis[]): Dimension[] {
     },
   ];
 }
+
+/* ── Direct-message safety (SEC-031, MOD-010) ────────────────────────── */
+
+const SCAM_PATTERNS: [RegExp, string][] = [
+  [
+    /\b(m-?pesa|e-?mola|mkesh|transfer[êe]ncia|dep[óo]sito|envie?\s+\d+\s*(mt|mzn|meticais|usd|\$))/i,
+    "pedido de dinheiro",
+  ],
+  [/\b(grupo|canal|sinais?)\s+vip\b/i, "venda de sinais"],
+  [/\bwhats\s?app\b|\btelegram\b/i, "contacto fora da plataforma"],
+];
+
+/** Returns the reasons a message looks like a scam, empty when it looks safe. */
+export function scamSignals(text: string): string[] {
+  const out = SCAM_PATTERNS.filter(([re]) => re.test(text)).map(([, l]) => l);
+  out.push(...findPromises(text));
+  if (PERSONAL_DATA.test(text)) out.push("contacto pessoal");
+  return [...new Set(out)];
+}

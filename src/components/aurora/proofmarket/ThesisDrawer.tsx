@@ -77,7 +77,9 @@ export function ThesisDrawer({
   if (current) last.current = current;
   const t = current ?? last.current;
   const [tab, setTab] = useState<Tab>(initialTab as Tab);
-  useEffect(() => setTab(initialTab as Tab), [thesisId, initialTab]);
+  useEffect(() => {
+    setTab(initialTab as Tab);
+  }, [thesisId, initialTab]);
 
   return (
     <Drawer

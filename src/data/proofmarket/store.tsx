@@ -14,6 +14,7 @@ import {
 } from "react";
 import { iso, latest } from "@/lib/proofmarket/rules";
 import { AUTHORS, ME_ID, SEED_COUNTERS, SEED_THESES } from "./seed";
+import { SEED_CONVERSATIONS, type Conversation } from "./messages";
 import type {
   Author,
   CounterThesis,
@@ -27,7 +28,7 @@ import type {
   ThesisVersion,
 } from "./types";
 
-const STORAGE_KEY = "ollympius.proofmarket.v1";
+const STORAGE_KEY = "ollympius.proofmarket.v2";
 
 interface State {
   created: Thesis[];
@@ -40,6 +41,8 @@ interface State {
   reports: Report[];
   hidden: string[];
   prefs: FeedPrefs;
+  conversations: Conversation[];
+  myNote: string;
 }
 
 export const DEFAULT_PREFS: FeedPrefs = {
@@ -54,12 +57,14 @@ const EMPTY: State = {
   overrides: {},
   counters: [],
   reactions: {},
-  saved: [],
-  followed: ["THS-0102"],
+  saved: ["THS-0101", "THS-0105"],
+  followed: ["THS-0102", "THS-0101", "THS-0104", "THS-0105", "THS-0106", "THS-0107"],
   followedAuthors: ["rui"],
   reports: [],
   hidden: [],
   prefs: DEFAULT_PREFS,
+  conversations: SEED_CONVERSATIONS,
+  myNote: "",
 };
 
 type Action =
@@ -69,7 +74,11 @@ type Action =
   | { type: "toggleList"; key: "saved" | "followed" | "followedAuthors" | "hidden"; id: string }
   | { type: "addCounter"; counter: CounterThesis }
   | { type: "addReport"; report: Report }
-  | { type: "setPrefs"; prefs: FeedPrefs };
+  | { type: "setPrefs"; prefs: FeedPrefs }
+  | { type: "sendMessage"; convId: string; text: string }
+  | { type: "readConversation"; convId: string }
+  | { type: "moveConversation"; convId: string; folder: Conversation["folder"] | null }
+  | { type: "setNote"; note: string };
 
 function reducer(state: State, a: Action): State {
   switch (a.type) {
@@ -105,6 +114,40 @@ function reducer(state: State, a: Action): State {
       return { ...state, reports: [a.report, ...state.reports] };
     case "setPrefs":
       return { ...state, prefs: a.prefs };
+    case "sendMessage":
+      return {
+        ...state,
+        conversations: state.conversations.map((c) =>
+          c.id === a.convId
+            ? {
+                ...c,
+                messages: [
+                  ...c.messages,
+                  { id: `m${Date.now()}`, from: "me" as const, text: a.text, at: Date.now() },
+                ],
+              }
+            : c,
+        ),
+      };
+    case "readConversation":
+      return {
+        ...state,
+        conversations: state.conversations.map((c) =>
+          c.id === a.convId ? { ...c, unread: 0 } : c,
+        ),
+      };
+    case "moveConversation":
+      return {
+        ...state,
+        conversations:
+          a.folder === null
+            ? state.conversations.filter((c) => c.id !== a.convId)
+            : state.conversations.map((c) =>
+                c.id === a.convId ? { ...c, folder: a.folder as Conversation["folder"] } : c,
+              ),
+      };
+    case "setNote":
+      return { ...state, myNote: a.note };
   }
 }
 
@@ -118,6 +161,7 @@ function load(): State {
       ...p,
       prefs: { ...DEFAULT_PREFS, ...(p.prefs ?? {}) },
       overrides: p.overrides && typeof p.overrides === "object" ? p.overrides : {},
+      conversations: Array.isArray(p.conversations) ? p.conversations : SEED_CONVERSATIONS,
     };
   } catch {
     return EMPTY;
@@ -168,6 +212,10 @@ interface Api extends State {
     context: string;
   }) => string;
   setPrefs: (p: FeedPrefs) => void;
+  sendMessage: (convId: string, text: string) => void;
+  readConversation: (convId: string) => void;
+  moveConversation: (convId: string, folder: Conversation["folder"] | null) => void;
+  setNote: (note: string) => void;
 }
 
 const Ctx = createContext<Api | null>(null);
@@ -359,6 +407,10 @@ export function ProofMarketStoreProvider({ children }: { children: ReactNode }) 
       addCounter,
       report,
       setPrefs: (prefs) => dispatch({ type: "setPrefs", prefs }),
+      sendMessage: (convId, text) => dispatch({ type: "sendMessage", convId, text }),
+      readConversation: (convId) => dispatch({ type: "readConversation", convId }),
+      moveConversation: (convId, folder) => dispatch({ type: "moveConversation", convId, folder }),
+      setNote: (note) => dispatch({ type: "setNote", note }),
     }),
     [
       state,

@@ -87,8 +87,11 @@ export function DashboardShell({ defaultActive = "home" }: { defaultActive?: str
             initial={{ opacity: 0, scale: 0.985 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-            className="glass flex min-w-0 flex-1 flex-col p-4 md:p-5 lg:min-h-0"
-            style={{ borderRadius: 28 }}
+            className={cn(
+              "flex min-w-0 flex-1 flex-col lg:min-h-0",
+              active !== "proofmarket" && "glass p-4 md:p-5",
+            )}
+            style={active === "proofmarket" ? undefined : { borderRadius: 28 }}
           >
             <AnimatePresence mode="wait">
               {active === "grid" ? (
