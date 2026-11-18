@@ -51,6 +51,16 @@ const sectionTitles: Record<string, string> = {
 
 export function DashboardShell({ defaultActive = "home" }: { defaultActive?: string }) {
   const [active, setActive] = useState(defaultActive);
+  const [chatOpen, setChatOpen] = useState<{ step: "feed" | "chat"; n: number }>({
+    step: "feed",
+    n: 0,
+  });
+  const openTarget = (target: string) => {
+    const [id, step] = target.split(":");
+    if (id === "proofmarket")
+      setChatOpen((c) => ({ step: step === "chat" ? "chat" : "feed", n: c.n + 1 }));
+    setActive(id!);
+  };
 
   return (
     <div
@@ -117,7 +127,7 @@ export function DashboardShell({ defaultActive = "home" }: { defaultActive?: str
                   {active === "home" ? (
                     <HomeWorkspace />
                   ) : active === "proofmarket" ? (
-                    <ProofMarketWorkspace />
+                    <ProofMarketWorkspace key={chatOpen.n} initialStep={chatOpen.step} />
                   ) : active === "bars" ? (
                     <AnalyticsWorkspace />
                   ) : active === "benchmarkPage" ? (
@@ -144,7 +154,7 @@ export function DashboardShell({ defaultActive = "home" }: { defaultActive?: str
         </div>
 
         <div className="hidden shrink-0 justify-center sm:flex">
-          <BottomDock />
+          <BottomDock onOpen={openTarget} active={active} />
         </div>
       </main>
     </div>
@@ -167,7 +177,66 @@ function EmptyEnvironment({ title }: { title: string }) {
   );
 }
 
+function InlineAdd({
+  label,
+  placeholder,
+  onAdd,
+}: {
+  label: string;
+  placeholder: string;
+  onAdd: (v: string) => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const [v, setV] = useState("");
+  if (!open)
+    return (
+      <button
+        type="button"
+        aria-label={label}
+        onClick={() => setOpen(true)}
+        className="glass-soft grid h-7 w-7 place-items-center text-white/80 hover:bg-white/25"
+      >
+        <Plus size={14} />
+      </button>
+    );
+  return (
+    <form
+      className="flex items-center gap-1"
+      onSubmit={(e) => {
+        e.preventDefault();
+        if (v.trim()) onAdd(v.trim());
+        setV("");
+        setOpen(false);
+      }}
+    >
+      <label className="sr-only" htmlFor={`add-${label}`}>
+        {label}
+      </label>
+      <input
+        id={`add-${label}`}
+        autoFocus
+        value={v}
+        maxLength={40}
+        onChange={(e) => setV(e.target.value)}
+        onKeyDown={(e) => {
+          if (e.key === "Escape") setOpen(false);
+        }}
+        placeholder={placeholder}
+        className="w-32 rounded-full bg-black/35 px-2.5 py-1 text-[11px] text-white placeholder:text-white/50 outline-none focus:ring-2 focus:ring-white/60"
+      />
+      <button
+        type="submit"
+        className="rounded-full bg-[var(--aurora-accent-strong)] px-2.5 py-1 text-[11px] font-semibold text-white"
+      >
+        Adicionar
+      </button>
+    </form>
+  );
+}
+
 function OverviewContent() {
+  const [goalList, setGoalList] = useState(goals);
+  const [team, setTeam] = useState(teamMembers);
   return (
     <>
       <WorkspaceHeader
@@ -265,15 +334,19 @@ function OverviewContent() {
         <GlassCard className="lg:h-full lg:min-h-0 !p-4">
           <div className="flex shrink-0 items-center justify-between">
             <Pill className="!px-3 !py-1 !text-[12px] !font-semibold">Goals</Pill>
-            <button
-              aria-label="Add goal"
-              className="glass-soft grid h-7 w-7 place-items-center text-white/80 hover:bg-white/25"
-            >
-              <Plus size={14} />
-            </button>
+            <InlineAdd
+              label="Add goal"
+              placeholder="Novo objetivo"
+              onAdd={(label) =>
+                setGoalList((g) => [
+                  ...g,
+                  { id: `g${Date.now()}`, label, progress: 0, value: "0%" },
+                ])
+              }
+            />
           </div>
           <ul className="mt-3 flex min-h-0 flex-1 flex-col justify-around gap-2">
-            {goals.map((g) => (
+            {goalList.map((g) => (
               <li key={g.id} className="flex flex-col gap-1.5">
                 <div className="flex items-center justify-between text-[11px]">
                   <span className="text-white/80">{g.label}</span>
@@ -288,15 +361,30 @@ function OverviewContent() {
         <GlassCard className="lg:h-full lg:min-h-0 !p-4">
           <div className="flex shrink-0 items-center justify-between">
             <Pill className="!px-3 !py-1 !text-[12px] !font-semibold">Team</Pill>
-            <button
-              aria-label="Add member"
-              className="glass-soft grid h-7 w-7 place-items-center text-white/80 hover:bg-white/25"
-            >
-              <Plus size={14} />
-            </button>
+            <InlineAdd
+              label="Add member"
+              placeholder="Nome do membro"
+              onAdd={(name) =>
+                setTeam((t) => [
+                  ...t,
+                  {
+                    id: `t${Date.now()}`,
+                    initials: name
+                      .split(" ")
+                      .map((w) => w[0] ?? "")
+                      .join("")
+                      .slice(0, 2)
+                      .toUpperCase(),
+                    name,
+                    note: "Convite pendente",
+                    value: "Novo",
+                  },
+                ])
+              }
+            />
           </div>
           <ul className="mt-2 flex min-h-0 flex-1 flex-col gap-1 overflow-hidden">
-            {teamMembers.map((m) => {
+            {team.map((m) => {
               const selected = m.id === teamSelectedId;
               return (
                 <li

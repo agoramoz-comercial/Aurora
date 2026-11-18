@@ -46,20 +46,20 @@ type Overlay =
   | { kind: "pick"; convId: string }
   | null;
 
-export function ProofMarketWorkspace() {
+export function ProofMarketWorkspace({ initialStep = "feed" }: { initialStep?: Step }) {
   return (
     <ProofMarketStoreProvider>
-      <Workspace />
+      <Workspace initialStep={initialStep} />
     </ProofMarketStoreProvider>
   );
 }
 
-function Workspace() {
+function Workspace({ initialStep }: { initialStep: Step }) {
   const pm = useProofMarket();
   const [tab, setTab] = useState<FeedTab>("paraMim");
   const [query] = useState("");
   const [authorFilter, setAuthorFilter] = useState<string | null>(null);
-  const [step, setStep] = useState<Step>("feed");
+  const [step, setStep] = useState<Step>(initialStep);
   const [profileId, setProfileId] = useState<string>(ME_ID);
   const [openConv, setOpenConv] = useState<string | null>(null);
   const [shareThesis, setShareThesis] = useState<Thesis | null>(null);
