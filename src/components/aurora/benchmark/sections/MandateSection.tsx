@@ -28,14 +28,14 @@ function LimitCard({
     <Rise>
       <div className="glass flex h-full flex-col gap-2 p-3.5">
         <div className="flex items-center justify-between gap-2">
-          <span className="truncate text-[10px] font-semibold uppercase tracking-[0.12em] text-white/50">
+          <span className="truncate text-micro font-semibold uppercase tracking-[0.12em] text-white/50">
             {label}
           </span>
           <LevelChip level={level} compact />
         </div>
         <div className="flex items-baseline justify-between gap-2">
           <span className="text-[18px] font-semibold tabular-nums text-white">{value}</span>
-          <span className="text-[10px] text-white/45">{limit}</span>
+          <span className="text-micro text-white/45">{limit}</span>
         </div>
         <RevealBar
           value={Math.min(1, usage / 1.5)}
@@ -84,7 +84,7 @@ export function MandateSection({
             { k: "Moeda-base", v: "USD" },
           ].map((x) => (
             <div key={x.k}>
-              <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-white/45">
+              <p className="text-micro font-semibold uppercase tracking-[0.12em] text-white/45">
                 {x.k}
               </p>
               <p className="text-[16px] font-semibold tabular-nums text-white">{x.v}</p>
@@ -149,7 +149,7 @@ export function MandateSection({
                     )}
                     {l.label}
                   </p>
-                  <p className="truncate text-[10px] text-white/45">{l.question}</p>
+                  <p className="truncate text-micro text-white/45">{l.question}</p>
                 </div>
                 <div className="hidden text-right sm:block">
                   <p className="text-[13px] font-semibold tabular-nums text-white">
@@ -166,7 +166,7 @@ export function MandateSection({
                       <span
                         key={c.key}
                         title={`${c.label}: ${l.samurai[i] ? "cumpre" : "não cumpre"}`}
-                        className="grid h-4 w-4 place-items-center rounded-[4px] text-[8px] font-bold"
+                        className="grid h-4 w-4 place-items-center rounded-[4px] text-micro font-bold"
                         style={{
                           background: l.samurai[i]
                             ? "rgba(74,222,128,0.18)"
@@ -179,7 +179,7 @@ export function MandateSection({
                     ))}
                   </div>
                   <span
-                    className="text-[9px] font-semibold"
+                    className="text-micro font-semibold"
                     style={{ color: l.needsReview ? CHART.warn : "rgba(255,255,255,0.45)" }}
                   >
                     {l.needsReview ? "Revisão do Comité" : `Qualidade ${l.samuraiScore}/7`}
@@ -232,11 +232,11 @@ export function MandateSection({
             </ResponsiveContainer>
             <div className="pointer-events-none absolute inset-0 grid place-items-center text-center">
               <div>
-                <p className="text-[9px] uppercase tracking-[0.12em] text-white/45">Maior desvio</p>
+                <p className="text-micro uppercase tracking-[0.12em] text-white/45">Maior desvio</p>
                 <p className="text-[14px] font-bold tabular-nums text-white">
                   {pp(model.maxDrift.delta)}
                 </p>
-                <p className="text-[9px] text-white/50">{model.maxDrift.short}</p>
+                <p className="text-micro text-white/50">{model.maxDrift.short}</p>
               </div>
             </div>
           </div>

@@ -206,11 +206,11 @@ export function SellWizard({
             <li key={s.label} className="flex items-center gap-1.5">
               <span
                 className={cn(
-                  "grid h-5 w-5 place-items-center rounded-full text-[10px] font-bold tabular-nums",
+                  "grid h-5 w-5 place-items-center rounded-full text-micro font-bold tabular-nums",
                   i < step
                     ? "bg-[var(--aurora-positive)] text-[#0b1020]"
                     : i === step
-                      ? "bg-[var(--aurora-accent)] text-white"
+                      ? "bg-[var(--aurora-accent-strong)] text-white"
                       : "bg-white/10 text-white/45",
                 )}
               >
@@ -218,7 +218,7 @@ export function SellWizard({
               </span>
               <span
                 className={cn(
-                  "text-[10px] font-semibold",
+                  "text-micro font-semibold",
                   i === step ? "text-white" : "text-white/45",
                 )}
               >
@@ -255,7 +255,7 @@ export function SellWizard({
               onClick={publish}
               className="flex h-10 items-center gap-1.5 rounded-xl px-5 text-[12px] font-bold text-white transition-[filter,transform] hover:brightness-110 active:scale-[0.97]"
               style={{
-                background: "var(--aurora-accent)",
+                background: "var(--aurora-accent-strong)",
                 boxShadow: "0 0 24px rgba(74,158,255,0.45)",
               }}
             >
@@ -378,7 +378,7 @@ export function SellWizard({
                     className={cn(
                       "rounded-full px-3 py-1.5 text-[11px] font-semibold transition-colors",
                       values.condition === c
-                        ? "bg-[var(--aurora-accent)] text-white"
+                        ? "bg-[var(--aurora-accent-strong)] text-white"
                         : "bg-white/8 text-white/60 hover:bg-white/14",
                     )}
                   >

@@ -162,7 +162,7 @@ export function RiskSection({ model }: { model: IipaModel }) {
                     dataKey="usd"
                     position="right"
                     formatter={(v: number) => money(v)}
-                    style={{ fill: "rgba(255,255,255,0.6)", fontSize: 10 }}
+                    style={{ fill: "rgba(255,255,255,0.6)", fontSize: 11 }}
                   />
                 </Bar>
               </BarChart>

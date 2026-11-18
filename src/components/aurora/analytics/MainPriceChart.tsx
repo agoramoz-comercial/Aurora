@@ -38,7 +38,7 @@ export function MainPriceChart({ series, up }: { series: SeriesPoint[]; up: bool
           cursor={{ stroke: "rgba(255,255,255,0.35)", strokeDasharray: "3 3" }}
           content={({ active, payload }) =>
             active && payload && payload.length ? (
-              <div className="glass-pill flex gap-2 px-2.5 py-1 text-[10px] font-semibold tabular-nums text-white shadow-lg">
+              <div className="glass-pill flex gap-2 px-2.5 py-1 text-micro font-semibold tabular-nums text-white shadow-lg">
                 <span>${Number(payload[0]?.payload?.close).toFixed(2)}</span>
                 {payload[0]?.payload?.sma20 ? (
                   <span className="text-[var(--aurora-accent)]">

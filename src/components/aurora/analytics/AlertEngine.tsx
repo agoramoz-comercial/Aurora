@@ -95,7 +95,7 @@ export function AlertEngine({ data }: { data: TickerSnapshot | undefined }) {
     <GlassCard className="lg:h-full lg:min-h-0 !p-4">
       <div className="flex shrink-0 items-center justify-between">
         <Pill className="!px-3 !py-1 !text-[12px] !font-semibold">Alert engine</Pill>
-        <span className="text-[10px] uppercase tracking-[0.25em] text-white/45">
+        <span className="text-micro uppercase tracking-[0.25em] text-white/45">
           {alerts.length} active
         </span>
       </div>
@@ -119,7 +119,7 @@ export function AlertEngine({ data }: { data: TickerSnapshot | undefined }) {
                 <p className="truncate text-[11px] font-semibold" style={{ color: tone.color }}>
                   {a.title}
                 </p>
-                <p className="truncate text-[10px] text-white/55">{a.detail}</p>
+                <p className="truncate text-micro text-white/55">{a.detail}</p>
               </div>
             </li>
           );

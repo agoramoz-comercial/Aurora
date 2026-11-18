@@ -442,11 +442,11 @@ function StepEntity({ d, set }: { d: Draft; set: SetFn }) {
                 checked={d.entityId === e.id}
                 onChange={() => set("entityId", e.id)}
               />
-              <span className="rounded-md bg-white/12 px-1.5 py-0.5 text-[10.5px] font-bold text-white">
+              <span className="rounded-md bg-white/12 px-1.5 py-0.5 text-micro font-bold text-white">
                 {e.code ?? e.kind}
               </span>
               <span className="min-w-0 flex-1 truncate">{e.name}</span>
-              {e.market ? <span className="text-[10px] text-white/45">{e.market}</span> : null}
+              {e.market ? <span className="text-micro text-white/45">{e.market}</span> : null}
             </label>
           ))}
           {!matches.length ? (

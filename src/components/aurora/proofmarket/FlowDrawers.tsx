@@ -539,7 +539,7 @@ export function ReviewDrawer({
     >
       <div className="flex flex-col gap-4 p-5">
         <section className="flex flex-col gap-1.5">
-          <h4 className="text-[10.5px] font-semibold uppercase tracking-[0.14em] text-white/50">
+          <h4 className="text-micro font-semibold uppercase tracking-[0.14em] text-white/50">
             Afirmação original
           </h4>
           <p className="text-[13px] text-white/85">{v.claim}</p>
@@ -576,7 +576,7 @@ export function ReviewDrawer({
           ))}
         </fieldset>
         <section className="flex flex-col gap-1">
-          <h4 className="text-[10.5px] font-semibold uppercase tracking-[0.14em] text-white/50">
+          <h4 className="text-micro font-semibold uppercase tracking-[0.14em] text-white/50">
             Eventos materiais
           </h4>
           {t.events.length ? (

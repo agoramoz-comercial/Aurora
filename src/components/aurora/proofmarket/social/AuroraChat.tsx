@@ -104,7 +104,7 @@ function IconBtn({
     >
       <Icon size={Math.round(size * 0.44)} strokeWidth={1.9} aria-hidden />
       {badge ? (
-        <span className="absolute -right-1 -top-1 grid h-4 min-w-4 place-items-center rounded-full bg-[#e5243b] px-1 text-[9.5px] font-bold">
+        <span className="absolute -right-1 -top-1 grid h-4 min-w-4 place-items-center rounded-full bg-[#e5243b] px-1 text-micro font-bold">
           {badge}
         </span>
       ) : null}
@@ -145,7 +145,7 @@ export function Ring({
         style={{
           background: "linear-gradient(140deg, #3b4558, #161b26)",
           border: `${size > 60 ? 3 : 2}px solid #1a1613`,
-          fontSize: Math.max(10, size * 0.27),
+          fontSize: Math.max(11, size * 0.27),
         }}
       >
         {initials}
@@ -313,7 +313,7 @@ export function StepControl({
           >
             <span
               className={cn(
-                "grid h-5 w-5 place-items-center rounded-full text-[10.5px] tabular-nums",
+                "grid h-5 w-5 place-items-center rounded-full text-micro tabular-nums",
                 i <= idx ? "bg-white text-[#1a1613]" : "bg-white/15 text-white/75",
               )}
             >
@@ -321,7 +321,7 @@ export function StepControl({
             </span>
             {s.label}
             {s.id === "chat" && unread ? (
-              <span className="grid h-4 min-w-4 place-items-center rounded-full bg-[#e5243b] px-1 text-[9.5px] font-bold text-white">
+              <span className="grid h-4 min-w-4 place-items-center rounded-full bg-[#e5243b] px-1 text-micro font-bold text-white">
                 {unread}
               </span>
             ) : null}
@@ -708,7 +708,7 @@ function Post({
               </span>
             ) : null}
           </span>
-          <span className="absolute right-4 top-4 hidden rounded-full bg-black/55 sm:block px-2.5 py-1 font-mono text-[10.5px] text-white/90 backdrop-blur-md">
+          <span className="absolute right-4 top-4 hidden rounded-full bg-black/55 sm:block px-2.5 py-1 font-mono text-micro text-white/90 backdrop-blur-md">
             {thesis.id} · v{v.version}
           </span>
           <span className="absolute inset-x-4 bottom-4 rounded-[14px] bg-black/60 px-3.5 py-2.5 text-[12px] leading-snug text-white backdrop-blur-md">
@@ -862,13 +862,13 @@ function Post({
             >
               <div className="flex flex-col gap-3 rounded-[16px] bg-white/6 p-3.5 text-[12.5px] text-white/85">
                 <div>
-                  <p className="mb-1 text-[10.5px] font-semibold uppercase tracking-[0.12em] text-white/55">
+                  <p className="mb-1 text-micro font-semibold uppercase tracking-[0.12em] text-white/55">
                     Mecanismo
                   </p>
                   <p className="leading-relaxed">{v.mechanism}</p>
                 </div>
                 <div>
-                  <p className="mb-1 text-[10.5px] font-semibold uppercase tracking-[0.12em] text-white/55">
+                  <p className="mb-1 text-micro font-semibold uppercase tracking-[0.12em] text-white/55">
                     Premissas
                   </p>
                   <ol className="list-decimal space-y-0.5 pl-4">
@@ -878,7 +878,7 @@ function Post({
                   </ol>
                 </div>
                 <div>
-                  <p className="mb-1.5 text-[10.5px] font-semibold uppercase tracking-[0.12em] text-white/55">
+                  <p className="mb-1.5 text-micro font-semibold uppercase tracking-[0.12em] text-white/55">
                     Cenários declarados
                   </p>
                   <div
@@ -904,7 +904,7 @@ function Post({
                   </ul>
                 </div>
                 <div>
-                  <p className="mb-1.5 text-[10.5px] font-semibold uppercase tracking-[0.12em] text-white/55">
+                  <p className="mb-1.5 text-micro font-semibold uppercase tracking-[0.12em] text-white/55">
                     Reações estruturadas
                   </p>
                   <div className="flex flex-wrap gap-1.5" role="group" aria-label="Reagir">
@@ -982,7 +982,7 @@ function Post({
         >
           <Ring initials={pm.me.initials} size={26} seen /> Contestar com evidência…
         </button>
-        <p className="text-[10.5px] uppercase tracking-[0.06em] text-white/50">{ago(v.date)}</p>
+        <p className="text-micro uppercase tracking-[0.06em] text-white/50">{ago(v.date)}</p>
       </div>
     </article>
   );
@@ -1308,11 +1308,11 @@ export function ProfileView({
                     )}
                   >
                     <ThesisArt thesis={t} compact />
-                    <span className="absolute left-2 top-2 rounded-md bg-black/55 px-1.5 py-0.5 text-[10.5px] font-bold text-white">
+                    <span className="absolute left-2 top-2 rounded-md bg-black/55 px-1.5 py-0.5 text-micro font-bold text-white">
                       {t.entity.code ?? t.entity.name.split(" ")[0]}
                     </span>
                     {t.status !== "ativa" ? (
-                      <span className="absolute right-2 top-2 rounded-md bg-white px-1.5 py-0.5 text-[9.5px] font-bold text-[#1a1613]">
+                      <span className="absolute right-2 top-2 rounded-md bg-white px-1.5 py-0.5 text-micro font-bold text-[#1a1613]">
                         {STATUS_LABEL[t.status]}
                       </span>
                     ) : null}
@@ -1583,7 +1583,7 @@ export function ChatView({
           <li className="flex w-[62px] flex-col items-center gap-1">
             <span className="relative">
               {pm.myNote ? (
-                <span className="absolute -top-5 left-1/2 z-10 max-w-[66px] -translate-x-1/2 truncate rounded-2xl bg-white px-2 py-0.5 text-[10px] font-medium text-[#1a1613]">
+                <span className="absolute -top-5 left-1/2 z-10 max-w-[66px] -translate-x-1/2 truncate rounded-2xl bg-white px-2 py-0.5 text-micro font-medium text-[#1a1613]">
                   {pm.myNote}
                 </span>
               ) : null}
@@ -1597,7 +1597,7 @@ export function ChatView({
               <li key={c.id} className="flex w-[62px] flex-col items-center gap-1">
                 <span className="relative">
                   <span
-                    className="absolute -top-5 left-1/2 z-10 max-w-[66px] -translate-x-1/2 truncate rounded-2xl bg-white px-2 py-0.5 text-[10px] font-medium text-[#1a1613]"
+                    className="absolute -top-5 left-1/2 z-10 max-w-[66px] -translate-x-1/2 truncate rounded-2xl bg-white px-2 py-0.5 text-micro font-medium text-[#1a1613]"
                     title={c.note}
                   >
                     {c.note}
@@ -1648,7 +1648,7 @@ export function ChatView({
             </button>
           ))}
         </div>
-        <p className="mx-5 mt-2 text-[10.5px] text-white/50">
+        <p className="mx-5 mt-2 text-micro text-white/50">
           {folder === "principal"
             ? "Notificações ligadas."
             : folder === "geral"
@@ -1679,7 +1679,7 @@ export function ChatView({
                     <span className="flex items-center gap-1.5 truncate text-[13px] font-semibold text-white">
                       {c.name}
                       {!c.verified ? (
-                        <span className="rounded-full bg-[#e5243b] px-1.5 text-[9.5px] font-bold">
+                        <span className="rounded-full bg-[#e5243b] px-1.5 text-micro font-bold">
                           Não verificado
                         </span>
                       ) : null}
@@ -1881,7 +1881,7 @@ function Thread({
                   {m.text}
                 </span>
               ) : null}
-              <span className="px-1 text-[10px] text-white/50">{when(m.at)}</span>
+              <span className="px-1 text-micro text-white/50">{when(m.at)}</span>
             </motion.li>
           );
         })}

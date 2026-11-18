@@ -471,11 +471,11 @@ function ReputationPanel({ initial = "ines" }: { initial?: string }) {
                 />
               </div>
             ) : null}
-            <p className="text-[10.5px] text-white/40">{d.sample}</p>
+            <p className="text-micro text-white/40">{d.sample}</p>
           </li>
         ))}
       </ul>
-      <p className="text-[10.5px] text-white/40">
+      <p className="text-micro text-white/40">
         Likes e seguidores não contam. Não existe ranking geral de autores.
       </p>
     </RailCard>
@@ -509,7 +509,7 @@ function FeedControls({ prefs, onChange }: { prefs: FeedPrefs; onChange: (p: Fee
             <label className="flex cursor-pointer items-start justify-between gap-3">
               <span className="flex flex-col">
                 <span className="text-[12px] font-semibold text-white/85">{it.label}</span>
-                <span className="text-[10.5px] text-white/45">{it.hint}</span>
+                <span className="text-micro text-white/45">{it.hint}</span>
               </span>
               <input
                 type="checkbox"
@@ -544,7 +544,7 @@ function ReportsPanel() {
           </li>
         ))}
       </ul>
-      <p className="flex items-center gap-1 text-[10.5px] text-white/40">
+      <p className="flex items-center gap-1 text-micro text-white/40">
         <Scale size={11} aria-hidden /> Cada decisão pode ser recorrida para um revisor diferente.
       </p>
     </RailCard>

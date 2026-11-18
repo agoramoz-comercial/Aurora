@@ -251,7 +251,7 @@ function Body({
       {tab === "conflitos" ? <Conflitos t={t} /> : null}
       {tab === "historico" ? <Historico t={t} /> : null}
       {tab === "contraditorio" ? <Contraditorio t={t} onCounter={onCounter} /> : null}
-      <p className="text-[10.5px] leading-relaxed text-white/38">
+      <p className="text-micro leading-relaxed text-white/38">
         Conteúdo de demonstração. Uma tese descreve cenários e evidência; não é aconselhamento
         financeiro nem recomendação de compra ou venda.
       </p>
@@ -261,9 +261,7 @@ function Body({
 
 const Block = ({ title, children }: { title: string; children: React.ReactNode }) => (
   <section className="flex flex-col gap-1.5">
-    <h4 className="text-[10.5px] font-semibold uppercase tracking-[0.14em] text-white/50">
-      {title}
-    </h4>
+    <h4 className="text-micro font-semibold uppercase tracking-[0.14em] text-white/50">{title}</h4>
     {children}
   </section>
 );
@@ -387,8 +385,8 @@ function Evidencias({ v }: { v: ThesisVersion }) {
           >
             <div className="flex flex-wrap items-center gap-1.5">
               <Tag tone={s.kind === "secundaria" ? "mute" : "ok"}>{SOURCE_KIND[s.kind]}</Tag>
-              <span className="text-[10.5px] tabular-nums text-white/45">{formatDate(s.date)}</span>
-              <span className="text-[10.5px] text-white/45">· {s.publisher}</span>
+              <span className="text-micro tabular-nums text-white/45">{formatDate(s.date)}</span>
+              <span className="text-micro text-white/45">· {s.publisher}</span>
             </div>
             <p className="text-[12.5px] font-semibold text-white/90">{s.title}</p>
             <a
@@ -466,7 +464,7 @@ function Conflitos({ t }: { t: Thesis }) {
             border: "1px solid var(--aurora-hairline)",
           }}
         >
-          <p className="mb-1.5 text-[10.5px] tabular-nums text-white/45">
+          <p className="mb-1.5 text-micro tabular-nums text-white/45">
             v{v.version} · declarado a {formatDate(v.conflict.declaredAt)}
           </p>
           <dl className="grid grid-cols-[130px_minmax(0,1fr)] gap-x-3 gap-y-1">
@@ -523,7 +521,7 @@ function Historico({ t }: { t: Thesis }) {
               <Tag tone={v.material ? "warn" : "mute"}>
                 {v.material ? "Alteração material" : "Correção menor"}
               </Tag>
-              <span className="text-[10.5px] tabular-nums text-white/45">{formatDate(v.date)}</span>
+              <span className="text-micro tabular-nums text-white/45">{formatDate(v.date)}</span>
             </div>
             <p className="text-[12px] text-white/70">{v.changeNote}</p>
           </li>

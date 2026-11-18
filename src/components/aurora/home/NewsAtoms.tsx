@@ -7,6 +7,7 @@ export function EvidenceDots({ count, max = 6 }: { count: number; max?: number }
   return (
     <div
       className="flex items-center gap-[3px]"
+      role="img"
       aria-label={`${count} de ${max} camadas de evidência`}
     >
       {Array.from({ length: max }).map((_, i) => (
@@ -74,7 +75,7 @@ export function ImpactRing({
       </svg>
       <div className="flex flex-col items-center leading-none">
         <span className="text-[13px] font-bold tabular-nums text-white">{score}</span>
-        <span className="text-[8px] uppercase tracking-[0.1em] text-white/45">impacto</span>
+        <span className="text-micro uppercase tracking-[0.1em] text-white/45">impacto</span>
       </div>
     </div>
   );
@@ -90,7 +91,7 @@ export function AttentionBadge({
   const col = attentionColor(level);
   return (
     <span
-      className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.1em]"
+      className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-micro font-bold uppercase tracking-[0.1em]"
       style={{
         background: col.bg,
         border: `1px solid ${col.border}`,
@@ -129,7 +130,7 @@ export function ImpactMeter({ score, level }: { score: number; level: AttentionL
           }}
         />
       </div>
-      <span className="text-[10px] font-semibold tabular-nums text-white/55">{score}</span>
+      <span className="text-micro font-semibold tabular-nums text-white/55">{score}</span>
     </div>
   );
 }

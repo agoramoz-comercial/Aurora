@@ -16,7 +16,7 @@ function Monogram({ meta, size = 22 }: { meta: AssetMeta; size?: number }) {
       style={{
         background: meta.brandColor,
         color: meta.textColor,
-        fontSize: Math.round(size * 0.42),
+        fontSize: Math.max(11, Math.round(size * 0.42)),
         lineHeight: 1,
       }}
     >

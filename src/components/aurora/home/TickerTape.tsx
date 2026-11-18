@@ -34,7 +34,7 @@ function TapeRow({ hidden = false }: { hidden?: boolean }) {
               className="flex items-center gap-0.5 font-semibold tabular-nums"
               style={{ color: up ? CHART.positive : CHART.negative }}
             >
-              <span className="text-[8px]">{up ? "▲" : "▼"}</span>
+              <span className="text-micro">{up ? "▲" : "▼"}</span>
               {Math.abs(t.change).toFixed(1)}%
             </span>
           </li>

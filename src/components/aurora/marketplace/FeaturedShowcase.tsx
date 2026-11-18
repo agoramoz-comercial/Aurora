@@ -65,9 +65,9 @@ export function FeaturedShowcase({
         <div className="relative flex h-full min-h-[inherit] max-w-[560px] flex-col justify-end gap-3 p-5 sm:p-6">
           <div className="flex flex-wrap items-center gap-2">
             <span
-              className="rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-white"
+              className="rounded-full px-2.5 py-1 text-micro font-bold uppercase tracking-[0.14em] text-white"
               style={{
-                background: "var(--aurora-accent)",
+                background: "var(--aurora-accent-strong)",
                 boxShadow: "0 0 16px rgba(74,158,255,0.5)",
               }}
             >
@@ -92,7 +92,7 @@ export function FeaturedShowcase({
           <dl className="flex flex-wrap gap-x-5 gap-y-2">
             {listing.specs.slice(0, 4).map((s) => (
               <div key={s.label}>
-                <dt className="text-[9px] uppercase tracking-[0.12em] text-white/40">{s.label}</dt>
+                <dt className="text-micro uppercase tracking-[0.12em] text-white/40">{s.label}</dt>
                 <dd className="text-[13px] font-semibold tabular-nums text-white">{s.value}</dd>
               </div>
             ))}

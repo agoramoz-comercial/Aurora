@@ -318,7 +318,7 @@ export function MarketplaceWorkspace() {
                     <button
                       type="button"
                       onClick={startSell}
-                      className="mt-1 flex items-center gap-1.5 rounded-full bg-[var(--aurora-accent)] px-4 py-2 text-[12px] font-bold text-white"
+                      className="mt-1 flex items-center gap-1.5 rounded-full bg-[var(--aurora-accent-strong)] px-4 py-2 text-[12px] font-bold text-white"
                     >
                       <Plus size={13} /> Anunciar ativo
                     </button>

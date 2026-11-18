@@ -17,7 +17,7 @@ export function RequestStatusPill({ status }: { status: RequestStatus }) {
   const s = STATUS[status];
   return (
     <span
-      className="inline-flex shrink-0 items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold"
+      className="inline-flex shrink-0 items-center gap-1 rounded-full px-2 py-0.5 text-micro font-semibold"
       style={{ color: s.color, background: s.bg }}
     >
       {status === "pending" ? (
@@ -94,7 +94,7 @@ export function RequestsPanel({ onOpen }: { onOpen: (l: Listing) => void }) {
                 <button
                   type="button"
                   onClick={() => store.acceptCounter(r.id)}
-                  className="flex h-8 items-center gap-1 rounded-lg bg-[var(--aurora-accent)] px-3 text-[11px] font-bold text-white hover:brightness-110"
+                  className="flex h-8 items-center gap-1 rounded-lg bg-[var(--aurora-accent-strong)] px-3 text-[11px] font-bold text-white hover:brightness-110"
                 >
                   <Check size={12} /> Aceitar {formatPrice(r.counterUsd)}
                 </button>

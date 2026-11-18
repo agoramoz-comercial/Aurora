@@ -70,7 +70,7 @@ function Metric({
       </div>
       <div className="flex items-baseline gap-1.5">
         <span className="text-[12px] font-semibold tabular-nums text-white">{value}</span>
-        {hint ? <span className="text-[10px] text-white/40">{hint}</span> : null}
+        {hint ? <span className="text-micro text-white/40">{hint}</span> : null}
       </div>
     </div>
   );
@@ -84,7 +84,7 @@ function SourceBadge({ src }: { src: TickerSnapshot["source"] | undefined }) {
   } as const;
   const cfg = map[src ?? "baseline"];
   return (
-    <span className="glass-pill inline-flex items-center gap-1.5 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.18em] text-white/80">
+    <span className="glass-pill inline-flex items-center gap-1.5 px-2 py-0.5 text-micro font-semibold uppercase tracking-[0.18em] text-white/80">
       <span
         className="h-1.5 w-1.5 rounded-full"
         style={{ background: cfg.dot, boxShadow: `0 0 8px ${cfg.dot}88` }}
@@ -133,7 +133,7 @@ export function AnalyticsWorkspace() {
           <>
             <SourceBadge src={data?.source} />
             {data?.rateLimited && (
-              <span className="text-[10px] uppercase tracking-[0.18em] text-[var(--aurora-warn)]">
+              <span className="text-micro uppercase tracking-[0.18em] text-[var(--aurora-warn)]">
                 API throttled
               </span>
             )}
@@ -182,14 +182,14 @@ export function AnalyticsWorkspace() {
           <div className="flex shrink-0 flex-wrap items-center justify-between gap-2">
             <div className="flex flex-wrap items-center gap-2">
               <Pill className="!px-3 !py-1 !text-[12px] !font-semibold">Close · {tf}</Pill>
-              <span className="flex items-center gap-1 text-[10px] text-white/60">
+              <span className="flex items-center gap-1 text-micro text-white/60">
                 <span className="h-0.5 w-3 rounded-full bg-[var(--aurora-accent)]" /> SMA20
               </span>
-              <span className="flex items-center gap-1 text-[10px] text-white/60">
+              <span className="flex items-center gap-1 text-micro text-white/60">
                 <span className="h-0.5 w-3 rounded-full bg-[var(--aurora-warn)]" /> SMA50
               </span>
             </div>
-            <span className="text-[10px] uppercase tracking-[0.25em] text-white/40">
+            <span className="text-micro uppercase tracking-[0.25em] text-white/40">
               Alpha Vantage
             </span>
           </div>
@@ -201,8 +201,8 @@ export function AnalyticsWorkspace() {
             )}
           </div>
           <div className="mt-2 flex shrink-0 items-center justify-between">
-            <Pill className="!px-2.5 !py-0.5 !text-[10px]">RSI(14)</Pill>
-            <span className="text-[10px] text-white/45">30 oversold · 70 overbought</span>
+            <Pill className="!px-2.5 !py-0.5 !text-micro">RSI(14)</Pill>
+            <span className="text-micro text-white/45">30 oversold · 70 overbought</span>
           </div>
           <div className="relative mt-1 min-h-[100px] flex-1 lg:min-h-0">
             {slicedSeries.length > 14 ? <RsiChart series={slicedSeries} /> : <Skeleton />}
@@ -212,7 +212,7 @@ export function AnalyticsWorkspace() {
         <GlassCard className="sm:col-span-2 lg:col-span-4 lg:h-full lg:min-h-0 !p-4">
           <div className="flex shrink-0 items-center justify-between">
             <Pill className="!px-3 !py-1 !text-[12px] !font-semibold">Watchlist</Pill>
-            <span className="text-[10px] uppercase tracking-[0.25em] text-white/40">6 symbols</span>
+            <span className="text-micro uppercase tracking-[0.25em] text-white/40">6 symbols</span>
           </div>
           <div className="mt-2 flex min-h-[240px] flex-1 flex-col lg:min-h-0">
             {watch && watch.length ? (
@@ -263,7 +263,7 @@ function PriceCard({
     <GlassCard className="lg:h-full lg:min-h-0 justify-between !p-4">
       <div className="flex shrink-0 items-center justify-between">
         <Pill className="!px-2.5 !py-1 !text-[11px] text-white/70">Price</Pill>
-        <span className="text-[10px] uppercase tracking-[0.18em] text-white/40">
+        <span className="text-micro uppercase tracking-[0.18em] text-white/40">
           {data?.symbol ?? ""}
         </span>
       </div>
@@ -311,7 +311,7 @@ function DayRangeCard({ data }: { data: TickerSnapshot | undefined }) {
             }}
           />
         </div>
-        <div className="mt-2 text-[10px] uppercase tracking-[0.2em] text-white/45">
+        <div className="mt-2 text-micro uppercase tracking-[0.2em] text-white/45">
           Vol {formatCompact(data?.volume ?? null)} · Open ${formatNum(data?.open ?? null)}
         </div>
       </div>
@@ -342,7 +342,7 @@ function Week52Card({ data }: { data: TickerSnapshot | undefined }) {
             }}
           />
         </div>
-        <div className="mt-2 text-[10px] uppercase tracking-[0.2em] text-white/45">
+        <div className="mt-2 text-micro uppercase tracking-[0.2em] text-white/45">
           β {formatNum(data?.beta ?? null)} · Mkt {formatCompact(data?.marketCap ?? null)}
         </div>
       </div>

@@ -46,13 +46,14 @@ export function Avatar({ initials }: { initials: string }) {
   );
 }
 
-export function ProgressBar({ value }: { value: number }) {
+export function ProgressBar({ value, label = "Progresso" }: { value: number; label?: string }) {
   const clamped = Math.max(0, Math.min(100, value));
   return (
     <div
       className="h-2 w-full overflow-hidden rounded-full"
       style={{ background: "rgba(255,255,255,0.18)" }}
       role="progressbar"
+      aria-label={label}
       aria-valuenow={clamped}
       aria-valuemin={0}
       aria-valuemax={100}
@@ -92,10 +93,10 @@ export function WorkspaceHeader({
     <header className="grid shrink-0 grid-cols-[minmax(0,1fr)_auto] items-center gap-4">
       <div className="min-w-0">
         <div className="flex items-center gap-2">
-          <Pill className="!px-4 !py-1.5 !text-[15px] !font-semibold">{title}</Pill>
+          <Pill className="!px-4 !py-1.5 !text-title !font-semibold">{title}</Pill>
           {badge}
         </div>
-        {subtitle ? <p className="mt-1.5 truncate text-[12px] text-white/60">{subtitle}</p> : null}
+        {subtitle ? <p className="mt-1.5 truncate text-caption text-white/65">{subtitle}</p> : null}
       </div>
       {right ? <div className="flex shrink-0 items-center gap-2">{right}</div> : null}
     </header>
@@ -132,17 +133,17 @@ export function SectionLabel({
   return (
     <div className="flex shrink-0 items-center gap-2.5">
       <span
-        className="flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-[0.14em]"
+        className="flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1 text-micro font-bold uppercase tracking-[0.12em]"
         style={{
           background: palette.bg,
           border: `1px solid ${palette.border}`,
           color: palette.color,
         }}
       >
-        {Icon ? <Icon size={9} /> : null}
+        {Icon ? <Icon size={11} aria-hidden /> : null}
         {children}
       </span>
-      {note ? <span className="truncate text-[10px] text-white/38">{note}</span> : null}
+      {note ? <span className="truncate text-micro text-white/55">{note}</span> : null}
     </div>
   );
 }
@@ -174,7 +175,7 @@ export function StatTile({
           : undefined
       }
     >
-      <span className="truncate text-[10px] font-semibold uppercase tracking-[0.14em] text-white/50">
+      <span className="truncate text-micro font-semibold uppercase tracking-[0.12em] text-white/60">
         {label}
       </span>
       <div className="flex items-baseline gap-2">
@@ -186,14 +187,14 @@ export function StatTile({
         </span>
         {delta ? (
           <span
-            className="shrink-0 text-[11px] font-semibold tabular-nums"
+            className="shrink-0 text-micro font-semibold tabular-nums"
             style={{ color: deltaColor }}
           >
             {delta}
           </span>
         ) : null}
       </div>
-      {footnote ? <p className="truncate text-[10px] text-white/45">{footnote}</p> : null}
+      {footnote ? <p className="truncate text-micro text-white/55">{footnote}</p> : null}
     </div>
   );
 }
@@ -229,7 +230,7 @@ export function SegmentedTabs<T extends string>({
               aria-pressed={isActive}
               className={cn(
                 "relative flex items-center gap-1.5 whitespace-nowrap font-semibold transition-[color,background-color,box-shadow] duration-300",
-                size === "sm" ? "px-2.5 py-1.5 text-[10px]" : "px-3 py-2 text-[11px]",
+                size === "sm" ? "px-2.5 py-1.5 text-micro" : "px-3 py-2 text-caption",
                 isActive ? "text-white" : "text-white/55 hover:bg-white/8 hover:text-white",
               )}
               style={{
@@ -241,7 +242,7 @@ export function SegmentedTabs<T extends string>({
               }}
             >
               {prefix ? (
-                <span className="text-[9px] tabular-nums text-white/40">{prefix}</span>
+                <span className="text-micro tabular-nums text-white/50">{prefix}</span>
               ) : null}
               {Icon ? (
                 <Icon size={13} className={isActive ? "text-[var(--aurora-accent)]" : ""} />
@@ -251,8 +252,10 @@ export function SegmentedTabs<T extends string>({
               {count !== undefined ? (
                 <span
                   className={cn(
-                    "rounded-full px-1.5 py-px text-[9px] tabular-nums",
-                    isActive ? "bg-[var(--aurora-accent)] text-white" : "bg-white/10 text-white/60",
+                    "rounded-full px-1.5 py-px text-micro tabular-nums",
+                    isActive
+                      ? "bg-[var(--aurora-accent-strong)] text-white"
+                      : "bg-white/10 text-white/60",
                   )}
                 >
                   {count}
@@ -297,7 +300,7 @@ export function TickerChips({
             className={cn(
               "flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1 text-[11px] font-bold tabular-nums transition-[color,background-color,box-shadow] duration-200",
               isActive
-                ? "bg-[var(--aurora-accent)] text-white shadow-[0_0_16px_rgba(74,158,255,0.55)]"
+                ? "bg-[var(--aurora-accent-strong)] text-white shadow-[0_0_16px_rgba(74,158,255,0.55)]"
                 : "bg-white/8 text-white/55 hover:bg-white/16 hover:text-white",
             )}
           >
@@ -329,10 +332,8 @@ export function Panel({
     <section className={cn("glass flex min-w-0 flex-col p-4", className)}>
       <div className="flex shrink-0 flex-wrap items-center justify-between gap-2 pb-3">
         <div className="min-w-0">
-          <h3 className="truncate text-[13px] font-semibold text-white">{title}</h3>
-          {subtitle ? (
-            <p className="mt-0.5 truncate text-[11px] text-white/50">{subtitle}</p>
-          ) : null}
+          <h3 className="truncate text-body font-semibold text-white">{title}</h3>
+          {subtitle ? <p className="mt-0.5 truncate text-micro text-white/60">{subtitle}</p> : null}
         </div>
         {right ? <div className="flex shrink-0 items-center gap-1.5">{right}</div> : null}
       </div>
@@ -350,10 +351,13 @@ export function AccentBadge({ children, className }: { children: ReactNode; clas
   return (
     <span
       className={cn(
-        "hidden items-center gap-1 rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.1em] text-white sm:inline-flex",
+        "hidden items-center gap-1 rounded-full px-2.5 py-1 text-micro font-bold uppercase tracking-[0.1em] text-white sm:inline-flex",
         className,
       )}
-      style={{ background: "var(--aurora-accent-strong)", boxShadow: "0 0 14px rgba(74,158,255,0.4)" }}
+      style={{
+        background: "var(--aurora-accent-strong)",
+        boxShadow: "0 0 14px rgba(74,158,255,0.4)",
+      }}
     >
       {children}
     </span>
@@ -368,7 +372,7 @@ export function LiveBadge({ label = "Live" }: { label?: string }) {
         <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[var(--aurora-accent)] opacity-60 motion-reduce:hidden" />
         <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-[var(--aurora-accent)]" />
       </span>
-      <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-white/70">
+      <span className="text-micro font-semibold uppercase tracking-[0.18em] text-white/70">
         {label}
       </span>
     </span>
@@ -398,9 +402,9 @@ export function FilterChip({
       aria-pressed={active}
       className={cn(
         "flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full font-semibold transition-[color,background-color,box-shadow] duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50",
-        size === "md" ? "px-3.5 py-2 text-[12px]" : "px-3 py-1 text-[10px]",
+        size === "md" ? "px-3.5 py-2 text-[12px]" : "px-3 py-1 text-micro",
         active
-          ? "bg-[var(--aurora-accent)] text-white shadow-[0_0_14px_rgba(74,158,255,0.5)]"
+          ? "bg-[var(--aurora-accent-strong)] text-white shadow-[0_0_14px_rgba(74,158,255,0.5)]"
           : "bg-white/8 text-white/55 hover:bg-white/14 hover:text-white",
       )}
     >
@@ -409,7 +413,7 @@ export function FilterChip({
       {count !== undefined ? (
         <span
           className={cn(
-            "rounded-full px-1.5 py-px text-[9px] tabular-nums",
+            "rounded-full px-1.5 py-px text-micro tabular-nums",
             active ? "bg-white/25 text-white" : "bg-white/10 text-white/50",
           )}
         >
@@ -462,6 +466,45 @@ export function SearchField({
         </button>
       ) : null}
     </label>
+  );
+}
+
+/**
+ * Button — the one text button of the app. Variants share radius (12px), height
+ * (sm 32 · md 40), weight and focus ring, so every workspace reads the same.
+ */
+export function Button({
+  variant = "secondary",
+  size = "md",
+  icon: Icon,
+  className,
+  children,
+  type = "button",
+  ...rest
+}: React.ButtonHTMLAttributes<HTMLButtonElement> & {
+  variant?: "primary" | "secondary" | "ghost" | "danger";
+  size?: "sm" | "md";
+  icon?: React.ElementType;
+}) {
+  return (
+    <button
+      type={type}
+      {...rest}
+      className={cn(
+        "inline-flex shrink-0 items-center justify-center gap-1.5 rounded-[12px] font-semibold transition-[background-color,color,box-shadow,transform] duration-150 active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70 disabled:pointer-events-none disabled:opacity-45",
+        size === "sm" ? "h-8 px-3 text-caption" : "h-10 px-4 text-body",
+        variant === "primary" &&
+          "bg-[var(--aurora-accent-strong)] text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.2)] hover:brightness-110",
+        variant === "secondary" &&
+          "border border-white/14 bg-white/10 text-white hover:bg-white/16",
+        variant === "ghost" && "text-white/75 hover:bg-white/8 hover:text-white",
+        variant === "danger" && "bg-[#b91c1c] text-white hover:brightness-110",
+        className,
+      )}
+    >
+      {Icon ? <Icon size={size === "sm" ? 14 : 16} strokeWidth={2} aria-hidden /> : null}
+      {children}
+    </button>
   );
 }
 
@@ -585,7 +628,9 @@ export function Drawer({
       const nodes = panelRef.current.querySelectorAll<HTMLElement>(
         'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])',
       );
-      const list = [...nodes].filter((n) => n.offsetParent !== null || n === document.activeElement);
+      const list = [...nodes].filter(
+        (n) => n.offsetParent !== null || n === document.activeElement,
+      );
       if (!list.length) return;
       const first = list[0]!;
       const last = list[list.length - 1]!;

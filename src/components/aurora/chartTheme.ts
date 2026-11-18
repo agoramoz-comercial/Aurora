@@ -38,7 +38,7 @@ export const axisProps = {
   stroke: CHART.axis,
   tickLine: false,
   axisLine: false,
-  tick: { fontSize: 10, fill: CHART.axis },
+  tick: { fontSize: 11, fill: CHART.axis },
 } as const;
 
 export const tooltipStyle = {
@@ -54,12 +54,12 @@ export const tooltipStyle = {
 export const tooltipProps = {
   contentStyle: tooltipStyle,
   itemStyle: { color: "rgba(255,255,255,0.85)", fontSize: 11 },
-  labelStyle: { color: "rgba(255,255,255,0.5)", fontSize: 10, marginBottom: 4 },
+  labelStyle: { color: "rgba(255,255,255,0.6)", fontSize: 11, marginBottom: 4 },
   cursor: { fill: "rgba(255,255,255,0.05)" },
 } as const;
 
 export const legendProps = {
-  wrapperStyle: { fontSize: 10, color: "rgba(255,255,255,0.55)", paddingTop: 6 },
+  wrapperStyle: { fontSize: 11, color: "rgba(255,255,255,0.6)", paddingTop: 6 },
   iconType: "circle" as const,
   iconSize: 7,
 };

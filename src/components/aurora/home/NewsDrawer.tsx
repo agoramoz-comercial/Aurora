@@ -42,7 +42,7 @@ export function NewsDrawer({
         item ? (
           <>
             <AttentionBadge level={item.attentionLevel} />
-            <span className="rounded-full bg-white/8 px-2.5 py-1 text-[10px] font-semibold text-white/65">
+            <span className="rounded-full bg-white/8 px-2.5 py-1 text-micro font-semibold text-white/65">
               {EVENT_LABEL[item.eventType]} · {item.status}
             </span>
           </>
@@ -52,7 +52,7 @@ export function NewsDrawer({
       footer={
         item ? (
           <div className="flex items-center justify-between gap-3">
-            <span className="text-[10px] text-white/40">
+            <span className="text-micro text-white/40">
               {item.sourceCount} fontes · há {formatMinutesAgo(item.minutesAgo)}
             </span>
             <SaveButton saved={saved} onToggle={onToggleSave} />
@@ -108,7 +108,7 @@ export function NewsDrawer({
                 className="flex flex-col gap-1 rounded-[12px] p-3"
                 style={{ background: "var(--aurora-surface-2)" }}
               >
-                <span className="text-[10px] text-white/45">{k.label}</span>
+                <span className="text-micro text-white/45">{k.label}</span>
                 <span
                   className="text-[15px] font-bold tabular-nums"
                   style={{ color: k.good ? CHART.positive : CHART.negative }}
@@ -135,7 +135,7 @@ export function NewsDrawer({
             {item.tags.map((t) => (
               <span
                 key={t}
-                className="rounded-full bg-white/6 px-2.5 py-1 text-[10px] text-white/50"
+                className="rounded-full bg-white/6 px-2.5 py-1 text-micro text-white/50"
               >
                 #{t}
               </span>
@@ -167,7 +167,7 @@ export function NewsDrawer({
                     >
                       <Icon size={12} className="mt-0.5 shrink-0 text-[var(--aurora-accent)]" />
                       <div>
-                        <span className="text-[10px] font-semibold uppercase tracking-[0.1em] text-white/40">
+                        <span className="text-micro font-semibold uppercase tracking-[0.1em] text-white/40">
                           {meta?.label ?? key}
                         </span>
                         <p className="mt-0.5 text-[12px] leading-relaxed text-white/70">{text}</p>
@@ -201,7 +201,7 @@ export function NewsDrawer({
             </p>
           </section>
 
-          <p className="flex items-start gap-2 text-[10px] leading-relaxed text-white/35">
+          <p className="flex items-start gap-2 text-micro leading-relaxed text-white/35">
             <AlertTriangle size={11} className="mt-0.5 shrink-0" />
             Contexto, evidência e níveis de confiança. Não constitui aconselhamento de investimento
             nem recomendação transacional.

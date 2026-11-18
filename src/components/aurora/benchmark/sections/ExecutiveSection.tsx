@@ -54,7 +54,7 @@ function Answer({
           <Icon size={14} strokeWidth={1.9} />
         </span>
         <div className="min-w-0">
-          <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-white/45">
+          <p className="text-micro font-semibold uppercase tracking-[0.12em] text-white/45">
             {question}
           </p>
           <div className="mt-0.5 text-[13px] font-semibold leading-snug text-white">{children}</div>
@@ -109,7 +109,7 @@ export function ExecutiveSection({ model }: { model: IipaModel }) {
                 className="rounded-[12px] px-3 py-2"
                 style={{ background: "var(--aurora-surface-1)" }}
               >
-                <p className="text-[10px] text-white/45">{k.label}</p>
+                <p className="text-micro text-white/45">{k.label}</p>
                 <AnimatedNumber
                   value={k.value}
                   format={(n) => money(n)}

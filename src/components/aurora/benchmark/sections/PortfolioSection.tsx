@@ -78,7 +78,7 @@ export function PortfolioSection({ model }: { model: IipaModel }) {
           <Sparkles size={18} />
         </span>
         <div className="min-w-0 flex-1">
-          <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[var(--aurora-accent)]">
+          <p className="text-micro font-semibold uppercase tracking-[0.14em] text-[var(--aurora-accent)]">
             Recomendação
           </p>
           <p className="text-[15px] font-semibold text-white">
@@ -160,7 +160,7 @@ export function PortfolioSection({ model }: { model: IipaModel }) {
           </div>
           <div className="mt-1 flex flex-wrap gap-x-3 gap-y-1">
             {opt.methods.map((m) => (
-              <span key={m.id} className="flex items-center gap-1 text-[10px] text-white/55">
+              <span key={m.id} className="flex items-center gap-1 text-micro text-white/55">
                 <span
                   className="h-2 w-2 rounded-full"
                   style={{ background: METHOD_COLORS[m.id] }}
@@ -209,7 +209,7 @@ export function PortfolioSection({ model }: { model: IipaModel }) {
               </li>
             ))}
           </ul>
-          <p className="mt-3 text-[10px] text-white/40">A marca branca indica o peso atual.</p>
+          <p className="mt-3 text-micro text-white/40">A marca branca indica o peso atual.</p>
         </Panel>
       </div>
 
@@ -245,7 +245,7 @@ export function PortfolioSection({ model }: { model: IipaModel }) {
                     />
                     {m.label}
                   </p>
-                  <p className="mt-0.5 text-[10px] leading-snug text-white/45">{m.purpose}</p>
+                  <p className="mt-0.5 text-micro leading-snug text-white/45">{m.purpose}</p>
                 </div>
                 <ProbabilityRing value={m.probTarget} size={48} stroke={4} delay={0.1 + i * 0.05} />
               </div>
@@ -255,14 +255,14 @@ export function PortfolioSection({ model }: { model: IipaModel }) {
                 <MetricRow label="Ano mau" value={pct(m.badYear)} tone={CHART.negative} />
               </div>
               <span
-                className="flex items-center gap-1 text-[10px] font-semibold"
+                className="flex items-center gap-1 text-micro font-semibold"
                 style={{ color: m.compliant ? CHART.positive : CHART.warn }}
               >
                 {m.compliant ? <BadgeCheck size={12} /> : <CircleSlash size={12} />}
                 {m.compliant ? "Cumpre o mandato" : "Fora dos limites do mandato"}
               </span>
               {m.id === "goals" ? (
-                <span className="absolute -top-2 right-3 rounded-full bg-[var(--aurora-accent)] px-2 py-0.5 text-[9px] font-bold uppercase tracking-[0.1em] text-white">
+                <span className="absolute -top-2 right-3 rounded-full bg-[var(--aurora-accent-strong)] px-2 py-0.5 text-micro font-bold uppercase tracking-[0.1em] text-white">
                   Recomendada
                 </span>
               ) : null}

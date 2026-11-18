@@ -11,7 +11,8 @@ Construída como aplicação cliente, sem backend: todos os modelos correm no br
 | Secção | O que faz |
 |---|---|
 | **Notícias** | Fluxo de duas camadas — primárias (ativos em carteira, impacto directo) e secundárias (regime e macro). Cada notícia traz score de impacto, banda de confiança, horizonte e camadas de evidência. |
-| **ProofMarket** | Rede social financeira baseada em teses auditáveis: cada publicação traz mecanismo, premissas, fontes datadas, cenários, critério de invalidação, conflitos declarados e data de revisão. Inclui contra-teses ligadas a um elemento específico, denúncias com Case ID, revisões versionadas e reputação por domínio (Brier score com amostra mínima). Não executa ordens nem dá aconselhamento. |
+| **Aurora Chat** | Rede social financeira baseada em teses auditáveis: cada publicação traz mecanismo, premissas, fontes datadas, cenários, critério de invalidação, conflitos declarados e data de revisão. Inclui contra-teses ligadas a um elemento específico, denúncias com Case ID, revisões versionadas e reputação por domínio (Brier score com amostra mínima). Não executa ordens nem dá aconselhamento. |
+| **Finanças Pessoais** | Orçamento base zero em meticais (cada metical com uma função), grupos Fixas/Flexíveis/Não mensais/Objetivos, «seguro gastar hoje», transações com regras automáticas, recorrentes (contas fixas vs subscrições), plano de dívidas avalanche vs bola de neve, objetivos com reserva de 3–6 meses e previsão de património a 12 meses. Especificação em `docs/prompts/FINANCAS-PESSOAIS.md`. |
 | **Ollympius Dashboard** | Visão geral de performance: tendência de receita, volume semanal, metas, equipa e KPIs. |
 | **Analytics** | Análise por instrumento: preço, intervalos, RSI, score de risco, watchlist e motor de alertas. |
 | **Benchmark & Projeções** | Mesa de modelação institucional. Motor de cenários Bear/Base/Bull, demonstrações 3-way, DCF com mapa de sensibilidade e ponte de valor. |

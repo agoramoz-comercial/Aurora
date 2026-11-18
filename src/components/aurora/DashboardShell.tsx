@@ -24,6 +24,7 @@ import { BenchmarkWorkspace } from "./benchmark/BenchmarkWorkspace";
 import { TeslaModelWorkspace } from "./teslaModel/TeslaModelWorkspace";
 import { MarketplaceWorkspace } from "./marketplace/MarketplaceWorkspace";
 import { ProofMarketWorkspace } from "./proofmarket/ProofMarketWorkspace";
+import { PersonalFinanceWorkspace } from "./personalFinance/PersonalFinanceWorkspace";
 import { MarketplaceStoreProvider } from "@/data/marketplaceStore";
 import { PortfolioStoreProvider } from "@/data/portfolioStore";
 import { cn } from "@/lib/utils";
@@ -39,6 +40,7 @@ const containerVariants = {
 const sectionTitles: Record<string, string> = {
   home: "Notícias",
   proofmarket: "Aurora Chat",
+  financas: "Finanças Pessoais",
   grid: "Ollympius Dashboard",
   bars: "Analytics",
   benchmarkPage: "Benchmark & Projeções",
@@ -128,6 +130,8 @@ export function DashboardShell({ defaultActive = "home" }: { defaultActive?: str
                     <HomeWorkspace />
                   ) : active === "proofmarket" ? (
                     <ProofMarketWorkspace key={chatOpen.n} initialStep={chatOpen.step} />
+                  ) : active === "financas" ? (
+                    <PersonalFinanceWorkspace />
                   ) : active === "bars" ? (
                     <AnalyticsWorkspace />
                   ) : active === "benchmarkPage" ? (
@@ -307,9 +311,9 @@ function OverviewContent() {
                 <Avatar initials={row.initials} />
                 <div className="min-w-0 flex-1">
                   <p className="truncate text-[12px] font-medium text-white/95">{row.name}</p>
-                  <p className="truncate text-[10px] text-white/55">{row.note}</p>
+                  <p className="truncate text-micro text-white/55">{row.note}</p>
                 </div>
-                <Pill className="!px-2 !py-0.5 !text-[10px] tabular-nums">{row.value}</Pill>
+                <Pill className="!px-2 !py-0.5 !text-micro tabular-nums">{row.value}</Pill>
               </li>
             ))}
           </ul>
@@ -324,7 +328,7 @@ function OverviewContent() {
               <span className="text-2xl font-semibold tabular-nums text-white">
                 {k.primary.value}
               </span>
-              <Pill tone="mute" className="!text-[10px]">
+              <Pill tone="mute" className="!text-micro">
                 {k.secondary.label}
               </Pill>
             </div>
@@ -352,7 +356,7 @@ function OverviewContent() {
                   <span className="text-white/80">{g.label}</span>
                   <span className="font-semibold tabular-nums text-white">{g.value}</span>
                 </div>
-                <ProgressBar value={g.progress} />
+                <ProgressBar value={g.progress} label={`${g.label}: ${g.value}`} />
               </li>
             ))}
           </ul>
@@ -405,9 +409,9 @@ function OverviewContent() {
                   <Avatar initials={m.initials} />
                   <div className="min-w-0 flex-1">
                     <p className="truncate text-[12px] font-medium text-white/95">{m.name}</p>
-                    <p className="truncate text-[10px] text-white/55">{m.note}</p>
+                    <p className="truncate text-micro text-white/55">{m.note}</p>
                   </div>
-                  <Pill className="!px-2 !py-0.5 !text-[10px]">{m.value}</Pill>
+                  <Pill className="!px-2 !py-0.5 !text-micro">{m.value}</Pill>
                 </li>
               );
             })}
@@ -423,7 +427,7 @@ function OverviewContent() {
               <span className="text-xl font-semibold tabular-nums text-white">
                 {m.primary.value}
               </span>
-              <Pill tone="mute" className="!text-[10px]">
+              <Pill tone="mute" className="!text-micro">
                 {m.secondary.label}
               </Pill>
             </div>

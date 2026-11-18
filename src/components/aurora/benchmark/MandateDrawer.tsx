@@ -105,7 +105,7 @@ export function MandateDrawer({
       onClose={onClose}
       width={520}
       eyebrow={
-        <span className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-[var(--aurora-accent)]">
+        <span className="flex items-center gap-1.5 text-micro font-semibold uppercase tracking-[0.14em] text-[var(--aurora-accent)]">
           <ShieldCheck size={12} /> Política de investimento
         </span>
       }
@@ -127,7 +127,7 @@ export function MandateDrawer({
             }}
             className="flex h-10 items-center rounded-xl px-5 text-[12px] font-bold text-white transition-[filter,transform] hover:brightness-110 active:scale-[0.97]"
             style={{
-              background: "var(--aurora-accent)",
+              background: "var(--aurora-accent-strong)",
               boxShadow: "0 0 24px rgba(74,158,255,0.45)",
             }}
           >
@@ -151,7 +151,7 @@ export function MandateDrawer({
             <span className="flex items-baseline justify-between gap-2">
               <span>
                 <span className="block text-[12px] font-semibold text-white/85">{f.label}</span>
-                <span className="text-[10px] text-white/40">{f.hint}</span>
+                <span className="text-micro text-white/40">{f.hint}</span>
               </span>
               <span className="text-[14px] font-semibold tabular-nums text-white">
                 {f.format(draft[f.key])}

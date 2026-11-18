@@ -45,7 +45,7 @@ function Row({
       </div>
       <div className="flex items-baseline gap-1.5">
         <span className="text-[12px] font-semibold tabular-nums text-white">{value}</span>
-        {hint ? <span className="text-[10px] text-white/40">{hint}</span> : null}
+        {hint ? <span className="text-micro text-white/40">{hint}</span> : null}
       </div>
     </div>
   );

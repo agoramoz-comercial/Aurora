@@ -88,7 +88,7 @@ export function Tag({
   return (
     <span
       className={cn(
-        "inline-flex shrink-0 items-center gap-1 whitespace-nowrap rounded-full px-2 py-0.5 text-[10.5px] font-semibold",
+        "inline-flex shrink-0 items-center gap-1 whitespace-nowrap rounded-full px-2 py-0.5 text-micro font-semibold",
         className,
       )}
       style={{ background: t.bg, border: `1px solid ${t.border}`, color: t.color }}
@@ -228,7 +228,7 @@ export function Field({
         <label htmlFor={fid} className="text-[12px] font-semibold text-white/85">
           {label}
         </label>
-        {count ? <span className="text-[10.5px] tabular-nums text-white/40">{count}</span> : null}
+        {count ? <span className="text-micro tabular-nums text-white/40">{count}</span> : null}
       </div>
       {children({ id: fid, describedBy })}
       {hint ? (

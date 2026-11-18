@@ -24,7 +24,7 @@ export function GovernanceSection({ model }: { model: IipaModel }) {
             {counts.map((c) => (
               <span
                 key={c.level}
-                className="rounded-full px-2 py-0.5 text-[10px] font-semibold tabular-nums"
+                className="rounded-full px-2 py-0.5 text-micro font-semibold tabular-nums"
                 style={{ color: LEVEL_META[c.level].color, background: LEVEL_META[c.level].bg }}
               >
                 {c.n} {LEVEL_META[c.level].label.toLowerCase()}
@@ -51,10 +51,10 @@ export function GovernanceSection({ model }: { model: IipaModel }) {
             >
               <div className="min-w-0">
                 <p className="truncate text-[12px] font-semibold text-white">{a.title}</p>
-                <p className="text-[10px] text-white/45">{a.owner}</p>
+                <p className="text-micro text-white/45">{a.owner}</p>
               </div>
               <p className="hidden text-[12px] tabular-nums text-white md:block">
-                {a.value} <span className="text-[10px] text-white/40">{a.limit}</span>
+                {a.value} <span className="text-micro text-white/40">{a.limit}</span>
               </p>
               <p className="hidden text-[11px] text-white/70 md:block">{a.action}</p>
               <LevelChip level={a.level} />

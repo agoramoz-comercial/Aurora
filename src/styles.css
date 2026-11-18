@@ -19,6 +19,19 @@
  */
 
 @theme inline {
+  /* Aurora type scale — the only sizes UI text should use (min 11px for legibility). */
+  --text-micro: 11px;
+  --text-micro--line-height: 1.35;
+  --text-caption: 12px;
+  --text-caption--line-height: 1.4;
+  --text-body: 13px;
+  --text-body--line-height: 1.5;
+  --text-title: 15px;
+  --text-title--line-height: 1.35;
+  --text-metric: 22px;
+  --text-metric--line-height: 1.15;
+  --text-hero: 30px;
+  --text-hero--line-height: 1.1;
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);

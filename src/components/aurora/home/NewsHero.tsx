@@ -60,7 +60,7 @@ function LeadStory({
       <div className="relative flex items-start justify-between gap-3 p-5">
         <div className="flex flex-wrap items-center gap-2">
           <AttentionBadge level={item.attentionLevel} pulse />
-          <span className="rounded-full bg-black/40 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.1em] text-white/75 backdrop-blur-md">
+          <span className="rounded-full bg-black/40 px-2.5 py-1 text-micro font-semibold uppercase tracking-[0.1em] text-white/75 backdrop-blur-md">
             {EVENT_LABEL[item.eventType]}
           </span>
         </div>
@@ -110,7 +110,7 @@ function LeadStory({
           >
             {conf.label}
           </span>
-          <span className="flex items-center gap-2 text-[10px] text-white/45">
+          <span className="flex items-center gap-2 text-micro text-white/45">
             <EvidenceDots count={item.evidenceCount} /> {HORIZON_LABEL[item.horizon]}
           </span>
           <div className="ml-auto flex items-center gap-1.5">
@@ -127,7 +127,7 @@ function LeadStory({
               }}
               className="flex h-9 items-center gap-1.5 rounded-xl px-4 text-[11px] font-bold text-white transition-[filter,transform] duration-150 hover:brightness-110 active:scale-[0.97]"
               style={{
-                background: "var(--aurora-accent)",
+                background: "var(--aurora-accent-strong)",
                 boxShadow: "0 0 20px rgba(74,158,255,0.45)",
               }}
             >
@@ -171,7 +171,7 @@ function SideStory({ item, onOpen }: { item: PrimaryNewsItem; onOpen: () => void
         style={{ background: `linear-gradient(90deg, transparent, ${col.dot}, transparent)` }}
       />
       <div className="relative flex flex-col gap-1.5">
-        <div className="flex items-center gap-2 text-[10px]">
+        <div className="flex items-center gap-2 text-micro">
           <span className="h-1.5 w-1.5 rounded-full" style={{ background: col.dot }} />
           <span className="font-bold text-white">{item.ticker}</span>
           <span className="text-white/45">{EVENT_LABEL[item.eventType]}</span>
@@ -185,7 +185,7 @@ function SideStory({ item, onOpen }: { item: PrimaryNewsItem; onOpen: () => void
         <p className="line-clamp-2 text-[13px] font-semibold leading-snug text-white">
           {item.headline}
         </p>
-        <span className="flex items-center gap-1 text-[10px] text-white/45">
+        <span className="flex items-center gap-1 text-micro text-white/45">
           há {formatMinutesAgo(item.minutesAgo)} · {HORIZON_LABEL[item.horizon]}
           <ArrowUpRight
             size={11}
