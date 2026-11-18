@@ -8,8 +8,12 @@
  */
 
 export const CHART = {
-  accent: "#4a9eff",
-  accentSoft: "rgba(74,158,255,0.35)",
+  /** Ollympius charts are monochrome: white lines, grey bars, colour only for meaning. */
+  accent: "rgba(255,255,255,0.88)",
+  accentSoft: "rgba(255,255,255,0.35)",
+  bar: "rgba(255,255,255,0.28)",
+  barActive: "rgba(255,255,255,0.58)",
+  blue: "#4a9eff",
   positive: "#4ade80",
   negative: "#f87171",
   warn: "#fbbf24",
@@ -24,6 +28,7 @@ export const CHART = {
 /** Categorical series order — used left-to-right for multi-series charts. */
 export const SERIES_COLORS = [
   CHART.accent,
+  CHART.blue,
   CHART.positive,
   CHART.violet,
   CHART.amber,

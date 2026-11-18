@@ -67,8 +67,9 @@ export function FeaturedShowcase({
             <span
               className="rounded-full px-2.5 py-1 text-micro font-bold uppercase tracking-[0.14em] text-white"
               style={{
-                background: "var(--aurora-accent-strong)",
-                boxShadow: "0 0 16px rgba(74,158,255,0.5)",
+                background: "rgba(255,255,255,0.92)",
+                color: "#0b0f17",
+                boxShadow: "0 6px 20px rgba(0,0,0,0.25)",
               }}
             >
               Em destaque

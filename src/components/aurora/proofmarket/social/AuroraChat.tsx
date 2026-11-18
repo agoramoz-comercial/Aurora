@@ -384,7 +384,7 @@ export function FeedView(props: {
               className={cn("flex w-[66px] flex-col items-center gap-1.5 rounded-xl", focusRing)}
             >
               <Ring initials={pm.me.initials} size={60} seen>
-                <span className="absolute -bottom-0.5 -right-0.5 grid h-5 w-5 place-items-center rounded-full border-2 border-[#1a1613] bg-[var(--aurora-accent-strong)] text-white">
+                <span className="absolute -bottom-0.5 -right-0.5 grid h-5 w-5 place-items-center rounded-full border-2 border-[#1a1613] bg-white/92 text-[#0b0f17]">
                   <Plus size={11} aria-hidden />
                 </span>
               </Ring>
@@ -596,7 +596,7 @@ function Post({
           <button
             type="button"
             onClick={() => onProfile(a.id)}
-            className="flex items-center gap-1 truncate text-[13.5px] font-semibold text-white hover:underline"
+            className="flex min-h-6 items-center gap-1 truncate text-[13.5px] font-semibold text-white hover:underline"
           >
             {a.handle.replace("@", "")}
             {a.level !== "N1" ? (
@@ -633,6 +633,7 @@ function Post({
                 transition={{ duration: 0.14 }}
                 className="absolute right-0 top-11 z-30 flex w-60 flex-col overflow-hidden rounded-[18px] text-[13px]"
                 style={{
+                  transformOrigin: "top right",
                   background: "rgba(24,20,18,0.97)",
                   border: "1px solid rgba(255,255,255,0.14)",
                   boxShadow: "0 24px 48px rgba(0,0,0,0.55)",
@@ -721,10 +722,10 @@ function Post({
             <motion.span
               key={burst}
               aria-hidden
-              initial={{ scale: 0.3, opacity: 0 }}
-              animate={{ scale: [0.3, 1.2, 1], opacity: [0, 1, 1] }}
-              exit={{ opacity: 0, scale: 1.3 }}
-              transition={{ duration: 0.45 }}
+              initial={{ scale: 0.6, opacity: 0 }}
+              animate={{ scale: [0.6, 1.12, 1], opacity: [0, 1, 1] }}
+              exit={{ opacity: 0, scale: 1.1, transition: { duration: 0.15 } }}
+              transition={{ duration: 0.3, ease: [0.23, 1, 0.32, 1] }}
               onAnimationComplete={() => window.setTimeout(() => setBurst(0), 350)}
               className="pointer-events-none absolute inset-0 grid place-items-center"
             >
@@ -842,7 +843,7 @@ function Post({
           aria-expanded={more}
           aria-controls={detailsId}
           onClick={() => setMore((m) => !m)}
-          className="flex items-center gap-1 self-start text-[12.5px] font-medium text-white/75 hover:text-white"
+          className="flex min-h-6 items-center gap-1 self-start text-[12.5px] font-medium text-white/75 hover:text-white"
         >
           {more ? "Menos" : "Mais detalhes"}{" "}
           <ChevronDown
@@ -957,7 +958,7 @@ function Post({
         <button
           type="button"
           onClick={() => onOpen(thesis.id, "contraditorio")}
-          className="self-start text-[12.5px] text-white/65 hover:text-white"
+          className="min-h-6 self-start text-[12.5px] text-white/65 hover:text-white"
         >
           {counters.length ? `Ver as ${counters.length} contra-teses` : "Ainda sem contraditório"}
         </button>
@@ -1174,7 +1175,7 @@ export function ProfileView({
                     <button
                       type="button"
                       onClick={() => onReview(due[0]!.id)}
-                      className="flex-1 rounded-xl bg-[var(--aurora-accent-strong)] px-4 py-2 text-[13px] font-semibold text-white hover:brightness-110"
+                      className="flex-1 rounded-xl bg-white/92 px-4 py-2 text-[13px] font-semibold text-[#0b0f17] hover:bg-white"
                     >
                       Rever tese ({due.length})
                     </button>
@@ -1219,7 +1220,7 @@ export function ProfileView({
                       "flex flex-1 items-center justify-center gap-1.5 rounded-xl px-4 py-2 text-[13px] font-semibold",
                       followsAuthor
                         ? "bg-white/12 text-white"
-                        : "bg-[var(--aurora-accent-strong)] text-white hover:brightness-110",
+                        : "bg-white/92 text-[#0b0f17] hover:bg-white",
                     )}
                   >
                     <UserPlus size={15} aria-hidden /> {followsAuthor ? "A seguir" : "Seguir"}
@@ -1452,9 +1453,9 @@ function Performance({ author }: { author: Author }) {
                     <motion.span
                       className="block h-full rounded-full"
                       style={{ background: "linear-gradient(90deg, #60a5fa, #a78bfa)" }}
-                      initial={{ width: 0 }}
-                      animate={{ width: `${Math.round(d.ratio * 100)}%` }}
-                      transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+                      initial={{ scaleX: 0 }}
+                      animate={{ scaleX: d.ratio }}
+                      transition={{ duration: 0.3, ease: [0.23, 1, 0.32, 1] }}
                     />
                   </span>
                 ) : null}
@@ -1945,7 +1946,7 @@ function Thread({
             <button
               type="submit"
               aria-label="Enviar mensagem"
-              className="grid h-9 w-9 place-items-center rounded-full bg-[var(--aurora-accent-strong)] text-white hover:brightness-110"
+              className="grid h-9 w-9 place-items-center rounded-full bg-white/92 text-[#0b0f17] hover:bg-white"
             >
               <Send size={15} aria-hidden />
             </button>

@@ -233,7 +233,11 @@ export function ImpactRadar({
                     className="block h-full rounded-full"
                     initial={{ width: 0 }}
                     animate={{ width: `${a.impactScore}%` }}
-                    transition={{ duration: 0.9, delay: 0.15 + i * 0.06, ease: [0.22, 1, 0.36, 1] }}
+                    transition={{
+                      duration: 0.3,
+                      delay: Math.min(i, 6) * 0.04,
+                      ease: [0.23, 1, 0.32, 1],
+                    }}
                     style={{
                       background: `linear-gradient(90deg, ${col.dot}, var(--aurora-accent))`,
                     }}

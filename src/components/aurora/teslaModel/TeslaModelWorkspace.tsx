@@ -466,7 +466,7 @@ function DriverInput({
           step={step}
           value={value}
           onChange={(e) => onChange(parseFloat(e.target.value))}
-          className="h-1 w-20 cursor-pointer appearance-none rounded-full bg-white/15 accent-blue-400 sm:w-28"
+          className="h-6 w-20 cursor-pointer accent-[#4a9eff] sm:w-28"
         />
         <span className="w-14 text-right text-[11px] font-semibold tabular-nums text-white">
           {format === "pct" ? `${(value * 100).toFixed(1)}%` : value.toFixed(1)}
@@ -702,12 +702,16 @@ function RevenueGroup({ ticker, triCase }: { ticker: TechTicker; triCase: TriCas
               />
               <Tooltip content={<GlassTooltip />} />
               <Bar
+                animationDuration={300}
+                animationEasing="ease-out"
                 dataKey="Primary"
                 name={model.meta.segmentPrimaryLabel}
                 stackId="a"
                 fill={CHART.accent}
               />
               <Bar
+                animationDuration={300}
+                animationEasing="ease-out"
                 dataKey="Secondary"
                 name={model.meta.segmentSecondaryLabel}
                 stackId="a"
@@ -806,9 +810,30 @@ function OpExGroup({
                 tickFormatter={(v: number) => fmtM(v)}
               />
               <Tooltip content={<GlassTooltip />} />
-              <Line type="monotone" dataKey="GrossProfit" stroke={CHART.accent} strokeWidth={2} />
-              <Line type="monotone" dataKey="OpEx" stroke={CHART.amber} strokeWidth={2} />
-              <Line type="monotone" dataKey="EBIT" stroke={CHART.positive} strokeWidth={2} />
+              <Line
+                animationDuration={300}
+                animationEasing="ease-out"
+                type="monotone"
+                dataKey="GrossProfit"
+                stroke={CHART.accent}
+                strokeWidth={2}
+              />
+              <Line
+                animationDuration={300}
+                animationEasing="ease-out"
+                type="monotone"
+                dataKey="OpEx"
+                stroke={CHART.amber}
+                strokeWidth={2}
+              />
+              <Line
+                animationDuration={300}
+                animationEasing="ease-out"
+                type="monotone"
+                dataKey="EBIT"
+                stroke={CHART.positive}
+                strokeWidth={2}
+              />
             </LineChart>
           </ResponsiveContainer>
         </div>
@@ -1031,14 +1056,30 @@ function StatementsGroup({ ticker, triCase }: { ticker: TechTicker; triCase: Tri
               />
               <Tooltip content={<GlassTooltip />} />
               <Area
+                animationDuration={300}
+                animationEasing="ease-out"
                 type="monotone"
                 dataKey="Revenue"
                 stroke={CHART.accent}
                 fill="url(#gradRev)"
                 strokeWidth={2}
               />
-              <Line type="monotone" dataKey="NetIncome" stroke={CHART.positive} strokeWidth={2} />
-              <Line type="monotone" dataKey="Cash" stroke={CHART.violet} strokeWidth={2} />
+              <Line
+                animationDuration={300}
+                animationEasing="ease-out"
+                type="monotone"
+                dataKey="NetIncome"
+                stroke={CHART.positive}
+                strokeWidth={2}
+              />
+              <Line
+                animationDuration={300}
+                animationEasing="ease-out"
+                type="monotone"
+                dataKey="Cash"
+                stroke={CHART.violet}
+                strokeWidth={2}
+              />
             </AreaChart>
           </ResponsiveContainer>
         </div>

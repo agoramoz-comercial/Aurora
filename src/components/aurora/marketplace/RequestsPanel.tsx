@@ -94,7 +94,7 @@ export function RequestsPanel({ onOpen }: { onOpen: (l: Listing) => void }) {
                 <button
                   type="button"
                   onClick={() => store.acceptCounter(r.id)}
-                  className="flex h-8 items-center gap-1 rounded-lg bg-[var(--aurora-accent-strong)] px-3 text-[11px] font-bold text-white hover:brightness-110"
+                  className="flex h-8 items-center gap-1 rounded-lg bg-white/92 px-3 text-[11px] font-bold text-[#0b0f17] hover:bg-white"
                 >
                   <Check size={12} /> Aceitar {formatPrice(r.counterUsd)}
                 </button>

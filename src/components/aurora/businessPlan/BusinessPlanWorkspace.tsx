@@ -106,9 +106,9 @@ export function BusinessPlanWorkspace() {
               key={p.id}
               onClick={() => handleSelectPreset(p.id)}
               aria-pressed={isActive}
-              className={`rounded-full px-3 py-1 text-[11px] font-semibold transition-all ${
+              className={`rounded-full px-3 py-1 text-[11px] font-semibold transition-colors duration-150 ${
                 isActive
-                  ? "bg-[var(--aurora-accent-strong)] text-white shadow-[0_0_16px_rgba(74,158,255,0.55)]"
+                  ? "bg-white/30 text-white shadow-[inset_0_0_0_1px_rgba(255,255,255,0.35)]"
                   : "bg-white/8 text-white/55 hover:bg-white/16 hover:text-white"
               }`}
             >

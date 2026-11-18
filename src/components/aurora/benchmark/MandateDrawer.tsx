@@ -127,7 +127,8 @@ export function MandateDrawer({
             }}
             className="flex h-10 items-center rounded-xl px-5 text-[12px] font-bold text-white transition-[filter,transform] hover:brightness-110 active:scale-[0.97]"
             style={{
-              background: "var(--aurora-accent-strong)",
+              background: "rgba(255,255,255,0.92)",
+              color: "#0b0f17",
               boxShadow: "0 0 24px rgba(74,158,255,0.45)",
             }}
           >

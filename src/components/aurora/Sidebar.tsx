@@ -1,7 +1,7 @@
 import {
   BarChart3,
   Home,
-  LayoutGrid,
+  Briefcase,
   Plus,
   Settings,
   FileCheck,
@@ -18,7 +18,7 @@ const items = [
   { id: "home", icon: Home, label: "Notícias" },
   { id: "proofmarket", icon: MessageCircleHeart, label: "Aurora Chat" },
   { id: "financas", icon: Wallet, label: "Finanças Pessoais" },
-  { id: "grid", icon: LayoutGrid, label: "Ollympius Dashboard" },
+  { id: "grid", icon: Briefcase, label: "Portfolio Management" },
   { id: "bars", icon: BarChart3, label: "Analytics" },
   { id: "benchmarkPage", icon: Building2, label: "Benchmark & Projeções" },
   { id: "businessPlan", icon: FileCheck, label: "Plano de Negócios" },
@@ -40,7 +40,7 @@ export function Sidebar({ active, onSelect, orientation = "vertical" }: SidebarP
       aria-label="Primary"
       initial={{ opacity: 0, x: horizontal ? 0 : -12, y: horizontal ? -8 : 0 }}
       animate={{ opacity: 1, x: 0, y: 0 }}
-      transition={{ duration: 0.5, delay: 0.2 }}
+      transition={{ duration: 0.3, delay: 0.06, ease: [0.23, 1, 0.32, 1] }}
       className={cn(
         "glass flex items-center gap-2 p-2",
         horizontal ? "no-scrollbar w-fit max-w-full flex-row overflow-x-auto" : "w-[60px] flex-col",

@@ -315,8 +315,9 @@ export function PrimaryButton({
       disabled={disabled}
       className="flex h-9 shrink-0 items-center gap-1.5 rounded-xl px-4 text-[12px] font-bold text-white transition-[filter,transform,opacity] hover:brightness-110 active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60 disabled:cursor-not-allowed disabled:opacity-45"
       style={{
-        background: "var(--aurora-accent-strong)",
-        boxShadow: "0 0 18px rgba(74,158,255,0.4)",
+        background: "rgba(255,255,255,0.92)",
+        color: "#0b0f17",
+        boxShadow: "0 6px 20px rgba(0,0,0,0.25)",
       }}
     >
       {Icon ? <Icon size={13} aria-hidden /> : null}

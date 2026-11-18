@@ -148,7 +148,10 @@ export function SectionLabel({
   );
 }
 
-/** Compact KPI tile — the atom of every overview strip in the app. */
+/**
+ * Compact KPI tile in the Ollympius layout: pill label on top, value bottom-left,
+ * delta pill bottom-right. The atom of every overview strip in the app.
+ */
 export function StatTile({
   label,
   value,
@@ -164,37 +167,68 @@ export function StatTile({
   footnote?: ReactNode;
   accent?: boolean;
 }) {
-  const deltaColor =
-    deltaTone === "up" ? "#4ade80" : deltaTone === "down" ? "#f87171" : "rgba(255,255,255,0.55)";
+  return (
+    <MetricCard
+      label={label}
+      value={value}
+      delta={delta}
+      tone={
+        deltaTone === "up" ? "good" : deltaTone === "down" ? "bad" : accent ? "accent" : undefined
+      }
+      hint={footnote}
+    />
+  );
+}
+
+/** Ollympius metric card. `bare` drops the glass so it can sit inside another tile. */
+export function MetricCard({
+  label,
+  value,
+  delta,
+  hint,
+  tone,
+  action,
+  bare,
+  className,
+}: {
+  label: string;
+  value: ReactNode;
+  delta?: ReactNode;
+  hint?: ReactNode;
+  tone?: "good" | "bad" | "warn" | "accent";
+  action?: ReactNode;
+  bare?: boolean;
+  className?: string;
+}) {
+  const color =
+    tone === "good" ? "#86efac" : tone === "bad" ? "#fca5a5" : tone === "warn" ? "#fcd34d" : "#fff";
   return (
     <div
-      className="glass relative flex min-w-0 flex-col justify-between gap-1.5 p-3.5"
-      style={
-        accent
-          ? { boxShadow: "inset 0 0 0 1px rgba(74,158,255,0.28), 0 0 22px rgba(74,158,255,0.10)" }
-          : undefined
-      }
+      className={cn(
+        !bare && "glass p-4",
+        "relative flex min-w-0 flex-col justify-between gap-3",
+        className,
+      )}
     >
-      <span className="truncate text-micro font-semibold uppercase tracking-[0.12em] text-white/60">
-        {label}
-      </span>
-      <div className="flex items-baseline gap-2">
-        <span
-          className="truncate text-xl font-semibold tabular-nums"
-          style={{ color: accent ? "var(--aurora-accent)" : "#fff" }}
-        >
-          {value}
+      <div className="flex items-start justify-between gap-2">
+        <span className="glass-pill inline-flex max-w-full items-center truncate px-2.5 py-1 text-micro font-medium text-white/80">
+          {label}
         </span>
-        {delta ? (
-          <span
-            className="shrink-0 text-micro font-semibold tabular-nums"
-            style={{ color: deltaColor }}
-          >
-            {delta}
-          </span>
-        ) : null}
+        {action}
       </div>
-      {footnote ? <p className="truncate text-micro text-white/55">{footnote}</p> : null}
+      <div className="flex min-w-0 flex-col gap-1">
+        <div className="flex flex-wrap items-end justify-between gap-2">
+          <span className="truncate text-metric font-semibold tabular-nums" style={{ color }}>
+            {value}
+          </span>
+          {delta ? (
+            <span className="glass-pill shrink-0 px-2 py-0.5 text-micro tabular-nums text-white/75">
+              {delta}
+            </span>
+          ) : null}
+        </div>
+        {hint ? <span className="text-micro leading-snug text-white/60">{hint}</span> : null}
+      </div>
     </div>
   );
 }
@@ -220,7 +254,7 @@ export function SegmentedTabs<T extends string>({
 }) {
   return (
     <div className="-mx-1 overflow-x-auto px-1 pb-1" style={{ scrollbarWidth: "none" }}>
-      <div className="glass-soft flex w-max min-w-full gap-0.5 p-0.5" style={{ borderRadius: 12 }}>
+      <div className="glass-soft flex w-max min-w-full gap-0.5 p-1" style={{ borderRadius: 999 }}>
         {tabs.map(({ id, label, shortLabel, icon: Icon, prefix, count }) => {
           const isActive = id === active;
           return (
@@ -229,15 +263,14 @@ export function SegmentedTabs<T extends string>({
               onClick={() => onSelect(id)}
               aria-pressed={isActive}
               className={cn(
-                "relative flex items-center gap-1.5 whitespace-nowrap font-semibold transition-[color,background-color,box-shadow] duration-300",
+                "relative flex items-center gap-1.5 whitespace-nowrap rounded-full font-semibold transition-[color,background-color,box-shadow] duration-200 ease-[var(--ease-out)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60",
                 size === "sm" ? "px-2.5 py-1.5 text-micro" : "px-3 py-2 text-caption",
-                isActive ? "text-white" : "text-white/55 hover:bg-white/8 hover:text-white",
+                isActive ? "text-white" : "text-white/60 hover:bg-white/10 hover:text-white",
               )}
               style={{
-                borderRadius: 8,
-                background: isActive ? "rgba(74,158,255,0.22)" : undefined,
+                background: isActive ? "rgba(255,255,255,0.24)" : undefined,
                 boxShadow: isActive
-                  ? "inset 0 0 0 1px rgba(74,158,255,0.42), 0 0 16px rgba(74,158,255,0.18)"
+                  ? "inset 0 0 0 1px rgba(255,255,255,0.32), inset 0 1px 0 rgba(255,255,255,0.4)"
                   : undefined,
               }}
             >
@@ -245,7 +278,7 @@ export function SegmentedTabs<T extends string>({
                 <span className="text-micro tabular-nums text-white/50">{prefix}</span>
               ) : null}
               {Icon ? (
-                <Icon size={13} className={isActive ? "text-[var(--aurora-accent)]" : ""} />
+                <Icon size={13} aria-hidden className={isActive ? "text-white" : ""} />
               ) : null}
               <span className="hidden sm:inline">{label}</span>
               <span className="sm:hidden">{shortLabel ?? label}</span>
@@ -253,9 +286,7 @@ export function SegmentedTabs<T extends string>({
                 <span
                   className={cn(
                     "rounded-full px-1.5 py-px text-micro tabular-nums",
-                    isActive
-                      ? "bg-[var(--aurora-accent-strong)] text-white"
-                      : "bg-white/10 text-white/60",
+                    isActive ? "bg-white text-[#0b0f17]" : "bg-white/12 text-white/70",
                   )}
                 >
                   {count}
@@ -300,7 +331,7 @@ export function TickerChips({
             className={cn(
               "flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1 text-[11px] font-bold tabular-nums transition-[color,background-color,box-shadow] duration-200",
               isActive
-                ? "bg-[var(--aurora-accent-strong)] text-white shadow-[0_0_16px_rgba(74,158,255,0.55)]"
+                ? "bg-white/30 text-white shadow-[inset_0_0_0_1px_rgba(255,255,255,0.35)]"
                 : "bg-white/8 text-white/55 hover:bg-white/16 hover:text-white",
             )}
           >
@@ -332,8 +363,10 @@ export function Panel({
     <section className={cn("glass flex min-w-0 flex-col p-4", className)}>
       <div className="flex shrink-0 flex-wrap items-center justify-between gap-2 pb-3">
         <div className="min-w-0">
-          <h3 className="truncate text-body font-semibold text-white">{title}</h3>
-          {subtitle ? <p className="mt-0.5 truncate text-micro text-white/60">{subtitle}</p> : null}
+          <h3 className="glass-pill inline-flex max-w-full items-center truncate px-3 py-1 text-caption font-semibold text-white">
+            {title}
+          </h3>
+          {subtitle ? <p className="mt-1.5 truncate text-micro text-white/60">{subtitle}</p> : null}
         </div>
         {right ? <div className="flex shrink-0 items-center gap-1.5">{right}</div> : null}
       </div>
@@ -351,13 +384,9 @@ export function AccentBadge({ children, className }: { children: ReactNode; clas
   return (
     <span
       className={cn(
-        "hidden items-center gap-1 rounded-full px-2.5 py-1 text-micro font-bold uppercase tracking-[0.1em] text-white sm:inline-flex",
+        "glass-pill hidden items-center gap-1 px-3 py-1 text-micro font-semibold uppercase tracking-[0.1em] text-white/85 sm:inline-flex",
         className,
       )}
-      style={{
-        background: "var(--aurora-accent-strong)",
-        boxShadow: "0 0 14px rgba(74,158,255,0.4)",
-      }}
     >
       {children}
     </span>
@@ -401,10 +430,10 @@ export function FilterChip({
       onClick={onClick}
       aria-pressed={active}
       className={cn(
-        "flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full font-semibold transition-[color,background-color,box-shadow] duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50",
+        "flex min-h-8 shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full font-semibold transition-[color,background-color,box-shadow] duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50",
         size === "md" ? "px-3.5 py-2 text-[12px]" : "px-3 py-1 text-micro",
         active
-          ? "bg-[var(--aurora-accent-strong)] text-white shadow-[0_0_14px_rgba(74,158,255,0.5)]"
+          ? "bg-white/30 text-white shadow-[inset_0_0_0_1px_rgba(255,255,255,0.35)]"
           : "bg-white/8 text-white/55 hover:bg-white/14 hover:text-white",
       )}
     >
@@ -439,7 +468,7 @@ export function SearchField({
   return (
     <label
       className={cn(
-        "glass-soft flex h-9 min-w-0 items-center gap-2 px-3 text-white/50 focus-within:text-white/80 focus-within:shadow-[inset_0_0_0_1px_rgba(74,158,255,0.45)]",
+        "glass-soft flex h-9 min-w-0 items-center gap-2 px-3 text-white/50 focus-within:text-white/80 focus-within:shadow-[inset_0_0_0_1px_rgba(255,255,255,0.4)]",
         className,
       )}
       style={{ borderRadius: 12 }}
@@ -453,7 +482,7 @@ export function SearchField({
           if (e.key === "Escape") onChange("");
         }}
         placeholder={placeholder}
-        className="min-w-0 flex-1 bg-transparent text-[12px] text-white outline-none placeholder:text-white/35 [&::-webkit-search-cancel-button]:hidden"
+        className="h-full min-w-0 flex-1 bg-transparent text-[12px] text-white outline-none placeholder:text-white/35 [&::-webkit-search-cancel-button]:hidden"
       />
       {value ? (
         <button
@@ -491,12 +520,11 @@ export function Button({
       type={type}
       {...rest}
       className={cn(
-        "inline-flex shrink-0 items-center justify-center gap-1.5 rounded-[12px] font-semibold transition-[background-color,color,box-shadow,transform] duration-150 active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70 disabled:pointer-events-none disabled:opacity-45",
-        size === "sm" ? "h-8 px-3 text-caption" : "h-10 px-4 text-body",
+        "inline-flex shrink-0 items-center justify-center gap-1.5 rounded-full font-semibold transition-[background-color,color,box-shadow,transform] duration-150 ease-[var(--ease-out)] active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70 disabled:pointer-events-none disabled:opacity-45",
+        size === "sm" ? "h-9 px-3.5 text-caption" : "h-10 px-[18px] text-body",
         variant === "primary" &&
-          "bg-[var(--aurora-accent-strong)] text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.2)] hover:brightness-110",
-        variant === "secondary" &&
-          "border border-white/14 bg-white/10 text-white hover:bg-white/16",
+          "bg-white/92 text-[#0b0f17] shadow-[0_6px_20px_rgba(0,0,0,0.25)] hover:bg-white",
+        variant === "secondary" && "glass-pill text-white hover:bg-white/24",
         variant === "ghost" && "text-white/75 hover:bg-white/8 hover:text-white",
         variant === "danger" && "bg-[#b91c1c] text-white hover:brightness-110",
         className,
@@ -679,7 +707,7 @@ export function Drawer({
             initial={{ x: 48, opacity: 0 }}
             animate={{ x: 0, opacity: 1 }}
             exit={{ x: 32, opacity: 0, transition: { duration: 0.16 } }}
-            transition={{ duration: 0.36, ease: [0.22, 1, 0.36, 1] }}
+            transition={{ duration: 0.32, ease: [0.32, 0.72, 0, 1] }}
             className="relative m-0 flex h-full w-full flex-col overflow-hidden sm:m-3 sm:h-[calc(100%-24px)] sm:rounded-[24px]"
             style={{
               maxWidth: width,

@@ -285,7 +285,7 @@ function Workspace({ initialStep }: { initialStep: Step }) {
                       <span className="block font-semibold">{a.name}</span>
                       <span className="block text-[11.5px] text-white/60">{a.handle}</span>
                     </span>
-                    <span className="rounded-full bg-[var(--aurora-accent-strong)] px-3 py-1 text-[11.5px] font-semibold">
+                    <span className="rounded-full bg-white/92 px-3 py-1 text-[11.5px] font-semibold">
                       Enviar
                     </span>
                   </button>

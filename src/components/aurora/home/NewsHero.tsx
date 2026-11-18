@@ -44,7 +44,7 @@ function LeadStory({
           src={img}
           alt=""
           aria-hidden
-          className="absolute inset-0 h-full w-full object-cover opacity-60 transition-transform duration-[1200ms] ease-out group-hover:scale-[1.04]"
+          className="absolute inset-0 h-full w-full object-cover opacity-60 transition-transform duration-300 ease-out group-hover:scale-[1.04]"
         />
       ) : (
         <StoryArt ticker={item.ticker} level={item.attentionLevel} />
@@ -127,7 +127,8 @@ function LeadStory({
               }}
               className="flex h-9 items-center gap-1.5 rounded-xl px-4 text-[11px] font-bold text-white transition-[filter,transform] duration-150 hover:brightness-110 active:scale-[0.97]"
               style={{
-                background: "var(--aurora-accent-strong)",
+                background: "rgba(255,255,255,0.92)",
+                color: "#0b0f17",
                 boxShadow: "0 0 20px rgba(74,158,255,0.45)",
               }}
             >
@@ -155,7 +156,7 @@ function SideStory({ item, onOpen }: { item: PrimaryNewsItem; onOpen: () => void
           src={img}
           alt=""
           aria-hidden
-          className="absolute inset-0 h-full w-full object-cover opacity-45 transition-transform duration-700 group-hover:scale-[1.05]"
+          className="absolute inset-0 h-full w-full object-cover opacity-45 transition-transform duration-300 group-hover:scale-[1.05]"
         />
       ) : (
         <StoryArt ticker={item.ticker} level={item.attentionLevel} />
@@ -266,7 +267,7 @@ export function NewsHero({
                 aria-selected={isActive}
                 aria-label={`${l.ticker}: ${l.headline}`}
                 onClick={() => onSelectLead(i)}
-                className="group relative h-4 flex-1"
+                className="group relative h-6 flex-1"
               >
                 <span className="absolute inset-x-0 top-1/2 h-[3px] -translate-y-1/2 overflow-hidden rounded-full bg-white/15 group-hover:bg-white/25">
                   <span

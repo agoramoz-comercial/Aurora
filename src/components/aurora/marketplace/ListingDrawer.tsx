@@ -156,7 +156,8 @@ export function ListingDrawer({
               disabled={mode === "offer" && !!offerError}
               className="flex h-10 flex-1 items-center justify-center gap-2 rounded-xl text-[13px] font-bold text-white transition-[filter,transform,opacity] duration-150 hover:brightness-110 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-45"
               style={{
-                background: "var(--aurora-accent-strong)",
+                background: "rgba(255,255,255,0.92)",
+                color: "#0b0f17",
                 boxShadow: "0 0 24px rgba(74,158,255,0.4)",
               }}
             >

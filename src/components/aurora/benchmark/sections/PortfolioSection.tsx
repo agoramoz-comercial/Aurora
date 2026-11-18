@@ -262,7 +262,7 @@ export function PortfolioSection({ model }: { model: IipaModel }) {
                 {m.compliant ? "Cumpre o mandato" : "Fora dos limites do mandato"}
               </span>
               {m.id === "goals" ? (
-                <span className="absolute -top-2 right-3 rounded-full bg-[var(--aurora-accent-strong)] px-2 py-0.5 text-micro font-bold uppercase tracking-[0.1em] text-white">
+                <span className="absolute -top-2 right-3 rounded-full bg-white/92 px-2 py-0.5 text-micro font-bold uppercase tracking-[0.1em] text-[#0b0f17]">
                   Recomendada
                 </span>
               ) : null}

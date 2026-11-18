@@ -2,6 +2,7 @@
 import { useEffect, useId, useState, type ReactNode } from "react";
 import { Info } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { MetricCard } from "../primitives";
 import { mzn } from "@/lib/finance/personal";
 
 export const fieldCls =
@@ -91,8 +92,8 @@ export function Meter({
       className="h-1.5 w-full overflow-hidden rounded-full bg-white/10"
     >
       <div
-        className="h-full rounded-full transition-[width] duration-500"
-        style={{ width: `${v * 100}%`, background: color }}
+        className="h-full w-full origin-left rounded-full transition-transform duration-300 ease-[var(--ease-out)]"
+        style={{ transform: `scaleX(${v})`, background: color }}
       />
     </div>
   );
@@ -114,42 +115,32 @@ export function Metric({
 }) {
   const [open, setOpen] = useState(false);
   const id = useId();
-  const color =
-    tone === "good"
-      ? "#86efac"
-      : tone === "warn"
-        ? "#fcd34d"
-        : tone === "bad"
-          ? "#fca5a5"
-          : tone === "accent"
-            ? "var(--aurora-accent)"
-            : "#fff";
   return (
-    <div className="glass flex min-w-0 flex-col gap-1 p-4">
-      <div className="flex items-start justify-between gap-1.5">
-        <span className="text-micro font-semibold uppercase leading-tight tracking-[0.1em] text-white/65">
-          {label}
-        </span>
-        <button
-          type="button"
-          aria-expanded={open}
-          aria-controls={id}
-          onClick={() => setOpen((o) => !o)}
-          aria-label={`Como se calcula: ${label}`}
-          title="Como se calcula"
-          className="-mr-1 -mt-1 grid h-7 w-7 shrink-0 place-items-center rounded-full text-white/55 hover:bg-white/10 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60"
-        >
-          <Info size={14} aria-hidden />
-        </button>
-      </div>
-      <span className="truncate text-metric font-semibold tabular-nums" style={{ color }}>
-        {value}
-      </span>
-      {hint ? <span className="text-micro leading-snug text-white/65">{hint}</span> : null}
+    <div className="glass flex min-w-0 flex-col p-4">
+      <MetricCard
+        bare
+        label={label}
+        value={value}
+        hint={hint}
+        tone={tone === "accent" ? undefined : tone}
+        action={
+          <button
+            type="button"
+            aria-expanded={open}
+            aria-controls={id}
+            onClick={() => setOpen((o) => !o)}
+            aria-label={`Como se calcula: ${label}`}
+            title="Como se calcula"
+            className="-mr-1 -mt-1 grid h-8 w-8 shrink-0 place-items-center rounded-full text-white/60 transition-colors duration-150 hover:bg-white/10 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60"
+          >
+            <Info size={14} aria-hidden />
+          </button>
+        }
+      />
       {open ? (
         <p
           id={id}
-          className="mt-1 border-t border-white/10 pt-2 text-caption leading-relaxed text-white/80"
+          className="mt-3 border-t border-white/10 pt-2 text-caption leading-relaxed text-white/80"
         >
           {how}
         </p>

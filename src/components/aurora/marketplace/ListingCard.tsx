@@ -73,7 +73,7 @@ export function ListingImage({
           onLoad={() => setLoaded(true)}
           onError={() => setFailed(true)}
           className={cn(
-            "img-outline absolute inset-0 h-full w-full object-cover transition-[opacity,transform] duration-700 ease-out",
+            "img-outline absolute inset-0 h-full w-full object-cover transition-[opacity,transform] duration-300 ease-out",
             loaded ? "opacity-100" : "opacity-0",
             zoomOnHover && "group-hover:scale-[1.06]",
           )}
@@ -137,7 +137,7 @@ export function ListingCard({
         <div className="absolute left-2.5 top-2.5 flex flex-wrap gap-1.5">
           <CategoryBadge category={listing.category} />
           {listing.mine ? (
-            <span className="rounded-full bg-[var(--aurora-accent-strong)] px-2 py-0.5 text-micro font-bold text-white">
+            <span className="rounded-full bg-white/92 px-2 py-0.5 text-micro font-bold text-[#0b0f17]">
               O seu anúncio
             </span>
           ) : null}

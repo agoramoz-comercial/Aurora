@@ -220,10 +220,13 @@ function Workspace() {
       </div>
       <motion.div
         key={view}
+        tabIndex={0}
+        role="region"
+        aria-label="Conteúdo de Finanças Pessoais"
         initial={{ opacity: 0, y: 6 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.2 }}
-        className="thin-scrollbar flex min-h-0 flex-1 flex-col gap-4 lg:overflow-y-auto lg:pr-1"
+        className="thin-scrollbar flex min-h-0 flex-1 flex-col gap-4 rounded-[20px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40 lg:overflow-y-auto lg:pr-1"
       >
         {view === "geral" ? <Overview d={d} go={setView} /> : null}
         {view === "orcamento" ? <Budget d={d} say={say} /> : null}
@@ -436,8 +439,20 @@ function Overview({ d, go }: { d: D; go: (v: View) => void }) {
                 />
                 <Tooltip {...tooltipProps} formatter={(v) => mzn(Number(v))} />
                 <Legend {...legendProps} />
-                <Bar dataKey="Entradas" fill={CHART.positive} radius={[6, 6, 0, 0]} />
-                <Bar dataKey="Saídas" fill={CHART.accent} radius={[6, 6, 0, 0]} />
+                <Bar
+                  animationDuration={300}
+                  animationEasing="ease-out"
+                  dataKey="Entradas"
+                  fill={CHART.positive}
+                  radius={[6, 6, 0, 0]}
+                />
+                <Bar
+                  animationDuration={300}
+                  animationEasing="ease-out"
+                  dataKey="Saídas"
+                  fill={CHART.accent}
+                  radius={[6, 6, 0, 0]}
+                />
               </BarChart>
             </ResponsiveContainer>
           </div>
@@ -834,7 +849,7 @@ function Transactions({ d, say, onAdd }: { d: D; say: (m: string) => void; onAdd
       {ruleFor ? (
         <div
           role="status"
-          className="mb-3 flex flex-wrap items-center gap-2 rounded-[14px] border border-[var(--aurora-accent)]/40 bg-[var(--aurora-accent-strong)]/10 px-3 py-2.5 text-body text-white"
+          className="mb-3 flex flex-wrap items-center gap-2 rounded-[14px] border border-[var(--aurora-accent)]/40 bg-white/92/10 px-3 py-2.5 text-body text-[#0b0f17]"
         >
           <Wand2 size={15} aria-hidden className="text-[var(--aurora-accent)]" />
           <span className="flex-1">
@@ -1398,6 +1413,8 @@ function Debts({ d }: { d: D }) {
                 />
                 <Legend {...legendProps} />
                 <Line
+                  animationDuration={300}
+                  animationEasing="ease-out"
                   type="monotone"
                   dataKey="Avalanche"
                   stroke={CHART.positive}
@@ -1405,6 +1422,8 @@ function Debts({ d }: { d: D }) {
                   dot={false}
                 />
                 <Line
+                  animationDuration={300}
+                  animationEasing="ease-out"
                   type="monotone"
                   dataKey="Bola de neve"
                   stroke={CHART.violet}
@@ -1412,6 +1431,8 @@ function Debts({ d }: { d: D }) {
                   dot={false}
                 />
                 <Line
+                  animationDuration={300}
+                  animationEasing="ease-out"
                   type="monotone"
                   dataKey="Só mínimos"
                   stroke={CHART.muted}
@@ -1732,6 +1753,8 @@ function Forecast({ d }: { d: D }) {
               />
               <Legend {...legendProps} />
               <Area
+                animationDuration={300}
+                animationEasing="ease-out"
                 type="monotone"
                 dataKey="Atual"
                 stroke={CHART.accent}
@@ -1739,6 +1762,8 @@ function Forecast({ d }: { d: D }) {
                 strokeWidth={2}
               />
               <Area
+                animationDuration={300}
+                animationEasing="ease-out"
                 type="monotone"
                 dataKey="Cenário"
                 stroke={CHART.positive}
