@@ -77,8 +77,8 @@ const PersonalFinanceWorkspace = lazy(() =>
     default: m.PersonalFinanceWorkspace,
   })),
 );
-const OllympiusDashboard = lazy(() =>
-  import("./ollympius/OllympiusDashboard").then((m) => ({ default: m.OllympiusDashboard })),
+const PortfolioWorkspace = lazy(() =>
+  import("./portfolio/PortfolioWorkspace").then((m) => ({ default: m.PortfolioWorkspace })),
 );
 const SettingsWorkspace = lazy(() =>
   import("./settings/SettingsWorkspace").then((m) => ({ default: m.SettingsWorkspace })),
@@ -144,7 +144,11 @@ function Shell({ defaultActive }: { defaultActive: SectionId }) {
   let workspace: ReactNode;
   switch (active) {
     case "grid":
-      workspace = <OllympiusDashboard />;
+      workspace = (
+        <PortfolioStoreProvider>
+          <PortfolioWorkspace />
+        </PortfolioStoreProvider>
+      );
       break;
     case "proofmarket":
       workspace = <ProofMarketWorkspace />;

@@ -6,7 +6,7 @@ import {
   Gem,
   Home,
   Landmark,
-  LayoutGrid,
+  Briefcase,
   MessageCircleHeart,
   Settings,
   Wallet,
@@ -29,9 +29,9 @@ export const SECTIONS = [
   },
   {
     id: "grid",
-    icon: LayoutGrid,
-    label: "Ollympius Dashboard",
-    hint: "Visão geral · Reports abre o Portfolio Management",
+    icon: Briefcase,
+    label: "Portfolio Management",
+    hint: "Institutional V2.1 · ações, técnica, valuation, risco, alertas e carteira",
   },
   { id: "bars", icon: BarChart3, label: "Analytics", hint: "Velas, RSI, risco e alertas" },
   {

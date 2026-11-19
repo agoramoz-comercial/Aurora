@@ -4,6 +4,21 @@ import { getAssetMeta, inferAssetClass } from "@/lib/assets/registry";
 import { getForexFlags, getLogoCandidates } from "@/lib/assets/logoSources";
 import type { AssetClass, AssetMeta, ForexMeta } from "@/lib/assets/types";
 
+/** Pick white or ink text for a brand fill, whichever reads better (WCAG luminance). */
+function readableOn(bg: string | undefined, preferred?: string) {
+  const m = /^#?([0-9a-f]{6})$/i.exec((bg ?? "").trim());
+  if (!m) return preferred ?? "#fff";
+  const n = parseInt(m[1]!, 16);
+  const lin = (c: number) => {
+    const v = c / 255;
+    return v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4;
+  };
+  const L = 0.2126 * lin((n >> 16) & 255) + 0.7152 * lin((n >> 8) & 255) + 0.0722 * lin(n & 255);
+  const onWhite = 1.05 / (L + 0.05);
+  const onInk = (L + 0.05) / (0.0072 + 0.05); // #0b0f17
+  return onWhite >= 4.5 || onWhite >= onInk ? "#fff" : "#0b0f17";
+}
+
 function Monogram({ meta, size = 22 }: { meta: AssetMeta; size?: number }) {
   const letter =
     meta.assetClass === "forex"
@@ -15,7 +30,7 @@ function Monogram({ meta, size = 22 }: { meta: AssetMeta; size?: number }) {
       className="flex h-full w-full items-center justify-center rounded-[5px] font-semibold"
       style={{
         background: meta.brandColor,
-        color: meta.textColor,
+        color: readableOn(meta.brandColor, meta.textColor),
         fontSize: Math.max(11, Math.round(size * 0.42)),
         lineHeight: 1,
       }}
