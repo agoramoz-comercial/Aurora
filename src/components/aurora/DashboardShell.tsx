@@ -13,7 +13,7 @@ import { TeslaModelWorkspace } from "./teslaModel/TeslaModelWorkspace";
 import { MarketplaceWorkspace } from "./marketplace/MarketplaceWorkspace";
 import { ProofMarketWorkspace } from "./proofmarket/ProofMarketWorkspace";
 import { PersonalFinanceWorkspace } from "./personalFinance/PersonalFinanceWorkspace";
-import { PortfolioManagementWorkspace } from "./portfolioManagement/PortfolioManagementWorkspace";
+import { OllympiusDashboard } from "./ollympius/OllympiusDashboard";
 import { MarketplaceStoreProvider } from "@/data/marketplaceStore";
 import { PortfolioStoreProvider } from "@/data/portfolioStore";
 import { cn } from "@/lib/utils";
@@ -22,7 +22,7 @@ const sectionTitles: Record<string, string> = {
   home: "Notícias",
   proofmarket: "Aurora Chat",
   financas: "Finanças Pessoais",
-  grid: "Portfolio Management",
+  grid: "Ollympius Dashboard",
   bars: "Analytics",
   benchmarkPage: "Benchmark & Projeções",
   businessPlan: "Plano de Negócios",
@@ -48,6 +48,7 @@ export function DashboardShell({ defaultActive = "home" }: { defaultActive?: str
   return (
     <div
       className="relative min-h-screen w-full text-white lg:h-screen lg:overflow-hidden"
+      data-glass={active === "grid" ? "ollympius" : undefined}
       style={{ fontFamily: "var(--font-display)" }}
     >
       <img
@@ -62,7 +63,10 @@ export function DashboardShell({ defaultActive = "home" }: { defaultActive?: str
         aria-hidden
         className="pointer-events-none fixed inset-0 -z-10"
         style={{
-          background: "linear-gradient(180deg, rgba(8,6,5,0.34) 0%, rgba(8,6,5,0.52) 100%)",
+          background:
+            active === "grid"
+              ? "linear-gradient(180deg, rgba(0,0,0,0.05) 0%, rgba(0,0,0,0.18) 100%)"
+              : "linear-gradient(180deg, rgba(8,6,5,0.34) 0%, rgba(8,6,5,0.52) 100%)",
         }}
       />
 
@@ -96,7 +100,7 @@ export function DashboardShell({ defaultActive = "home" }: { defaultActive?: str
                   transition={{ duration: 0.3 }}
                   className="flex flex-1 flex-col lg:min-h-0"
                 >
-                  <PortfolioManagementWorkspace />
+                  <OllympiusDashboard />
                 </motion.div>
               ) : (
                 <motion.div

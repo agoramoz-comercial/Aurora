@@ -117,19 +117,20 @@ const PERIODS = [
 ] as const;
 type Period = (typeof PERIODS)[number]["id"];
 
-export function PortfolioManagementWorkspace() {
+/** `onOverview` set: this is the Reports view of the Ollympius Dashboard (no own overview). */
+export function PortfolioManagementWorkspace({ onOverview }: { onOverview?: () => void } = {}) {
   return (
     <PmStoreProvider>
-      <Workspace />
+      <Workspace onOverview={onOverview} />
     </PmStoreProvider>
   );
 }
 
 type Ticket = { symbol: string; side: "compra" | "venda" } | null;
 
-function Workspace() {
+function Workspace({ onOverview }: { onOverview?: () => void }) {
   const pm = usePm();
-  const [view, setView] = useState<View>("geral");
+  const [view, setView] = useState<View>(onOverview ? "posicoes" : "geral");
   const [ticket, setTicket] = useState<Ticket>(null);
   const [toast, setToast] = useState<{ text: string; tone: "ok" | "warn" } | null>(null);
   useEffect(() => {
@@ -149,7 +150,10 @@ function Workspace() {
     );
 
   return (
-    <div className="relative flex min-h-0 flex-1 flex-col gap-4">
+    <div
+      className="relative flex min-h-0 flex-1 flex-col gap-4"
+      data-glass={onOverview ? "dense" : undefined}
+    >
       <WorkspaceHeader
         title="Portfolio Management"
         subtitle="Visão da carteira em tempo real · simulação, sem execução real nem aconselhamento"
@@ -159,7 +163,7 @@ function Workspace() {
               <button
                 type="button"
                 aria-pressed={!reports}
-                onClick={() => setView("geral")}
+                onClick={() => (onOverview ? onOverview() : setView("geral"))}
                 className={pill(!reports)}
               >
                 Visão geral

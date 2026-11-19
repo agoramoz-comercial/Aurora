@@ -1,7 +1,7 @@
 import {
   BarChart3,
   Home,
-  Briefcase,
+  LayoutGrid,
   Plus,
   Settings,
   FileCheck,
@@ -18,7 +18,7 @@ const items = [
   { id: "home", icon: Home, label: "Notícias" },
   { id: "proofmarket", icon: MessageCircleHeart, label: "Aurora Chat" },
   { id: "financas", icon: Wallet, label: "Finanças Pessoais" },
-  { id: "grid", icon: Briefcase, label: "Portfolio Management" },
+  { id: "grid", icon: LayoutGrid, label: "Ollympius Dashboard" },
   { id: "bars", icon: BarChart3, label: "Analytics" },
   { id: "benchmarkPage", icon: Building2, label: "Benchmark & Projeções" },
   { id: "businessPlan", icon: FileCheck, label: "Plano de Negócios" },
