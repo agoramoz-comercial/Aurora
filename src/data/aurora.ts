@@ -87,11 +87,3 @@ export const heroStats: { label: string; value: string }[] = [
   { label: "Sessions", value: "38.2k" },
   { label: "Avg order", value: "$54" },
 ];
-
-export type DockChip = { id: string; label: string; value: string };
-export const dockChips: DockChip[] = [
-  { id: "d1", label: "Inbox", value: "12" },
-  { id: "d2", label: "Tasks", value: "5" },
-  { id: "d3", label: "Calendar", value: "Today" },
-  { id: "d4", label: "Profile", value: "You" },
-];

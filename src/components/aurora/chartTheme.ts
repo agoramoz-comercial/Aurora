@@ -7,6 +7,8 @@
  * colors (it writes SVG attributes), so the hex values live here once.
  */
 
+import { GlassTooltip } from "./charts/GlassTooltip";
+
 export const CHART = {
   /** Ollympius charts are monochrome: white lines, grey bars, colour only for meaning. */
   accent: "rgba(255,255,255,0.88)",
@@ -57,10 +59,19 @@ export const tooltipStyle = {
 } as const;
 
 export const tooltipProps = {
+  content: GlassTooltip,
+  wrapperStyle: { outline: "none" },
   contentStyle: tooltipStyle,
   itemStyle: { color: "rgba(255,255,255,0.85)", fontSize: 11 },
   labelStyle: { color: "rgba(255,255,255,0.6)", fontSize: 11, marginBottom: 4 },
   cursor: { fill: "rgba(255,255,255,0.05)" },
+} as const;
+
+/** Hover dot for line/area series: accent ring on a white core. */
+export const activeDotProps = {
+  r: 4,
+  stroke: "#ffffff",
+  strokeWidth: 2,
 } as const;
 
 export const legendProps = {

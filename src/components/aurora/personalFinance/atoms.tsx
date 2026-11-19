@@ -6,7 +6,7 @@ import { MetricCard } from "../primitives";
 import { mzn } from "@/lib/finance/personal";
 
 export const fieldCls =
-  "h-10 w-full rounded-[12px] border border-white/14 bg-black/30 px-3 text-body text-white placeholder:text-white/45 outline-none transition focus:border-white/40 focus:ring-2 focus:ring-white/25";
+  "h-10 w-full rounded-[12px] border border-white/14 bg-black/30 px-3 text-body text-white placeholder:text-white/45 outline-none transition-colors duration-150 focus:border-white/40 focus:ring-2 focus:ring-white/25";
 
 export function Field({
   label,

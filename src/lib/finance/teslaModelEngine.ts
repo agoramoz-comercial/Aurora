@@ -160,8 +160,8 @@ export function calculateWACC(
   marketPremium: number = teslaDrivers.marketRiskPremium,
   costOfDebt: number = teslaDrivers.bondYield,
   taxRate: number = teslaDrivers.corporateTaxRate,
-  debtWeight: number = 0.40,
-  equityWeight: number = 0.60,
+  debtWeight: number = 0.4,
+  equityWeight: number = 0.6,
 ): { wacc: number; costOfEquity: number; costOfDebtAfterTax: number } {
   const costOfEquity = riskFreeRate + beta * marketPremium;
   const costOfDebtAfterTax = costOfDebt * (1 - taxRate);
@@ -171,17 +171,16 @@ export function calculateWACC(
 
 // ─── Run Model for a Single Case ────────────────────────────────────────────
 
-export function runModelForCase(
-  caseType: CaseType,
-  drivers: EditableDrivers,
-): ModelOutput {
+export function runModelForCase(caseType: CaseType, drivers: EditableDrivers): ModelOutput {
   const years = YEARS.map((y) => y.year);
   const n = years.length;
 
   // Use pre-computed data from Excel for base model
-  const autoRev = [...revenueAutomotiveData[0]!.values.map((_, i) =>
-    revenueAutomotiveData.reduce((sum, row) => sum + row.values[i]!, 0),
-  )];
+  const autoRev = [
+    ...revenueAutomotiveData[0]!.values.map((_, i) =>
+      revenueAutomotiveData.reduce((sum, row) => sum + row.values[i]!, 0),
+    ),
+  ];
 
   // Apply case multiplier to forecast years
   const caseMult = caseType === "best" ? 1.02 : caseType === "worst" ? 0.98 : 1.0;
@@ -205,9 +204,7 @@ export function runModelForCase(
   const modelDelMap: Record<string, number[]> = {};
 
   revenueAutomotiveData.forEach((row) => {
-    modelRevMap[row.model] = row.values.map((v, i) =>
-      i >= 5 ? Math.round(v * caseMult) : v,
-    );
+    modelRevMap[row.model] = row.values.map((v, i) => (i >= 5 ? Math.round(v * caseMult) : v));
   });
 
   deliveriesData.forEach((row) => {
@@ -217,7 +214,7 @@ export function runModelForCase(
   // Calculate GP per model
   let autoGP = new Array(n).fill(0) as number[];
   revenueAutomotiveData.forEach((row) => {
-    const margin = margins[row.model] ?? 0.20;
+    const margin = margins[row.model] ?? 0.2;
     const revs = modelRevMap[row.model]!;
     revs.forEach((r, i) => {
       autoGP[i] += Math.round(r * (margin + drivers.gpMarginAdjustment));
@@ -229,29 +226,26 @@ export function runModelForCase(
   const energyGP = energyRev.map((r) => Math.round(r * energyGPPct));
 
   const grossProfit = autoGP.map((a, i) => a + energyGP[i]!);
-  const gpMargin = grossProfit.map((gp, i) => totalRev[i]! > 0 ? gp / totalRev[i]! : 0);
+  const gpMargin = grossProfit.map((gp, i) => (totalRev[i]! > 0 ? gp / totalRev[i]! : 0));
 
   // Opex
   const opexPct = opexPctCases[caseType];
-  const opex = totalRev.map((r, i) => i < 5
-    ? plOutput[3]!.values[i]!
-    : Math.round(r * opexPct),
-  );
+  const opex = totalRev.map((r, i) => (i < 5 ? plOutput[3]!.values[i]! : Math.round(r * opexPct)));
 
   // EBIT
   const ebit = grossProfit.map((gp, i) => gp + opex[i]!);
-  const ebitMargin = ebit.map((e, i) => totalRev[i]! > 0 ? e / totalRev[i]! : 0);
+  const ebitMargin = ebit.map((e, i) => (totalRev[i]! > 0 ? e / totalRev[i]! : 0));
 
   // Interest & EBT
   const interest = financingData.interestExpense;
   const ebt = ebit.map((e, i) => e + interest[i]!);
 
   // Taxes
-  const taxes = ebt.map((e) => e > 0 ? Math.round(-e * drivers.taxRate) : 0);
+  const taxes = ebt.map((e) => (e > 0 ? Math.round(-e * drivers.taxRate) : 0));
 
   // Net Income
   const netIncome = ebt.map((e, i) => e + taxes[i]!);
-  const netMargin = netIncome.map((ni, i) => totalRev[i]! > 0 ? ni / totalRev[i]! : 0);
+  const netMargin = netIncome.map((ni, i) => (totalRev[i]! > 0 ? ni / totalRev[i]! : 0));
 
   // Balance Sheet (use pre-computed for simplicity, adjust equity by NI delta)
   const bsTotalAssets = bsOutput.find((r) => r.label === "Total assets")!.values;
@@ -302,10 +296,7 @@ export function runTriCaseModel(drivers: EditableDrivers): TriCaseOutput {
 
 // ─── DCF Valuation ──────────────────────────────────────────────────────────
 
-export function runDCFValuation(
-  drivers: EditableDrivers,
-  modelOutput: ModelOutput,
-): DCFOutput {
+export function runDCFValuation(drivers: EditableDrivers, modelOutput: ModelOutput): DCFOutput {
   const { wacc: waccCalc, costOfEquity, costOfDebtAfterTax } = calculateWACC();
   const wacc = drivers.wacc > 0 ? drivers.wacc : waccCalc;
   const forecastUFCF = ufcfForDCF;
@@ -324,8 +315,7 @@ export function runDCFValuation(
   // Terminal Value — Gordon Growth Model
   const lastUFCF = forecastUFCF[forecastYears - 1]!;
   const gordonGrowthTV =
-    (lastUFCF * (1 + drivers.terminalGrowthRate)) /
-    (wacc - drivers.terminalGrowthRate);
+    (lastUFCF * (1 + drivers.terminalGrowthRate)) / (wacc - drivers.terminalGrowthRate);
 
   // Terminal Value — Exit Multiple
   const lastEBITDA = modelOutput.ebit[modelOutput.ebit.length - 1]! * 1.15; // approximate EBITDA
@@ -350,7 +340,7 @@ export function runDCFValuation(
   const sharesOutstanding = 960; // ~960M at Dec 2020
 
   // Implied Share Price
-  const impliedSharePrice = equityValue / sharesOutstanding * 1000; // convert from millions
+  const impliedSharePrice = (equityValue / sharesOutstanding) * 1000; // convert from millions
 
   // Current Share Price
   const currentSharePrice = teslaDrivers.sharePrice;
@@ -375,7 +365,7 @@ export function runDCFValuation(
       }
       const ev = sumPvLocal + pvTvLocal;
       const eqVal = ev - netDebt;
-      const price = eqVal / sharesOutstanding * 1000;
+      const price = (eqVal / sharesOutstanding) * 1000;
       sensitivityMatrix.push({ wacc: w, growth: g, price: Math.max(0, price) });
     }
   }

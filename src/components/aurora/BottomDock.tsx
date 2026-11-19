@@ -1,62 +1,79 @@
-import { CalendarDays, CheckSquare, Inbox, User } from "lucide-react";
+import { useMemo } from "react";
+import { BellRing, Command, Landmark, Settings } from "lucide-react";
 import { motion } from "framer-motion";
-import { dockChips } from "@/data/aurora";
+import { getAlertCounts } from "@/data/alertsEngine";
+import { useBrokerStore } from "@/data/brokerStore";
+import type { SectionId } from "./navigation";
 
-const icons = [Inbox, CheckSquare, CalendarDays, User];
-
-/** Each dock chip opens a real workspace (no dead buttons). */
-const TARGETS: Record<string, { id: string; title: string }> = {
-  d1: { id: "proofmarket:chat", title: "Abrir mensagens no Aurora Chat" },
-  d2: { id: "businessPlan", title: "Abrir tarefas do Plano de Negócios" },
-  d3: { id: "home", title: "Abrir Notícias de hoje" },
-  d4: { id: "settings", title: "Abrir o seu perfil e definições" },
-};
-
+/** Bottom dock: live counters that double as shortcuts. */
 export function BottomDock({
-  onOpen,
-  active,
+  onNavigate,
+  onCommand,
 }: {
-  onOpen: (target: string) => void;
-  active?: string;
+  onNavigate: (id: SectionId) => void;
+  onCommand: () => void;
 }) {
+  const { totals } = useBrokerStore();
+  const alerts = useMemo(() => {
+    const c = getAlertCounts();
+    return c.critical + c.warning;
+  }, []);
+
+  const chips = [
+    {
+      id: "alerts",
+      icon: BellRing,
+      label: "Alertas",
+      value: String(alerts),
+      onClick: () => onNavigate("bars"),
+    },
+    {
+      id: "brokers",
+      icon: Landmark,
+      label: "Corretoras",
+      value: String(totals.accounts),
+      onClick: () => onNavigate("brokers"),
+    },
+    { id: "cmd", icon: Command, label: "Pesquisar", value: "⌘K", onClick: onCommand },
+    {
+      id: "settings",
+      icon: Settings,
+      label: "Definições",
+      value: "",
+      onClick: () => onNavigate("settings"),
+    },
+  ];
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.3, delay: 0.12, ease: [0.23, 1, 0.32, 1] }}
+      transition={{ duration: 0.3 }}
       className="glass mx-auto flex w-fit max-w-[92vw] items-center gap-1 p-1.5"
     >
-      {dockChips.map((chip, i) => {
-        const Icon = icons[i] ?? Inbox;
-        const isLast = i === dockChips.length - 1;
-        return (
-          <div key={chip.id} className="flex items-center">
-            {isLast && <span className="mx-1 h-6 w-px bg-white/25" />}
-            <button
-              type="button"
-              title={TARGETS[chip.id]?.title}
-              aria-current={
-                active && TARGETS[chip.id]?.id.split(":")[0] === active ? "page" : undefined
-              }
-              onClick={() => TARGETS[chip.id] && onOpen(TARGETS[chip.id]!.id)}
-              className="flex items-center gap-2 rounded-full px-3 py-1.5 text-[12px] text-white/85 transition hover:bg-white/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60"
-              aria-label={`${chip.label} ${chip.value}`}
+      {chips.map(({ id, icon: Icon, label, value, onClick }, i) => (
+        <div key={id} className="flex items-center">
+          {i === chips.length - 1 && <span className="mx-1 h-6 w-px bg-white/25" />}
+          <button
+            type="button"
+            onClick={onClick}
+            className="flex items-center gap-2 rounded-full px-3 py-1.5 text-[12px] text-white/85 transition-colors duration-150 hover:bg-white/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60"
+            aria-label={value ? `${label}: ${value}` : label}
+          >
+            <span
+              className="grid h-6 w-6 place-items-center rounded-md"
+              style={{
+                background: "rgba(255,255,255,0.18)",
+                border: "1px solid rgba(255,255,255,0.25)",
+              }}
             >
-              <span
-                className="grid h-6 w-6 place-items-center rounded-md"
-                style={{
-                  background: "rgba(255,255,255,0.18)",
-                  border: "1px solid rgba(255,255,255,0.25)",
-                }}
-              >
-                <Icon size={13} strokeWidth={1.8} />
-              </span>
-              <span className="font-medium">{chip.label}</span>
-              <span className="tabular-nums text-white/55">{chip.value}</span>
-            </button>
-          </div>
-        );
-      })}
+              <Icon size={13} strokeWidth={1.8} />
+            </span>
+            <span className="font-medium">{label}</span>
+            {value ? <span className="tabular-nums text-white/55">{value}</span> : null}
+          </button>
+        </div>
+      ))}
     </motion.div>
   );
 }

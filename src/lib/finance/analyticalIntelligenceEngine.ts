@@ -53,8 +53,13 @@ export function generateExecutivePitchPackage(
 ): ExecutivePitchPackage {
   const firstYear = reports[0]!;
   const lastYear = reports[reports.length - 1]!;
-  const cagr = Math.pow(lastYear.totalRevenue / Math.max(1, firstYear.totalRevenue), 1 / (reports.length - 1)) - 1;
-  const ebitdaCagr = Math.pow(lastYear.ebitda / Math.max(1, firstYear.ebitda), 1 / (reports.length - 1)) - 1;
+  const cagr =
+    Math.pow(
+      lastYear.totalRevenue / Math.max(1, firstYear.totalRevenue),
+      1 / (reports.length - 1),
+    ) - 1;
+  const ebitdaCagr =
+    Math.pow(lastYear.ebitda / Math.max(1, firstYear.ebitda), 1 / (reports.length - 1)) - 1;
 
   const slides: PitchDeckSlide[] = [
     {
@@ -68,9 +73,17 @@ export function generateExecutivePitchPackage(
         `Strong balance sheet validation with $${(lastYear.cash / 1e9).toFixed(2)}B in liquid cash reserves and balanced accounting integrity.`,
       ],
       metricsGrid: [
-        { label: "Target Price (DCF)", value: `$${valuation.impliedSharePriceGordon.toFixed(2)}`, status: "positive" },
+        {
+          label: "Target Price (DCF)",
+          value: `$${valuation.impliedSharePriceGordon.toFixed(2)}`,
+          status: "positive",
+        },
         { label: "5Y Revenue CAGR", value: `${(cagr * 100).toFixed(1)}%`, status: "positive" },
-        { label: "Exit EBITDA Margin", value: `${(lastYear.ebitdaMargin * 100).toFixed(1)}%`, status: "positive" },
+        {
+          label: "Exit EBITDA Margin",
+          value: `${(lastYear.ebitdaMargin * 100).toFixed(1)}%`,
+          status: "positive",
+        },
         { label: "WACC", value: `${(valuation.wacc * 100).toFixed(2)}%`, status: "neutral" },
       ],
     },
@@ -85,44 +98,100 @@ export function generateExecutivePitchPackage(
         `WEF Digital Capital Rank: ${wefIndex?.digitalCapitalRank ?? 2} in global sector competitiveness.`,
       ],
       metricsGrid: [
-        { label: "WEF Competitiveness", value: `${wefIndex?.competitivenessScore ?? 84.5}`, status: "positive" },
-        { label: "GDP Growth (World Bank)", value: `${macroIndicators?.[0]?.latestValue ?? 2.6}%`, status: "positive" },
-        { label: "Inflation Benchmark", value: `${macroIndicators?.[1]?.latestValue ?? 2.4}%`, status: "neutral" },
-        { label: "Macro Risk Level", value: wefIndex?.macroStabilityRisk ?? "Low", status: "positive" },
+        {
+          label: "WEF Competitiveness",
+          value: `${wefIndex?.competitivenessScore ?? 84.5}`,
+          status: "positive",
+        },
+        {
+          label: "GDP Growth (World Bank)",
+          value: `${macroIndicators?.[0]?.latestValue ?? 2.6}%`,
+          status: "positive",
+        },
+        {
+          label: "Inflation Benchmark",
+          value: `${macroIndicators?.[1]?.latestValue ?? 2.4}%`,
+          status: "neutral",
+        },
+        {
+          label: "Macro Risk Level",
+          value: wefIndex?.macroStabilityRisk ?? "Low",
+          status: "positive",
+        },
       ],
     },
     {
       slideNumber: 3,
       title: "Systemic 5-Year Financial Projections",
       subtitle: "Income Statement & Cash Flow Statement Architecture",
-      keyTakeaway: "P&L operating leverage enables Net Income expansion to $" + (lastYear.netIncome / 1e9).toFixed(2) + "B with consistent positive free cash flow generation.",
+      keyTakeaway:
+        "P&L operating leverage enables Net Income expansion to $" +
+        (lastYear.netIncome / 1e9).toFixed(2) +
+        "B with consistent positive free cash flow generation.",
       bulletPoints: [
         `Gross Margin expands to ${(lastYear.grossMargin * 100).toFixed(1)}% through supply chain scale and optimized unit manufacturing costs.`,
         `Cash Flow from Operations (CFO) reaches $${(lastYear.cashFromOperations / 1e9).toFixed(2)}B in ${lastYear.year}.`,
         `Unlevered Free Cash Flow (UFCF) compounds at ${(ebitdaCagr * 100).toFixed(1)}% annual rate.`,
       ],
       metricsGrid: [
-        { label: `${lastYear.year} Revenue`, value: `$${(lastYear.totalRevenue / 1e9).toFixed(2)}B`, status: "positive" },
-        { label: `${lastYear.year} EBITDA`, value: `$${(lastYear.ebitda / 1e9).toFixed(2)}B`, status: "positive" },
-        { label: `${lastYear.year} CFO`, value: `$${(lastYear.cashFromOperations / 1e9).toFixed(2)}B`, status: "positive" },
-        { label: `${lastYear.year} UFCF`, value: `$${(lastYear.ufcf / 1e9).toFixed(2)}B`, status: "positive" },
+        {
+          label: `${lastYear.year} Revenue`,
+          value: `$${(lastYear.totalRevenue / 1e9).toFixed(2)}B`,
+          status: "positive",
+        },
+        {
+          label: `${lastYear.year} EBITDA`,
+          value: `$${(lastYear.ebitda / 1e9).toFixed(2)}B`,
+          status: "positive",
+        },
+        {
+          label: `${lastYear.year} CFO`,
+          value: `$${(lastYear.cashFromOperations / 1e9).toFixed(2)}B`,
+          status: "positive",
+        },
+        {
+          label: `${lastYear.year} UFCF`,
+          value: `$${(lastYear.ufcf / 1e9).toFixed(2)}B`,
+          status: "positive",
+        },
       ],
     },
     {
       slideNumber: 4,
       title: "Balance Sheet & Capital Allocation",
       subtitle: "Assets = Liabilities + Equity Systemic Accounting Check",
-      keyTakeaway: "Zero structural deficit with disciplined debt management and strong working capital turnover (DSO: " + drivers.dso + " days, DIO: " + drivers.dio + " days).",
+      keyTakeaway:
+        "Zero structural deficit with disciplined debt management and strong working capital turnover (DSO: " +
+        drivers.dso +
+        " days, DIO: " +
+        drivers.dio +
+        " days).",
       bulletPoints: [
         `Total Assets scale to $${(lastYear.totalAssets / 1e9).toFixed(2)}B fully matched by Total Liabilities & Equity ($${(lastYear.totalLiabilitiesAndEquity / 1e9).toFixed(2)}B).`,
         `PP&E Net asset base reaches $${(lastYear.ppeNet / 1e9).toFixed(2)}B following $${(lastYear.capex / 1e9).toFixed(2)}B in annual growth capex.`,
         `Solvency remains elite with Long-Term Debt covered ${((lastYear.cash / Math.max(1, lastYear.longTermDebt)) * 100).toFixed(0)}% by liquid cash reserves.`,
       ],
       metricsGrid: [
-        { label: "Total Assets", value: `$${(lastYear.totalAssets / 1e9).toFixed(2)}B`, status: "positive" },
-        { label: "Total Equity", value: `$${(lastYear.totalEquity / 1e9).toFixed(2)}B`, status: "positive" },
-        { label: "Cash & Equivalents", value: `$${(lastYear.cash / 1e9).toFixed(2)}B`, status: "positive" },
-        { label: "Accounting Balance", value: lastYear.isBalanced ? "100% Balanced" : "Check Needed", status: lastYear.isBalanced ? "positive" : "warning" },
+        {
+          label: "Total Assets",
+          value: `$${(lastYear.totalAssets / 1e9).toFixed(2)}B`,
+          status: "positive",
+        },
+        {
+          label: "Total Equity",
+          value: `$${(lastYear.totalEquity / 1e9).toFixed(2)}B`,
+          status: "positive",
+        },
+        {
+          label: "Cash & Equivalents",
+          value: `$${(lastYear.cash / 1e9).toFixed(2)}B`,
+          status: "positive",
+        },
+        {
+          label: "Accounting Balance",
+          value: lastYear.isBalanced ? "100% Balanced" : "Check Needed",
+          status: lastYear.isBalanced ? "positive" : "warning",
+        },
       ],
     },
     {
@@ -136,17 +205,34 @@ export function generateExecutivePitchPackage(
         `Sensitivity matrix confirms positive valuation floor across WACC range of ${(valuation.wacc * 100 - 1.5).toFixed(2)}% to ${(valuation.wacc * 100 + 1.5).toFixed(2)}%.`,
       ],
       metricsGrid: [
-        { label: "EV (Gordon Growth)", value: `$${(valuation.dcfEnterpriseValueGordon / 1e9).toFixed(2)}B`, status: "positive" },
-        { label: "EV (Exit Multiple)", value: `$${(valuation.dcfEnterpriseValueMultiple / 1e9).toFixed(2)}B`, status: "positive" },
-        { label: "Implied P/E", value: `${valuation.comparableMultiples.peRatio.toFixed(1)}x`, status: "neutral" },
-        { label: "Implied EV/EBITDA", value: `${valuation.comparableMultiples.evToEbitda.toFixed(1)}x`, status: "positive" },
+        {
+          label: "EV (Gordon Growth)",
+          value: `$${(valuation.dcfEnterpriseValueGordon / 1e9).toFixed(2)}B`,
+          status: "positive",
+        },
+        {
+          label: "EV (Exit Multiple)",
+          value: `$${(valuation.dcfEnterpriseValueMultiple / 1e9).toFixed(2)}B`,
+          status: "positive",
+        },
+        {
+          label: "Implied P/E",
+          value: `${valuation.comparableMultiples.peRatio.toFixed(1)}x`,
+          status: "neutral",
+        },
+        {
+          label: "Implied EV/EBITDA",
+          value: `${valuation.comparableMultiples.evToEbitda.toFixed(1)}x`,
+          status: "positive",
+        },
       ],
     },
     {
       slideNumber: 6,
       title: "Strategic Conclusion & Investment Recommendation",
       subtitle: "Capital Deployment & Risk Mitigation Roadmap",
-      keyTakeaway: "STRONG BUY recommendation supported by robust DCF intrinsic upside, fortress balance sheet, and scalable market structure.",
+      keyTakeaway:
+        "STRONG BUY recommendation supported by robust DCF intrinsic upside, fortress balance sheet, and scalable market structure.",
       bulletPoints: [
         `Deploy capital into high-ROI expansion opportunities with Capex targeted at ${(drivers.capexPctOfRev * 100).toFixed(1)}% of sales.`,
         `Leverage secondary revenue channels (growing at ${(drivers.secondaryGrowthRate * 100).toFixed(1)}% p.a.) to unlock recurring service revenue streams.`,
@@ -170,10 +256,13 @@ export function generateExecutivePitchPackage(
     },
     competitiveMoat: [
       "Proprietary technology stack and IP portfolio",
-      "Economies of scale yielding gross margins above " + (drivers.grossMarginPct * 100).toFixed(0) + "%",
+      "Economies of scale yielding gross margins above " +
+        (drivers.grossMarginPct * 100).toFixed(0) +
+        "%",
       "High switching costs and deep institutional enterprise integration",
     ],
-    regulatoryLandscape: "Favorable policy tailwinds with incentives for digital modernization and ESG compliance.",
+    regulatoryLandscape:
+      "Favorable policy tailwinds with incentives for digital modernization and ESG compliance.",
     marginExpansionCatalysts: [
       "Automation of core supply chain and logistics workflow",
       "Higher proportion of secondary high-margin recurring service revenues",

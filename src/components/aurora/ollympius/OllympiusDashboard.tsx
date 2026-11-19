@@ -89,7 +89,7 @@ function InlineAdd({
       />
       <button
         type="submit"
-        className="rounded-full bg-[var(--aurora-accent-strong)] px-2.5 py-1 text-[11px] font-semibold text-white"
+        className="rounded-full bg-white/92 px-2.5 py-1 text-[11px] font-semibold text-[#0b0f17]"
       >
         Adicionar
       </button>
@@ -107,11 +107,7 @@ function OverviewContent({ onReports }: { onReports: () => void }) {
         subtitle="Live performance overview · updated just now"
         right={
           <>
-            <button
-              type="button"
-              aria-pressed="true"
-              className={cn(pillBtn, "inline-flex")}
-            >
+            <button type="button" aria-pressed="true" className={cn(pillBtn, "inline-flex")}>
               <Pill>Overview</Pill>
             </button>
             <button
@@ -264,7 +260,7 @@ function OverviewContent({ onReports }: { onReports: () => void }) {
                 <li
                   key={m.id}
                   className={cn(
-                    "flex items-center gap-2.5 rounded-2xl px-1.5 py-1 transition",
+                    "flex items-center gap-2.5 rounded-2xl px-1.5 py-1 transition-colors duration-150",
                     selected && "bg-white/20",
                   )}
                   style={
@@ -307,7 +303,7 @@ function OverviewContent({ onReports }: { onReports: () => void }) {
         <motion.button
           variants={cardVariants}
           whileHover={{ y: -2 }}
-          className="glass grid min-h-[120px] place-items-center lg:h-full lg:min-h-0 text-white/60 transition hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60"
+          className="glass grid min-h-[120px] place-items-center lg:h-full lg:min-h-0 text-white/60 transition-colors duration-150 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60"
           aria-label="Add card"
         >
           <span

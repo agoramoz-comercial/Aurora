@@ -173,7 +173,8 @@ export const SECTOR_PRESETS: Record<string, SectorBenchmarkPreset> = {
   automotive: {
     id: "automotive",
     name: "Automotive & Electric Vehicles",
-    description: "Model based directly on Tesla/EV automotive delivery and battery energy storage drivers.",
+    description:
+      "Model based directly on Tesla/EV automotive delivery and battery energy storage drivers.",
     defaultDrivers: {
       sector: "Automotive",
       companyName: "Veloce Motors Corp",
@@ -233,7 +234,7 @@ export const SECTOR_PRESETS: Record<string, SectorBenchmarkPreset> = {
       dio: 10,
       dpo: 30,
       capexPctOfRev: 0.05,
-      deprPctOfPpe: 0.20,
+      deprPctOfPpe: 0.2,
       taxRate: 0.21,
       interestRateOnDebt: 0.05,
       minCashBalance: 2000000000,
@@ -253,7 +254,8 @@ export const SECTOR_PRESETS: Record<string, SectorBenchmarkPreset> = {
   energy: {
     id: "energy",
     name: "Renewable Energy & Infrastructure",
-    description: "Capital intensive model with long-term PPA agreements and steady cash flow yields.",
+    description:
+      "Capital intensive model with long-term PPA agreements and steady cash flow yields.",
     defaultDrivers: {
       sector: "Energy",
       companyName: "Helios Renewable Power",
@@ -304,9 +306,9 @@ export const SECTOR_PRESETS: Record<string, SectorBenchmarkPreset> = {
       averageUnitPrice: 18500,
       priceGrowthRate: 0.03,
       secondaryRevenueBase: 850000000,
-      secondaryGrowthRate: 0.10,
+      secondaryGrowthRate: 0.1,
       grossMarginPct: 0.82,
-      secondaryGrossMarginPct: 0.60,
+      secondaryGrossMarginPct: 0.6,
       sgaPctOfRev: 0.24,
       rdPctOfRev: 0.22,
       dso: 50,
@@ -588,7 +590,10 @@ export function discountCashFlows(
   };
 }
 
-function calculateValuation(reports: FinancialYearReport[], drivers: ModelDrivers): ValuationOutput {
+function calculateValuation(
+  reports: FinancialYearReport[],
+  drivers: ModelDrivers,
+): ValuationOutput {
   const wacc = drivers.wacc;
   const exitMult = drivers.exitEvEbitdaMultiple;
   const netDebt = drivers.initialDebt - drivers.initialCash;

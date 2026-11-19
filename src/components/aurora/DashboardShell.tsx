@@ -1,108 +1,249 @@
-import { motion, AnimatePresence } from "framer-motion";
-import { LayoutTemplate } from "lucide-react";
-import { useState } from "react";
+import { motion, AnimatePresence, MotionConfig } from "framer-motion";
+import { AlertTriangle, Plus } from "lucide-react";
+import {
+  Component,
+  Suspense,
+  lazy,
+  useCallback,
+  useEffect,
+  useState,
+  type ErrorInfo,
+  type ReactNode,
+} from "react";
 import roomBg from "@/assets/room-bg.jpg";
-import { Sidebar } from "./Sidebar";
-import { BottomDock } from "./BottomDock";
-import { EmptyState, WorkspaceHeader } from "./primitives";
-import { AnalyticsWorkspace } from "./analytics/AnalyticsWorkspace";
-import { HomeWorkspace } from "./home/HomeWorkspace";
-import { BusinessPlanWorkspace } from "./businessPlan/BusinessPlanWorkspace";
-import { BenchmarkWorkspace } from "./benchmark/BenchmarkWorkspace";
-import { TeslaModelWorkspace } from "./teslaModel/TeslaModelWorkspace";
-import { MarketplaceWorkspace } from "./marketplace/MarketplaceWorkspace";
-import { ProofMarketWorkspace } from "./proofmarket/ProofMarketWorkspace";
-import { PersonalFinanceWorkspace } from "./personalFinance/PersonalFinanceWorkspace";
-import { OllympiusDashboard } from "./ollympius/OllympiusDashboard";
+import {
+  goals,
+  heroStats,
+  kpiCards,
+  microCards,
+  recentActivity,
+  teamMembers,
+  teamSelectedId,
+  timeframes,
+} from "@/data/aurora";
+import { BrokerStoreProvider, useBrokerStore } from "@/data/brokerStore";
 import { MarketplaceStoreProvider } from "@/data/marketplaceStore";
 import { PortfolioStoreProvider } from "@/data/portfolioStore";
 import { cn } from "@/lib/utils";
+import { Sidebar } from "./Sidebar";
+import { BottomDock } from "./BottomDock";
+import { CommandPalette } from "./CommandPalette";
+import { GlassCard, cardVariants } from "./GlassCard";
+import { AreaChartViz, BarChartViz } from "./Charts";
+import {
+  ActionButton,
+  Avatar,
+  EmptyState,
+  Pill,
+  ProgressBar,
+  WorkspaceHeader,
+  formatUsd,
+} from "./primitives";
+import { BrokerMark } from "./brokers/BrokerMark";
+import type { SectionId } from "./navigation";
 
-const sectionTitles: Record<string, string> = {
-  home: "Notícias",
-  proofmarket: "Aurora Chat",
-  financas: "Finanças Pessoais",
-  grid: "Ollympius Dashboard",
-  bars: "Analytics",
-  benchmarkPage: "Benchmark & Projeções",
-  businessPlan: "Plano de Negócios",
-  teslaModel: "Modelo Financeiro & DCF Hub (TSLA · MSFT · GOOGL · AAPL · NVDA · AMZN)",
-  marketplace: "Marketplace",
-  settings: "Settings",
-  new: "New workspace",
+// Workspaces load on first visit: the shell paints immediately and heavy
+// modules (models, TradingView charts) only download when opened.
+const HomeWorkspace = lazy(() =>
+  import("./home/HomeWorkspace").then((m) => ({ default: m.HomeWorkspace })),
+);
+const AnalyticsWorkspace = lazy(() =>
+  import("./analytics/AnalyticsWorkspace").then((m) => ({ default: m.AnalyticsWorkspace })),
+);
+const BrokersWorkspace = lazy(() =>
+  import("./brokers/BrokersWorkspace").then((m) => ({ default: m.BrokersWorkspace })),
+);
+const BenchmarkWorkspace = lazy(() =>
+  import("./benchmark/BenchmarkWorkspace").then((m) => ({ default: m.BenchmarkWorkspace })),
+);
+const BusinessPlanWorkspace = lazy(() =>
+  import("./businessPlan/BusinessPlanWorkspace").then((m) => ({
+    default: m.BusinessPlanWorkspace,
+  })),
+);
+const TeslaModelWorkspace = lazy(() =>
+  import("./teslaModel/TeslaModelWorkspace").then((m) => ({ default: m.TeslaModelWorkspace })),
+);
+const MarketplaceWorkspace = lazy(() =>
+  import("./marketplace/MarketplaceWorkspace").then((m) => ({
+    default: m.MarketplaceWorkspace,
+  })),
+);
+const ProofMarketWorkspace = lazy(() =>
+  import("./proofmarket/ProofMarketWorkspace").then((m) => ({ default: m.ProofMarketWorkspace })),
+);
+const PersonalFinanceWorkspace = lazy(() =>
+  import("./personalFinance/PersonalFinanceWorkspace").then((m) => ({
+    default: m.PersonalFinanceWorkspace,
+  })),
+);
+const OllympiusDashboard = lazy(() =>
+  import("./ollympius/OllympiusDashboard").then((m) => ({ default: m.OllympiusDashboard })),
+);
+const SettingsWorkspace = lazy(() =>
+  import("./settings/SettingsWorkspace").then((m) => ({ default: m.SettingsWorkspace })),
+);
+
+const containerVariants = {
+  hidden: { opacity: 0 },
+  show: {
+    opacity: 1,
+    transition: { staggerChildren: 0.06, delayChildren: 0.12 },
+  },
 };
 
-export function DashboardShell({ defaultActive = "home" }: { defaultActive?: string }) {
-  const [active, setActive] = useState(defaultActive);
-  const [chatOpen, setChatOpen] = useState<{ step: "feed" | "chat"; n: number }>({
-    step: "feed",
-    n: 0,
-  });
-  const openTarget = (target: string) => {
-    const [id, step] = target.split(":");
-    if (id === "proofmarket")
-      setChatOpen((c) => ({ step: step === "chat" ? "chat" : "feed", n: c.n + 1 }));
-    setActive(id!);
-  };
+const PREFS_KEY = "aurora-prefs-v1";
+
+function loadReduceMotion(): boolean {
+  try {
+    return JSON.parse(localStorage.getItem(PREFS_KEY) ?? "{}").reduceMotion === true;
+  } catch {
+    return false;
+  }
+}
+
+export function DashboardShell({ defaultActive = "home" }: { defaultActive?: SectionId }) {
+  return (
+    <BrokerStoreProvider>
+      <Shell defaultActive={defaultActive} />
+    </BrokerStoreProvider>
+  );
+}
+
+function Shell({ defaultActive }: { defaultActive: SectionId }) {
+  const [active, setActive] = useState<SectionId>(defaultActive);
+  const [paletteOpen, setPaletteOpen] = useState(false);
+  const [wizardSignal, setWizardSignal] = useState(0);
+  const [reduceMotion, setReduceMotion] = useState(loadReduceMotion);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(PREFS_KEY, JSON.stringify({ reduceMotion }));
+    } catch {
+      // Preference stays in memory for this session.
+    }
+  }, [reduceMotion]);
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
+        e.preventDefault();
+        setPaletteOpen((o) => !o);
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
+
+  const openPalette = useCallback(() => setPaletteOpen(true), []);
+  const addBroker = useCallback(() => {
+    setActive("brokers");
+    setWizardSignal((n) => n + 1);
+  }, []);
+
+  let workspace: ReactNode;
+  switch (active) {
+    case "grid":
+      workspace = <OllympiusDashboard />;
+      break;
+    case "proofmarket":
+      workspace = <ProofMarketWorkspace />;
+      break;
+    case "financas":
+      workspace = <PersonalFinanceWorkspace />;
+      break;
+    case "home":
+      workspace = <HomeWorkspace />;
+      break;
+    case "bars":
+      workspace = <AnalyticsWorkspace />;
+      break;
+    case "brokers":
+      workspace = <BrokersWorkspace wizardSignal={wizardSignal} />;
+      break;
+    case "benchmarkPage":
+      workspace = (
+        <PortfolioStoreProvider>
+          <BenchmarkWorkspace />
+        </PortfolioStoreProvider>
+      );
+      break;
+    case "businessPlan":
+      workspace = (
+        <PortfolioStoreProvider>
+          <BusinessPlanWorkspace />
+        </PortfolioStoreProvider>
+      );
+      break;
+    case "teslaModel":
+      workspace = <TeslaModelWorkspace />;
+      break;
+    case "marketplace":
+      workspace = (
+        <MarketplaceStoreProvider>
+          <MarketplaceWorkspace />
+        </MarketplaceStoreProvider>
+      );
+      break;
+    case "settings":
+      workspace = (
+        <SettingsWorkspace reduceMotion={reduceMotion} onReduceMotion={setReduceMotion} />
+      );
+      break;
+  }
 
   return (
-    <div
-      className="relative min-h-screen w-full text-white lg:h-screen lg:overflow-hidden"
-      data-glass={active === "grid" ? "ollympius" : undefined}
-      style={{ fontFamily: "var(--font-display)" }}
-    >
-      <img
-        src={roomBg}
-        alt=""
-        aria-hidden
-        width={1920}
-        height={1216}
-        className="pointer-events-none fixed inset-0 -z-20 h-full w-full object-cover"
-      />
+    <MotionConfig reducedMotion={reduceMotion ? "always" : "user"}>
       <div
-        aria-hidden
-        className="pointer-events-none fixed inset-0 -z-10"
-        style={{
-          background:
-            active === "grid"
-              ? "linear-gradient(180deg, rgba(0,0,0,0.05) 0%, rgba(0,0,0,0.18) 100%)"
-              : "linear-gradient(180deg, rgba(8,6,5,0.34) 0%, rgba(8,6,5,0.52) 100%)",
-        }}
-      />
+        className="relative min-h-screen w-full text-white lg:h-screen lg:overflow-hidden"
+        data-glass={active === "grid" ? "ollympius" : undefined}
+        style={{ fontFamily: "var(--font-display)" }}
+      >
+        <img
+          src={roomBg}
+          alt=""
+          aria-hidden
+          width={1920}
+          height={1216}
+          className="pointer-events-none fixed inset-0 -z-20 h-full w-full object-cover"
+        />
+        <div
+          aria-hidden
+          className="pointer-events-none fixed inset-0 -z-10"
+          style={{
+            background:
+              active === "grid"
+                ? "linear-gradient(180deg, rgba(0,0,0,0.05) 0%, rgba(0,0,0,0.18) 100%)"
+                : "linear-gradient(180deg, rgba(8,6,5,0.34) 0%, rgba(8,6,5,0.52) 100%)",
+          }}
+        />
 
-      <main className="relative mx-auto flex min-h-screen w-full max-w-[1560px] flex-col gap-3 px-3 py-4 sm:gap-4 sm:px-4 sm:py-5 lg:h-full lg:min-h-0 lg:px-8 lg:py-6">
-        <div className="flex justify-center lg:hidden">
-          <Sidebar active={active} onSelect={setActive} orientation="horizontal" />
-        </div>
-
-        <div className="flex flex-col gap-3 sm:gap-4 lg:min-h-0 lg:flex-1 lg:flex-row lg:items-stretch lg:gap-5">
-          <div className="hidden items-center lg:flex">
-            <Sidebar active={active} onSelect={setActive} />
+        <main className="relative mx-auto flex min-h-screen w-full max-w-[1560px] flex-col gap-3 px-3 py-4 sm:gap-4 sm:px-4 sm:py-5 lg:h-full lg:min-h-0 lg:px-8 lg:py-6">
+          <div className="flex justify-center lg:hidden">
+            <Sidebar
+              active={active}
+              onSelect={setActive}
+              onCommand={openPalette}
+              orientation="horizontal"
+            />
           </div>
 
-          <motion.section
-            initial={{ opacity: 0, scale: 0.985 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.3, ease: [0.23, 1, 0.32, 1] }}
-            className={cn(
-              "flex min-w-0 flex-1 flex-col lg:min-h-0",
-              active !== "proofmarket" && "glass p-4 md:p-5",
-            )}
-            style={active === "proofmarket" ? undefined : { borderRadius: 28 }}
-          >
-            <AnimatePresence mode="wait">
-              {active === "grid" ? (
-                <motion.div
-                  key="overview"
-                  initial={{ opacity: 0, y: 6 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -6 }}
-                  transition={{ duration: 0.3 }}
-                  className="flex flex-1 flex-col lg:min-h-0"
-                >
-                  <OllympiusDashboard />
-                </motion.div>
-              ) : (
+          <div className="flex flex-col gap-3 sm:gap-4 lg:min-h-0 lg:flex-1 lg:flex-row lg:items-stretch lg:gap-5">
+            <div className="hidden items-center lg:flex">
+              <Sidebar active={active} onSelect={setActive} onCommand={openPalette} />
+            </div>
+
+            <motion.section
+              initial={{ opacity: 0, scale: 0.985 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.3, ease: [0.23, 1, 0.32, 1] }}
+              className={cn(
+                "flex min-w-0 flex-1 flex-col lg:min-h-0",
+                active !== "proofmarket" && "glass p-4 md:p-5",
+              )}
+              style={active !== "proofmarket" ? { borderRadius: 28 } : undefined}
+            >
+              <AnimatePresence mode="wait">
                 <motion.div
                   key={active}
                   initial={{ opacity: 0, y: 6 }}
@@ -111,57 +252,87 @@ export function DashboardShell({ defaultActive = "home" }: { defaultActive?: str
                   transition={{ duration: 0.3 }}
                   className="flex flex-1 flex-col lg:min-h-0"
                 >
-                  {active === "home" ? (
-                    <HomeWorkspace />
-                  ) : active === "proofmarket" ? (
-                    <ProofMarketWorkspace key={chatOpen.n} initialStep={chatOpen.step} />
-                  ) : active === "financas" ? (
-                    <PersonalFinanceWorkspace />
-                  ) : active === "bars" ? (
-                    <AnalyticsWorkspace />
-                  ) : active === "benchmarkPage" ? (
-                    <PortfolioStoreProvider>
-                      <BenchmarkWorkspace />
-                    </PortfolioStoreProvider>
-                  ) : active === "businessPlan" ? (
-                    <PortfolioStoreProvider>
-                      <BusinessPlanWorkspace />
-                    </PortfolioStoreProvider>
-                  ) : active === "teslaModel" ? (
-                    <TeslaModelWorkspace />
-                  ) : active === "marketplace" ? (
-                    <MarketplaceStoreProvider>
-                      <MarketplaceWorkspace />
-                    </MarketplaceStoreProvider>
-                  ) : (
-                    <EmptyEnvironment title={sectionTitles[active] ?? "Workspace"} />
-                  )}
+                  <WorkspaceBoundary onHome={() => setActive("grid")}>
+                    <Suspense fallback={<WorkspaceSkeleton />}>{workspace}</Suspense>
+                  </WorkspaceBoundary>
                 </motion.div>
-              )}
-            </AnimatePresence>
-          </motion.section>
-        </div>
+              </AnimatePresence>
+            </motion.section>
+          </div>
 
-        <div className="hidden shrink-0 justify-center sm:flex">
-          <BottomDock onOpen={openTarget} active={active} />
-        </div>
-      </main>
-    </div>
+          <div className="hidden shrink-0 justify-center sm:flex">
+            <BottomDock onNavigate={setActive} onCommand={openPalette} />
+          </div>
+        </main>
+
+        <CommandPalette
+          open={paletteOpen}
+          onOpenChange={setPaletteOpen}
+          onNavigate={setActive}
+          onAddBroker={addBroker}
+        />
+      </div>
+    </MotionConfig>
   );
 }
 
-function EmptyEnvironment({ title }: { title: string }) {
-  return (
-    <div className="flex min-h-0 flex-1 flex-col">
-      <WorkspaceHeader title={title} subtitle="Ambiente vazio · pronto a compor" />
+/**
+ * Contains a failing workspace (render error or a chunk that failed to load)
+ * so the shell, navigation and other sections keep working. Remounted per
+ * section via the parent's `key`, which clears the error on navigation.
+ */
+class WorkspaceBoundary extends Component<
+  { children: ReactNode; onHome: () => void },
+  { error: Error | null }
+> {
+  state = { error: null as Error | null };
+
+  static getDerivedStateFromError(error: Error) {
+    return { error };
+  }
+
+  componentDidCatch(error: Error, info: ErrorInfo) {
+    console.error("Workspace failed", error, info.componentStack);
+  }
+
+  render() {
+    if (!this.state.error) return this.props.children;
+    return (
       <div className="flex min-h-0 flex-1 items-center justify-center p-6">
         <EmptyState
-          icon={LayoutTemplate}
-          title={title}
-          hint="Este espaço ainda não tem módulos. Escolha outra aba na barra lateral."
+          icon={AlertTriangle}
+          title="Esta secção não carregou"
+          hint="As restantes secções continuam disponíveis. Tente novamente ou volte à visão geral."
           className="w-full max-w-md"
+          action={
+            <div className="mt-2 flex gap-2">
+              <ActionButton tone="ghost" onClick={() => this.setState({ error: null })}>
+                Tentar novamente
+              </ActionButton>
+              <ActionButton onClick={this.props.onHome}>Visão geral</ActionButton>
+            </div>
+          }
         />
       </div>
+    );
+  }
+}
+
+/** Placeholder with the shape of a workspace while its chunk downloads. */
+function WorkspaceSkeleton() {
+  return (
+    <div className="flex min-h-0 flex-1 flex-col gap-4" aria-busy="true" aria-label="A carregar">
+      <div className="h-9 w-56 animate-pulse rounded-full bg-white/10 motion-reduce:animate-none" />
+      <div className="grid grid-cols-2 gap-2.5 lg:grid-cols-4">
+        {[0, 1, 2, 3].map((i) => (
+          <div
+            key={i}
+            className="glass h-[78px] animate-pulse motion-reduce:animate-none"
+            style={{ animationDelay: `${i * 80}ms` }}
+          />
+        ))}
+      </div>
+      <div className="glass min-h-[240px] flex-1 animate-pulse motion-reduce:animate-none" />
     </div>
   );
 }

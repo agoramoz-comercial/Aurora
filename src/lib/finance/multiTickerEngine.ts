@@ -151,11 +151,15 @@ export function runUniversalModelForCase(
   // Gross profit derived from custom or case gross margin
   const marginAdj = caseScenario === "best" ? 0.02 : caseScenario === "worst" ? -0.02 : 0.0;
   const effectiveMargin = drivers.primaryGrossMargin + marginAdj;
-  const grossProfit = totalRevenue.map((r, i) => (i >= 5 ? Math.round(r * effectiveMargin) : Math.round(r * model.segment.primaryGrossMargin)));
+  const grossProfit = totalRevenue.map((r, i) =>
+    i >= 5 ? Math.round(r * effectiveMargin) : Math.round(r * model.segment.primaryGrossMargin),
+  );
   const gpMargin = grossProfit.map((gp, i) => (totalRevenue[i]! > 0 ? gp / totalRevenue[i]! : 0));
 
   // Operating Expenses
-  const opex = totalRevenue.map((r, i) => (i >= 5 ? Math.round(-r * drivers.opexPctOfRev) : Math.round(-r * model.opexPctOfRev)));
+  const opex = totalRevenue.map((r, i) =>
+    i >= 5 ? Math.round(-r * drivers.opexPctOfRev) : Math.round(-r * model.opexPctOfRev),
+  );
 
   // Operating Income (EBIT)
   const ebit = grossProfit.map((gp, i) => gp + opex[i]!);
@@ -173,10 +177,14 @@ export function runUniversalModelForCase(
   const cash = model.bsRows.find((r) => r.label.includes("Cash"))!.values;
 
   // Balance Sheet Integrity Verification
-  const balanceCheckPass = totalAssets.every((a, i) => Math.abs(a - (totalLiab[i]! + equity[i]!)) < 5);
+  const balanceCheckPass = totalAssets.every(
+    (a, i) => Math.abs(a - (totalLiab[i]! + equity[i]!)) < 5,
+  );
 
   // Cash Flow
-  const ufcf = model.cfRows.find((r) => r.label.includes("Unlevered Free Cash Flow"))?.values ?? netIncome.map((ni) => Math.round(ni * 0.95));
+  const ufcf =
+    model.cfRows.find((r) => r.label.includes("Unlevered Free Cash Flow"))?.values ??
+    netIncome.map((ni) => Math.round(ni * 0.95));
 
   return {
     ticker,
@@ -242,7 +250,10 @@ export function runUniversalDCFValuation(
   // Terminal Value Calculation (Gordon Growth Model & Exit Multiple)
   const lastUFCF = forecastUFCF[forecastYears - 1]!;
   const terminalGrowth = drivers.terminalGrowthRate;
-  const gordonGrowthTV = wacc > terminalGrowth ? (lastUFCF * (1 + terminalGrowth)) / (wacc - terminalGrowth) : lastUFCF * 20;
+  const gordonGrowthTV =
+    wacc > terminalGrowth
+      ? (lastUFCF * (1 + terminalGrowth)) / (wacc - terminalGrowth)
+      : lastUFCF * 20;
 
   const lastEBIT = Math.abs(modelOutput.ebit[modelOutput.ebit.length - 1]!);
   const exitMultipleTV = lastEBIT * drivers.exitEvEbitdaMultiple;
@@ -252,7 +263,9 @@ export function runUniversalDCFValuation(
   // Enterprise Value & Equity Bridge
   const enterpriseValue = sumPvUFCF + pvTV;
   const cash = modelOutput.cash[modelOutput.cash.length - 1]!;
-  const debt = Math.round(modelOutput.totalLiabilities[modelOutput.totalLiabilities.length - 1]! * 0.4);
+  const debt = Math.round(
+    modelOutput.totalLiabilities[modelOutput.totalLiabilities.length - 1]! * 0.4,
+  );
   const netDebt = debt - cash;
   const equityValue = enterpriseValue - netDebt;
 

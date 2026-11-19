@@ -34,7 +34,8 @@ export interface FileImportResult {
 }
 
 export function parseFinancialFile(content: string, fileName: string): FileImportResult {
-  const isJson = fileName.endsWith(".json") || content.trim().startsWith("{") || content.trim().startsWith("[");
+  const isJson =
+    fileName.endsWith(".json") || content.trim().startsWith("{") || content.trim().startsWith("[");
   const warnings: string[] = [];
 
   let items: ImportedFinancialItem[] = [];
@@ -90,7 +91,9 @@ export function parseFinancialFile(content: string, fileName: string): FileImpor
   const isValid = totalAssets === 0 && totalLiabEquity === 0 ? true : difference < 100;
 
   if (!isValid) {
-    warnings.push(`Imported Balance Sheet is out of balance by $${difference.toLocaleString()}. Check Assets vs Liabilities & Equity.`);
+    warnings.push(
+      `Imported Balance Sheet is out of balance by $${difference.toLocaleString()}. Check Assets vs Liabilities & Equity.`,
+    );
   }
 
   // Extract / Map drivers
@@ -98,11 +101,16 @@ export function parseFinancialFile(content: string, fileName: string): FileImpor
 
   items.forEach((item) => {
     const key = item.metricName.toLowerCase();
-    if (key.includes("volume") || key.includes("units")) generatedDrivers.unitVolumeBase = item.value;
-    if (key.includes("price") || key.includes("asp")) generatedDrivers.averageUnitPrice = item.value;
-    if (key.includes("gross margin")) generatedDrivers.grossMarginPct = item.value > 1 ? item.value / 100 : item.value;
-    if (key.includes("sg&a") || key.includes("sga")) generatedDrivers.sgaPctOfRev = item.value > 1 ? item.value / 100 : item.value;
-    if (key.includes("r&d") || key.includes("rd")) generatedDrivers.rdPctOfRev = item.value > 1 ? item.value / 100 : item.value;
+    if (key.includes("volume") || key.includes("units"))
+      generatedDrivers.unitVolumeBase = item.value;
+    if (key.includes("price") || key.includes("asp"))
+      generatedDrivers.averageUnitPrice = item.value;
+    if (key.includes("gross margin"))
+      generatedDrivers.grossMarginPct = item.value > 1 ? item.value / 100 : item.value;
+    if (key.includes("sg&a") || key.includes("sga"))
+      generatedDrivers.sgaPctOfRev = item.value > 1 ? item.value / 100 : item.value;
+    if (key.includes("r&d") || key.includes("rd"))
+      generatedDrivers.rdPctOfRev = item.value > 1 ? item.value / 100 : item.value;
     if (key.includes("cash")) generatedDrivers.initialCash = item.value;
     if (key.includes("debt")) generatedDrivers.initialDebt = item.value;
     if (key.includes("equity")) generatedDrivers.initialEquity = item.value;
@@ -128,7 +136,8 @@ function validateCategory(cat: string): ImportedFinancialItem["category"] {
   if (c.includes("rev")) return "Revenue";
   if (c.includes("cogs") || c.includes("cost")) return "COGS";
   if (c.includes("opex") || c.includes("exp")) return "OPEX";
-  if (c.includes("asset") || c.includes("cash") || c.includes("ar") || c.includes("ppe")) return "Asset";
+  if (c.includes("asset") || c.includes("cash") || c.includes("ar") || c.includes("ppe"))
+    return "Asset";
   if (c.includes("liab") || c.includes("debt") || c.includes("ap")) return "Liability";
   if (c.includes("equity") || c.includes("stock")) return "Equity";
   return "Driver";

@@ -71,7 +71,7 @@ export function RiskScoreCard({ data }: { data: TickerSnapshot | undefined }) {
   return (
     <GlassCard className="lg:h-full lg:min-h-0 !p-4">
       <div className="flex shrink-0 items-center justify-between">
-        <Pill className="!px-3 !py-1 !text-[12px] !font-semibold">Risk score</Pill>
+        <Pill className="!px-3 !py-1 !text-[12px] !font-semibold">Score de risco</Pill>
         <span
           className="text-[18px] font-semibold tabular-nums"
           style={{ color: scoreColor, textShadow: `0 0 12px ${scoreColor}66` }}

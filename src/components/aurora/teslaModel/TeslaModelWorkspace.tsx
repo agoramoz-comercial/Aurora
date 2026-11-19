@@ -139,7 +139,7 @@ function MetricCard({
 }: {
   label: string;
   value: number;
-  format?: "currency" | "pct" | "number";
+  format?: "currency" | "pct" | "number" | "price";
   small?: boolean;
 }) {
   return (
@@ -150,7 +150,9 @@ function MetricCard({
           ? `${(value * 100).toFixed(1)}%`
           : format === "number"
             ? value.toLocaleString()
-            : fmtCurrency(value)}
+            : format === "price"
+              ? `$${value.toFixed(2)}`
+              : fmtCurrency(value)}
       </span>
     </div>
   );
@@ -345,7 +347,7 @@ export function TeslaModelWorkspace() {
             );
           }}
           renderTrail={(t) => (
-            <span className="text-micro tabular-nums text-white/90">
+            <span className="text-micro tabular-nums opacity-70">
               ${FULL_38_DATABASE[t as TechTicker].meta.sharePrice}
             </span>
           )}
@@ -497,14 +499,17 @@ function DriversGroup({
         <MetricCard label="Beta" value={dcf.beta} format="number" small />
         <MetricCard label="Tax Rate" value={drivers.taxRate} format="pct" small />
         <MetricCard label="Bond Yield (Kd)" value={model.meta.bondYield} format="pct" small />
-        <MetricCard label="Implied Share Price" value={dcf.impliedSharePrice} small />
+        <MetricCard
+          label="Implied Share Price"
+          value={dcf.impliedSharePrice}
+          format="price"
+          small
+        />
       </div>
 
       <div className="grid gap-3 lg:grid-cols-2">
         <GlassCard className="!p-4">
-          <Pill className="!px-3 !py-1 !text-[11px] !font-semibold">
-            📈 Segment Drivers & Margins
-          </Pill>
+          <Pill className="!px-3 !py-1 !text-[11px] !font-semibold">Segment Drivers & Margins</Pill>
           <div className="mt-3 flex flex-col gap-1.5">
             <DriverInput
               label={`Primary Volume Growth (${model.meta.segmentPrimaryLabel})`}
@@ -531,7 +536,7 @@ function DriversGroup({
 
         <GlassCard className="!p-4">
           <Pill className="!px-3 !py-1 !text-[11px] !font-semibold">
-            ⚙️ OpEx & Working Capital Days
+            OpEx & Working Capital Days
           </Pill>
           <div className="mt-3 flex flex-col gap-1.5">
             <DriverInput
@@ -580,7 +585,7 @@ function DriversGroup({
       {/* KPI Scorecard Matrix */}
       <GlassCard className="!p-4">
         <Pill className="!px-3 !py-1 !text-[11px] !font-semibold">
-          🏆 Institutional KPI Scorecard ({ticker})
+          Institutional KPI Scorecard ({ticker})
         </Pill>
         <div className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
           {model.kpiScorecard.map((kpi, i) => (
@@ -645,7 +650,7 @@ function VolumeGroup({ ticker, triCase }: { ticker: TechTicker; triCase: TriCase
 
       <GlassCard className="!p-4">
         <Pill className="!px-3 !py-1 !text-[11px] !font-semibold">
-          📦 Segment Volume & Unit Workings — {model.meta.segmentPrimaryLabel}
+          Segment Volume & Unit Workings — {model.meta.segmentPrimaryLabel}
         </Pill>
         <div className="mt-3">
           <p className="text-[12px] text-white/70">
@@ -689,7 +694,7 @@ function RevenueGroup({ ticker, triCase }: { ticker: TechTicker; triCase: TriCas
 
       <GlassCard className="!p-4">
         <Pill className="!px-3 !py-1 !text-[11px] !font-semibold">
-          📊 Revenue Build-up — Primary vs. Secondary Segments
+          Revenue Build-up — Primary vs. Secondary Segments
         </Pill>
         <div className="mt-3 h-[280px]">
           <ResponsiveContainer width="100%" height="100%">
@@ -798,7 +803,7 @@ function OpExGroup({
 
       <GlassCard className="!p-4">
         <Pill className="!px-3 !py-1 !text-[11px] !font-semibold">
-          📑 Operating Expenses & Operating Leverage Graph
+          Operating Expenses & Operating Leverage Graph
         </Pill>
         <div className="mt-3 h-[240px]">
           <ResponsiveContainer width="100%" height="100%">
@@ -867,7 +872,7 @@ function PPEGroup({
 
       <GlassCard className="!p-4">
         <Pill className="!px-3 !py-1 !text-[11px] !font-semibold">
-          🏭 PP&E Roll-forward & Capex Schedule
+          PP&E Roll-forward & Capex Schedule
         </Pill>
         <div className="mt-3 font-mono text-[11px] text-white/80">
           Beginning PP&E + Capital Expenditures (Capex) - Depreciation = Ending PP&E
@@ -905,7 +910,7 @@ function WCGroup({
 
       <GlassCard className="!p-4">
         <Pill className="!px-3 !py-1 !text-[11px] !font-semibold">
-          ⏱️ Working Capital & Cash Conversion Cycle
+          Working Capital & Cash Conversion Cycle
         </Pill>
         <div className="mt-3 text-xs text-white/70">
           Net Trade Cycle (NTC) = DSO + DIO - DPO. Lower or negative NTC reflects superior working
@@ -934,7 +939,7 @@ function FinancingGroup({ ticker, triCase }: { ticker: TechTicker; triCase: TriC
 
       <GlassCard className="!p-4">
         <Pill className="!px-3 !py-1 !text-[11px] !font-semibold">
-          🏦 Debt Structure & Capitalization Schedule
+          Debt Structure & Capitalization Schedule
         </Pill>
         <div className="mt-3 text-xs text-white/70">
           Cost of Debt after tax = $K_d \cdot (1 - t)$. Weighted capital structure feeds directly
@@ -970,7 +975,7 @@ function StatementsGroup({ ticker, triCase }: { ticker: TechTicker; triCase: Tri
             statementType === "pl" ? "bg-white/20 text-white" : "text-white/50 hover:bg-white/10",
           )}
         >
-          📄 P&L Statement (20 Lines)
+          P&L Statement (20 Lines)
         </button>
         <button
           onClick={() => setStatementType("bs")}
@@ -979,7 +984,7 @@ function StatementsGroup({ ticker, triCase }: { ticker: TechTicker; triCase: Tri
             statementType === "bs" ? "bg-white/20 text-white" : "text-white/50 hover:bg-white/10",
           )}
         >
-          🏦 Balance Sheet (28 Lines)
+          Balance Sheet (28 Lines)
         </button>
         <button
           onClick={() => setStatementType("cf")}
@@ -994,8 +999,8 @@ function StatementsGroup({ ticker, triCase }: { ticker: TechTicker; triCase: Tri
 
       <GlassCard className="!p-4">
         <Pill className="!px-3 !py-1 !text-[11px] !font-semibold">
-          {statementType === "pl" && `📄 Income Statement — 20 Lines (${model.meta.name}, $M)`}
-          {statementType === "bs" && `🏦 Balance Sheet — 28 Lines (${model.meta.name}, $M)`}
+          {statementType === "pl" && `Income Statement — 20 Lines (${model.meta.name}, $M)`}
+          {statementType === "bs" && `Balance Sheet — 28 Lines (${model.meta.name}, $M)`}
           {statementType === "cf" && `💸 Cash Flow Statement — 21 Lines (${model.meta.name}, $M)`}
         </Pill>
         <div className="mt-3">
@@ -1037,7 +1042,7 @@ function StatementsGroup({ ticker, triCase }: { ticker: TechTicker; triCase: Tri
 
       <GlassCard className="!p-4">
         <Pill className="!px-3 !py-1 !text-[11px] !font-semibold">
-          📊 Financial Trajectory Graph (15-Year Growth)
+          Financial Trajectory Graph (15-Year Growth)
         </Pill>
         <div className="mt-3 h-[220px]">
           <ResponsiveContainer width="100%" height="100%">

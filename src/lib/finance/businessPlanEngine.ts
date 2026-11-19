@@ -5,7 +5,12 @@
  * KPMG Audit Risk Framework, WPP Brand & GTM Analytics, and 5-Year Financial Modeling.
  */
 
-import { runSystemicFinancialModel, type ModelDrivers, type FinancialYearReport, type ValuationOutput } from "./excelModelEngine";
+import {
+  runSystemicFinancialModel,
+  type ModelDrivers,
+  type FinancialYearReport,
+  type ValuationOutput,
+} from "./excelModelEngine";
 
 export interface UnitEconomics {
   cac: number; // Customer Acquisition Cost ($)
@@ -72,7 +77,7 @@ export interface BusinessPlanPackage {
 
 export function generateBusinessPlanPackage(
   drivers: ModelDrivers,
-  customUnitEconomics?: Partial<UnitEconomics>
+  customUnitEconomics?: Partial<UnitEconomics>,
 ): BusinessPlanPackage {
   const model = runSystemicFinancialModel(drivers);
   const reports = model.reports;
@@ -86,9 +91,12 @@ export function generateBusinessPlanPackage(
   const defaultChurn = customUnitEconomics?.annualChurnPct ?? 0.08;
   const grossMargin = drivers.grossMarginPct;
 
-  const defaultLtv = customUnitEconomics?.ltv ?? Math.round((defaultArpu * grossMargin) / Math.max(0.01, defaultChurn));
+  const defaultLtv =
+    customUnitEconomics?.ltv ??
+    Math.round((defaultArpu * grossMargin) / Math.max(0.01, defaultChurn));
   const ltvCacRatio = Math.round((defaultLtv / Math.max(1, defaultCac)) * 10) / 10;
-  const paybackMonths = Math.round(((defaultCac / Math.max(1, defaultArpu * grossMargin)) * 12) * 10) / 10;
+  const paybackMonths =
+    Math.round((defaultCac / Math.max(1, defaultArpu * grossMargin)) * 12 * 10) / 10;
 
   const unitEconomics: UnitEconomics = {
     cac: defaultCac,
@@ -101,13 +109,19 @@ export function generateBusinessPlanPackage(
 
   // 2. Break-Even Calculations
   const fixedCosts = firstYear.sgaOpex + firstYear.rdOpex + firstYear.depreciation;
-  const variableCostRatio = firstYear.totalRevenue > 0 ? firstYear.totalCogs / firstYear.totalRevenue : 0.7;
+  const variableCostRatio =
+    firstYear.totalRevenue > 0 ? firstYear.totalCogs / firstYear.totalRevenue : 0.7;
   const contributionMarginRatio = 1 - variableCostRatio;
-  const breakEvenRevenue = contributionMarginRatio > 0 ? Math.round(fixedCosts / contributionMarginRatio) : firstYear.totalRevenue;
+  const breakEvenRevenue =
+    contributionMarginRatio > 0
+      ? Math.round(fixedCosts / contributionMarginRatio)
+      : firstYear.totalRevenue;
   const breakEvenUnits = Math.round(breakEvenRevenue / Math.max(1, drivers.averageUnitPrice));
-  const marginOfSafetyPct = firstYear.totalRevenue > 0
-    ? Math.round(((firstYear.totalRevenue - breakEvenRevenue) / firstYear.totalRevenue) * 1000) / 10
-    : 0;
+  const marginOfSafetyPct =
+    firstYear.totalRevenue > 0
+      ? Math.round(((firstYear.totalRevenue - breakEvenRevenue) / firstYear.totalRevenue) * 1000) /
+        10
+      : 0;
 
   const breakEven: BreakEvenAnalysis = {
     fixedCosts: Math.round(fixedCosts),
@@ -125,7 +139,9 @@ export function generateBusinessPlanPackage(
       targetYear: 2025,
       capitalAmount: Math.round(drivers.initialEquity * 0.25),
       preMoneyValuation: Math.round(valuation.impliedEquityValueGordon * 0.65),
-      postMoneyValuation: Math.round(valuation.impliedEquityValueGordon * 0.65 + drivers.initialEquity * 0.25),
+      postMoneyValuation: Math.round(
+        valuation.impliedEquityValueGordon * 0.65 + drivers.initialEquity * 0.25,
+      ),
       investorEquityPct: 15.0,
       useOfFunds: [
         { category: "Product R&D & AI Engineering", percentage: 40 },
@@ -136,9 +152,11 @@ export function generateBusinessPlanPackage(
     {
       roundName: "Series A Institutional Growth",
       targetYear: 2027,
-      capitalAmount: Math.round(drivers.initialEquity * 0.60),
+      capitalAmount: Math.round(drivers.initialEquity * 0.6),
       preMoneyValuation: Math.round(valuation.impliedEquityValueGordon * 0.85),
-      postMoneyValuation: Math.round(valuation.impliedEquityValueGordon * 0.85 + drivers.initialEquity * 0.60),
+      postMoneyValuation: Math.round(
+        valuation.impliedEquityValueGordon * 0.85 + drivers.initialEquity * 0.6,
+      ),
       investorEquityPct: 18.5,
       useOfFunds: [
         { category: "Global Channel Expansion", percentage: 45 },
@@ -155,12 +173,16 @@ export function generateBusinessPlanPackage(
   // 4. McKinsey 7S Framework
   const mckinsey7s: Mckinsey7SFramework = {
     strategy: `Market dominance in ${drivers.sector} through premium pricing, product innovation, and expanding recurring service revenue.`,
-    structure: "Agile product-led organizational matrix with decentralized regional business units.",
-    systems: "Automated real-time ERP, systemic financial statement validation, and continuous AI risk analytics.",
-    sharedValues: "Uncompromising engineering quality, customer obsession, and sustainable long-term value creation.",
+    structure:
+      "Agile product-led organizational matrix with decentralized regional business units.",
+    systems:
+      "Automated real-time ERP, systemic financial statement validation, and continuous AI risk analytics.",
+    sharedValues:
+      "Uncompromising engineering quality, customer obsession, and sustainable long-term value creation.",
     style: "Data-driven, collaborative leadership with fast decision-making cycles.",
     staff: "High-density technical engineering talent and enterprise sales executives.",
-    skills: "Deep domain financial engineering, multi-sector operational modeling, and AI analytical intelligence.",
+    skills:
+      "Deep domain financial engineering, multi-sector operational modeling, and AI analytical intelligence.",
     alignmentScore: 94.5,
   };
 
@@ -168,23 +190,28 @@ export function generateBusinessPlanPackage(
   const kpmgRisks: KpmgRiskAssessment[] = [
     {
       riskCategory: "Financial",
-      riskDescription: "Interest rate volatility impacting cost of debt and WACC discount rate assumptions.",
+      riskDescription:
+        "Interest rate volatility impacting cost of debt and WACC discount rate assumptions.",
       impactLevel: "Medium",
       likelihood: "Medium",
-      mitigationStrategy: "Maintain fixed-rate long-term debt structure and minimum cash buffer of 15% of annual revenue.",
+      mitigationStrategy:
+        "Maintain fixed-rate long-term debt structure and minimum cash buffer of 15% of annual revenue.",
       auditStatus: "Compliant",
     },
     {
       riskCategory: "Operational",
-      riskDescription: "Supply chain bottlenecks for primary component sourcing and manufacturing capacity limits.",
+      riskDescription:
+        "Supply chain bottlenecks for primary component sourcing and manufacturing capacity limits.",
       impactLevel: "High",
       likelihood: "Low",
-      mitigationStrategy: "Dual-sourcing supplier contracts and buffer inventory targets aligned with DIO metrics.",
+      mitigationStrategy:
+        "Dual-sourcing supplier contracts and buffer inventory targets aligned with DIO metrics.",
       auditStatus: "Compliant",
     },
     {
       riskCategory: "Regulatory",
-      riskDescription: "Evolving cross-border ESG disclosure requirements and SEC XBRL filing standards.",
+      riskDescription:
+        "Evolving cross-border ESG disclosure requirements and SEC XBRL filing standards.",
       impactLevel: "Medium",
       likelihood: "Medium",
       mitigationStrategy: "Automated compliance checks integrated into systemic reporting engine.",
@@ -192,10 +219,12 @@ export function generateBusinessPlanPackage(
     },
     {
       riskCategory: "Strategic",
-      riskDescription: "Aggressive pricing pressure from legacy competitors in key expansion markets.",
+      riskDescription:
+        "Aggressive pricing pressure from legacy competitors in key expansion markets.",
       impactLevel: "High",
       likelihood: "Medium",
-      mitigationStrategy: "Defend margins via proprietary software/service bundles with high customer switching costs.",
+      mitigationStrategy:
+        "Defend margins via proprietary software/service bundles with high customer switching costs.",
       auditStatus: "Compliant",
     },
   ];
