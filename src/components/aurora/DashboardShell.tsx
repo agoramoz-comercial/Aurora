@@ -105,6 +105,32 @@ function loadReduceMotion(): boolean {
 export function DashboardShell({ defaultActive = "home" }: { defaultActive?: SectionId }) {
   return (
     <BrokerStoreProvider>
+      <svg width="0" height="0" aria-hidden focusable="false" style={{ position: "absolute" }}>
+        {/* P&L Contribution bar finish, shared by every bar chart (see styles.css) */}
+        <defs>
+          <linearGradient id="aurora-bar-fade-v" x1="0" y1="1" x2="0" y2="0">
+            <stop offset="0%" stopColor="#fff" stopOpacity="0.42" />
+            <stop offset="100%" stopColor="#fff" stopOpacity="0.95" />
+          </linearGradient>
+          <linearGradient id="aurora-bar-fade-h" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%" stopColor="#fff" stopOpacity="0.42" />
+            <stop offset="100%" stopColor="#fff" stopOpacity="0.95" />
+          </linearGradient>
+          <linearGradient id="aurora-bar-fade-hn" x1="1" y1="0" x2="0" y2="0">
+            <stop offset="0%" stopColor="#fff" stopOpacity="0.42" />
+            <stop offset="100%" stopColor="#fff" stopOpacity="0.95" />
+          </linearGradient>
+          <mask id="aurora-bar-mask-hn" maskContentUnits="objectBoundingBox">
+            <rect width="1" height="1" fill="url(#aurora-bar-fade-hn)" />
+          </mask>
+          <mask id="aurora-bar-mask-v" maskContentUnits="objectBoundingBox">
+            <rect width="1" height="1" fill="url(#aurora-bar-fade-v)" />
+          </mask>
+          <mask id="aurora-bar-mask-h" maskContentUnits="objectBoundingBox">
+            <rect width="1" height="1" fill="url(#aurora-bar-fade-h)" />
+          </mask>
+        </defs>
+      </svg>
       <Shell defaultActive={defaultActive} />
     </BrokerStoreProvider>
   );

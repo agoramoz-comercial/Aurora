@@ -307,3 +307,38 @@ h3 {
 [data-glass="dense"] {
   --aurora-glass-bg: var(--aurora-glass-bg-dense);
 }
+
+/* Bar charts: the visual finish of «P&L Contribution Since Inception» —
+   colour fading from 42% at the base to 95% at the tip, whisper grid,
+   quiet axes, soft hover band. Type and data are untouched. */
+.recharts-wrapper:has(.recharts-bar) .recharts-bar-rectangle path {
+  mask: url(#aurora-bar-mask-v);
+}
+.recharts-wrapper.aurora-hbar .recharts-bar-rectangle path {
+  mask: url(#aurora-bar-mask-h);
+}
+.recharts-wrapper.aurora-hbar-neg .recharts-bar-rectangle path {
+  mask: url(#aurora-bar-mask-hn);
+}
+.recharts-wrapper:has(.recharts-bar) .recharts-bar-rectangle path[fill^="url"] {
+  mask: none;
+}
+.recharts-wrapper:has(.recharts-bar) .recharts-cartesian-grid line {
+  stroke: rgba(255, 255, 255, 0.04);
+  stroke-dasharray: 3 3;
+}
+.recharts-wrapper:has(.recharts-bar) .recharts-cartesian-axis-line {
+  stroke: rgba(255, 255, 255, 0.3);
+}
+.recharts-wrapper:has(.recharts-bar) .recharts-cartesian-axis-tick-value {
+  font-size: 11px;
+}
+.recharts-wrapper:has(.recharts-bar) .recharts-tooltip-cursor {
+  fill: rgba(255, 255, 255, 0.04);
+}
+.recharts-wrapper:has(.recharts-bar) .recharts-bar-rectangle {
+  transition: opacity 200ms cubic-bezier(0.23, 1, 0.32, 1);
+}
+.recharts-wrapper:has(.recharts-bar) .recharts-bar:hover .recharts-bar-rectangle:not(:hover) {
+  opacity: 0.45;
+}

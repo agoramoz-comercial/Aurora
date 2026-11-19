@@ -282,6 +282,7 @@ export function IssuersSection() {
                 key={`${symbol}-${caseId}`}
                 data={field}
                 layout="vertical"
+                className="aurora-hbar"
                 margin={{ top: 4, right: 24, left: 8, bottom: 0 }}
               >
                 <CartesianGrid strokeDasharray="3 3" stroke={CHART.grid} horizontal={false} />

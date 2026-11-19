@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import { getTickerSnapshot, getWatchlist } from "@/lib/alphaVantage.functions";
@@ -25,6 +25,7 @@ import { Watchlist } from "./Watchlist";
 import { RiskScoreCard } from "./RiskScoreCard";
 import { AlertEngine } from "./AlertEngine";
 import { Sparkline } from "./Sparkline";
+import { ChartExpand, ExpandButton } from "./ChartExpand";
 import { CHART } from "../chartTheme";
 
 const TICKERS = ["AAPL", "MSFT", "NVDA", "TSLA", "AMZN", "GOOGL"] as const;
@@ -122,6 +123,19 @@ export function AnalyticsWorkspace() {
   const up = (data?.change ?? 0) >= 0;
   const accent = up ? CHART.positive : CHART.negative;
 
+  const [expanded, setExpanded] = useState(false);
+  const closeExpanded = useCallback(() => setExpanded(false), []);
+  const modeTabs = (
+    <SegmentedTabs
+      size="sm"
+      tabs={[
+        { id: "candles" as const, label: "Velas" },
+        { id: "area" as const, label: "Área" },
+      ]}
+      active={mode}
+      onSelect={setMode}
+    />
+  );
   return (
     <div className="flex min-h-0 flex-1 flex-col">
       <WorkspaceHeader
@@ -186,16 +200,32 @@ export function AnalyticsWorkspace() {
                 Volume · SMA20/50 · RSI14 · arraste e role para zoom
               </span>
             </div>
-            <SegmentedTabs
-              size="sm"
-              tabs={[
-                { id: "candles" as const, label: "Velas" },
-                { id: "area" as const, label: "Área" },
-              ]}
-              active={mode}
-              onSelect={setMode}
-            />
+            <div className="flex items-center gap-2">
+              {modeTabs}
+              <ExpandButton
+                label={`gráfico de preço ${symbol}`}
+                onClick={() => setExpanded(true)}
+              />
+            </div>
           </div>
+          <ChartExpand
+            open={expanded}
+            onClose={closeExpanded}
+            title={`${symbol} · Preço · ${tf}`}
+            toolbar={modeTabs}
+          >
+            {slicedSeries.length > 1 && data ? (
+              <MainPriceChart
+                series={slicedSeries}
+                full={data.series}
+                up={up}
+                mode={mode}
+                symbol={symbol}
+              />
+            ) : (
+              <Skeleton />
+            )}
+          </ChartExpand>
           <div className="relative mt-2 min-h-[340px] flex-1 lg:min-h-0">
             {slicedSeries.length > 1 && data ? (
               <MainPriceChart

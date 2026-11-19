@@ -213,6 +213,7 @@ export function ProjectionsSection({ model }: { model: IipaModel }) {
               <BarChart
                 data={sources}
                 layout="vertical"
+                className="aurora-hbar"
                 margin={{ top: 4, right: 8, left: 4, bottom: 0 }}
                 stackOffset="sign"
               >
