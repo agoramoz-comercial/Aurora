@@ -44,6 +44,7 @@ type Action =
   | { type: "assignTargets" }
   | { type: "move"; from: string; to: string; amount: number }
   | { type: "addTx"; tx: Omit<Transaction, "id"> }
+  | { type: "addTxs"; txs: Omit<Transaction, "id">[] }
   | { type: "recategorize"; id: string; categoryId: string | null }
   | { type: "deleteTx"; id: string }
   | { type: "addRule"; match: string; categoryId: string }
@@ -95,6 +96,17 @@ function reducer(s: FinanceState, a: Action): FinanceState {
       return {
         ...s,
         transactions: [tx!, ...s.transactions].sort((x, y) => y.date.localeCompare(x.date)),
+      };
+    }
+    case "addTxs": {
+      const base = Date.now();
+      const txs = applyRules(
+        a.txs.map((t, i) => ({ ...t, id: `tx-i${base}-${i}` })),
+        s.rules,
+      );
+      return {
+        ...s,
+        transactions: [...txs, ...s.transactions].sort((x, y) => y.date.localeCompare(x.date)),
       };
     }
     case "recategorize":

@@ -22,6 +22,11 @@ import {
 import {
   AlertTriangle,
   ArrowRightLeft,
+  CandlestickChart,
+  Gem,
+  ScanLine,
+  Send,
+  Tags,
   CalendarClock,
   CheckCircle2,
   Landmark,
@@ -76,6 +81,8 @@ import {
   type Strategy,
 } from "@/lib/finance/personal";
 import { Field, Meter, Metric, Money, MoneyInput, fieldCls } from "./atoms";
+import { WealthStoreProvider } from "@/data/personalFinance/wealthStore";
+import { ImportView, InvestView, PaymentsView, PricesView, WealthView } from "./WealthViews";
 
 type View =
   | "geral"
@@ -84,7 +91,12 @@ type View =
   | "recorrentes"
   | "dividas"
   | "objetivos"
-  | "previsao";
+  | "previsao"
+  | "investir"
+  | "pagamentos"
+  | "importar"
+  | "precos"
+  | "patrimonio";
 const VIEWS: { id: View; label: string; shortLabel: string; icon: React.ElementType }[] = [
   { id: "geral", label: "Visão geral", shortLabel: "Geral", icon: LayoutDashboard },
   { id: "orcamento", label: "Orçamento", shortLabel: "Orçamento", icon: Wallet },
@@ -93,12 +105,19 @@ const VIEWS: { id: View; label: string; shortLabel: string; icon: React.ElementT
   { id: "dividas", label: "Dívidas", shortLabel: "Dívidas", icon: Landmark },
   { id: "objetivos", label: "Objetivos", shortLabel: "Objetivos", icon: Target },
   { id: "previsao", label: "Previsão", shortLabel: "Previsão", icon: TrendingUp },
+  { id: "investir", label: "Investir", shortLabel: "Investir", icon: CandlestickChart },
+  { id: "pagamentos", label: "Pagamentos", shortLabel: "Pagar", icon: Send },
+  { id: "importar", label: "Extratos e recibos", shortLabel: "Importar", icon: ScanLine },
+  { id: "precos", label: "Preços", shortLabel: "Preços", icon: Tags },
+  { id: "patrimonio", label: "Património", shortLabel: "Património", icon: Gem },
 ];
 
 export function PersonalFinanceWorkspace() {
   return (
     <FinanceStoreProvider>
-      <Workspace />
+      <WealthStoreProvider>
+        <Workspace />
+      </WealthStoreProvider>
     </FinanceStoreProvider>
   );
 }
@@ -237,6 +256,11 @@ function Workspace() {
         {view === "dividas" ? <Debts d={d} /> : null}
         {view === "objetivos" ? <Goals d={d} say={say} /> : null}
         {view === "previsao" ? <Forecast d={d} /> : null}
+        {view === "investir" ? <InvestView say={say} /> : null}
+        {view === "pagamentos" ? <PaymentsView say={say} /> : null}
+        {view === "importar" ? <ImportView say={say} /> : null}
+        {view === "precos" ? <PricesView /> : null}
+        {view === "patrimonio" ? <WealthView /> : null}
       </motion.div>
       <AddTransaction
         open={addOpen}
