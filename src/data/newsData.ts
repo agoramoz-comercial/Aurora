@@ -1,5 +1,6 @@
 // ─────────────────────────────────────────────────────────────────────────────
-// Dual-Layer News Platform — mock data
+// Dual-Layer News Platform — real stories from credible outlets (linked),
+// illustrated with free-licence photos from Wikimedia Commons (credited).
 // Primary  : direct impact on held assets
 // Secondary: regime / macro / sector signals outside the portfolio
 // ─────────────────────────────────────────────────────────────────────────────
@@ -17,21 +18,12 @@ export type EventType =
   | "technical"
   | "fundamental"
   | "social";
-export type Horizon =
-  | "intraday"
-  | "1-5d"
-  | "1-4w"
-  | "structural";
-export type EventStatus =
-  | "new"
-  | "confirmed"
-  | "developing"
-  | "denied"
-  | "closed";
+export type Horizon = "intraday" | "1-5d" | "1-4w" | "structural";
+export type EventStatus = "new" | "confirmed" | "developing" | "denied" | "closed";
 
 export interface EvidenceLayer {
-  market?: string;     // price/vol/spread signal
-  technical?: string;  // technical signal
+  market?: string; // price/vol/spread signal
+  technical?: string; // technical signal
   fundamental?: string;
   statistical?: string;
   documentary?: string;
@@ -49,19 +41,29 @@ export interface PrimaryNewsItem {
   status: EventStatus;
   headline: string;
   summary: string;
-  timestamp: string;          // ISO
+  timestamp: string; // ISO
   minutesAgo: number;
-  impactScore: number;        // 0–100
+  impactScore: number; // 0–100
   confidenceBand: ConfidenceBand;
   attentionLevel: AttentionLevel;
   horizon: Horizon;
-  priceChange: number;        // %
-  volumeChange: number;       // % vs avg
-  volChange: number;          // implied vol change in pp
+  priceChange: number; // %
+  volumeChange: number; // % vs avg
+  volChange: number; // implied vol change in pp
   evidenceLayers: EvidenceLayer;
   evidenceCount: number;
   sourceCount: number;
   tags: string[];
+  source: string;
+  url: string;
+  image?: NewsImage;
+}
+
+export interface NewsImage {
+  src: string;
+  credit: string;
+  license: string;
+  page: string;
 }
 
 export interface SecondaryNewsItem {
@@ -78,9 +80,12 @@ export interface SecondaryNewsItem {
   confidenceBand: ConfidenceBand;
   attentionLevel: AttentionLevel;
   horizon: Horizon;
-  transmissionVector: string;  // how it affects portfolio context
+  transmissionVector: string; // how it affects portfolio context
   regimeFlag: string;
   tags: string[];
+  source: string;
+  url: string;
+  image?: NewsImage;
 }
 
 export interface ImpactPanelAsset {
@@ -94,370 +99,448 @@ export interface ImpactPanelAsset {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// PRIMARY NEWS
+// PHOTOS — Wikimedia Commons, free licences (public domain, CC0, CC BY, CC BY-SA)
+// ─────────────────────────────────────────────────────────────────────────────
+const C = "https://commons.wikimedia.org/wiki/File:";
+const T = "https://thumb.wikimedia.org/wikipedia/commons/thumb/";
+export const PHOTOS = {
+  nyse: {
+    src: `${T}e/ea/NY_stock_exchange_traders_floor_LC-U9-10548-6.jpg/1920px-NY_stock_exchange_traders_floor_LC-U9-10548-6.jpg`,
+    credit: "Thomas J. O'Halloran · Library of Congress",
+    license: "Domínio público",
+    page: `${C}NY_stock_exchange_traders_floor_LC-U9-10548-6.jpg`,
+  },
+  fed: {
+    src: `${T}8/89/Eccles_Building_%2826088200676%29.jpg/1920px-Eccles_Building_%2826088200676%29.jpg`,
+    credit: "Federal Reserve",
+    license: "Domínio público",
+    page: `${C}Eccles_Building_(26088200676).jpg`,
+  },
+  nvidia: {
+    src: `${T}8/84/Nvidia_sign.jpg/1920px-Nvidia_sign.jpg`,
+    credit: "Will Buckner",
+    license: "CC BY 2.0",
+    page: `${C}Nvidia_sign.jpg`,
+  },
+  lng: {
+    src: `${T}d/d1/2023-05-20_01_LNG_tanker%2C_GULF_ENERGY_-_IMO_7390143.jpg/1920px-2023-05-20_01_LNG_tanker%2C_GULF_ENERGY_-_IMO_7390143.jpg`,
+    credit: "Gordon Leggett",
+    license: "CC BY-SA 4.0",
+    page: `${C}2023-05-20_01_LNG_tanker,_GULF_ENERGY_-_IMO_7390143.jpg`,
+  },
+  oil: {
+    src: `${T}8/83/LostHillsPumpjacksSunset.JPG/1920px-LostHillsPumpjacksSunset.JPG`,
+    credit: "Arne Hückelheim",
+    license: "CC BY-SA 3.0",
+    page: `${C}LostHillsPumpjacksSunset.JPG`,
+  },
+  datacenter: {
+    src: `${T}e/eb/Racks_Amravati_Data_Center.jpg/1920px-Racks_Amravati_Data_Center.jpg`,
+    credit: "PiDatacenters",
+    license: "CC BY-SA 4.0",
+    page: `${C}Racks_Amravati_Data_Center.jpg`,
+  },
+  maputo: {
+    src: `${T}0/07/Avenida_25_de_Setembro_Maputo_%282995080620%29.jpg/1920px-Avenida_25_de_Setembro_Maputo_%282995080620%29.jpg`,
+    credit: "F Mira",
+    license: "CC BY-SA 2.0",
+    page: `${C}Avenida_25_de_Setembro_Maputo_(2995080620).jpg`,
+  },
+  metical: {
+    src: "https://upload.wikimedia.org/wikipedia/commons/e/eb/20000_meticals_Mozambique.jpg",
+    credit: "Autor desconhecido",
+    license: "CC0",
+    page: `${C}20000_meticals_Mozambique.jpg`,
+  },
+} satisfies Record<string, NewsImage>;
+
+const ago = (iso: string) => Math.max(1, Math.round((Date.now() - Date.parse(iso)) / 60000));
+
+// ─────────────────────────────────────────────────────────────────────────────
+// PRIMARY NEWS — direct impact on held / watched assets
 // ─────────────────────────────────────────────────────────────────────────────
 export const primaryNews: PrimaryNewsItem[] = [
   {
     id: "p1",
-    ticker: "AAPL",
-    assetName: "Apple Inc.",
-    assetClass: "equity",
-    sector: "Technology",
-    geography: "US",
-    eventType: "earnings",
-    status: "confirmed",
-    headline: "Apple Q2 EPS beats by $0.18 — Services revenue accelerates to +14% YoY",
-    summary:
-      "Apple reported Q2 EPS of $1.53 vs $1.35 est. Services reached $24.2B (+14% YoY), iPhone softened slightly. Management raised full-year guidance on margin expansion. Free cash flow generation at all-time high of $29B.",
-    timestamp: "2026-07-12T16:45:00Z",
-    minutesAgo: 7,
-    impactScore: 91,
-    confidenceBand: "high",
-    attentionLevel: "critical",
-    horizon: "1-5d",
-    priceChange: 3.8,
-    volumeChange: 340,
-    volChange: -2.1,
-    evidenceLayers: {
-      market: "Price +3.8% on 3.4× avg volume. Options IV collapsing post-print (IV crush pattern).",
-      technical: "Broke above 52-week resistance at $198. RSI entering overbought territory (72).",
-      fundamental: "EPS surprise +13.3%. Operating margin expanded 180bps. FCF yield holding at 4.1%.",
-      statistical: "In 12 comparable post-beat quarters, AAPL averaged +4.2% over 5 days with 75% persistence.",
-      documentary: "10-Q filed 17:12 ET. Tim Cook transcript emphasises AI integration roadmap.",
-      social: "Narrative acceleration on X (+480% mentions in 2h). Sentiment 78% positive.",
-    },
-    evidenceCount: 6,
-    sourceCount: 8,
-    tags: ["Earnings Beat", "Guidance Raise", "Services Growth", "IV Crush"],
-  },
-  {
-    id: "p2",
     ticker: "NVDA",
     assetName: "NVIDIA Corp.",
     assetClass: "equity",
-    sector: "Semiconductors",
-    geography: "US",
-    eventType: "fundamental",
-    status: "developing",
-    headline: "NVDA H100 supply constraint easing — Foxconn ramps CoWoS capacity 60% in Q3",
+    sector: "Semicondutores",
+    geography: "EUA",
+    eventType: "earnings",
+    status: "confirmed",
+    headline: "Wall Street fecha misto depois dos resultados da Nvidia e das atas da Fed",
     summary:
-      "Supply chain sources confirm Foxconn advanced packaging capacity expanding materially. Analyst community revising up 2026 data-centre revenue estimates. Blackwell ramp not yet reflected in consensus.",
-    timestamp: "2026-07-12T15:20:00Z",
-    minutesAgo: 92,
-    impactScore: 78,
-    confidenceBand: "medium",
-    attentionLevel: "high",
-    horizon: "1-4w",
-    priceChange: 1.4,
-    volumeChange: 180,
-    volChange: 0.8,
+      "A Nvidia superou as estimativas de vendas, mas a ação recuou. Os investidores pesaram ainda o tom duro das atas da Reserva Federal e preparam-se para o preço da entrada em bolsa da Anthropic.",
+    timestamp: "2026-11-18T21:00:00Z",
+    minutesAgo: ago("2026-11-18T21:00:00Z"),
+    impactScore: 92,
+    confidenceBand: "high",
+    attentionLevel: "critical",
+    horizon: "1-5d",
+    priceChange: -2.4,
+    volumeChange: 0,
+    volChange: 0,
     evidenceLayers: {
-      market: "NVDA +1.4%. SMH ETF outperforming SOX by 90bps intraday.",
-      technical: "Consolidating above 50-day MA. MACD bullish crossover forming.",
-      fundamental: "Sell-side revisions: 3 upgrades, 2 PT increases in last 48h.",
-      statistical: "Supply-expansion news historically correlates with +3–7% over 4 weeks (n=8, 62% hit rate).",
-      documentary: "Foxconn FY2026 capex filing confirms CoWoS line expansion.",
+      market:
+        "Nvidia −2,4% após os resultados; Dow Jones −0,8%; S&P 500 e Nasdaq quase inalterados (Reuters, 18 nov).",
+      fundamental:
+        "Receitas do trimestre acima do consenso; o mercado questiona a sustentabilidade do ciclo de investimento em IA.",
+      documentary: "Reuters · Stephen Culp e Utkarsh Hathi, 18 nov 2026.",
     },
-    evidenceCount: 5,
-    sourceCount: 6,
-    tags: ["Supply Chain", "AI Infrastructure", "Capacity Expansion", "Estimate Revision"],
+    evidenceCount: 3,
+    sourceCount: 2,
+    tags: ["Resultados", "IA", "Semicondutores", "Fed"],
+    source: "Reuters",
+    url: "https://www.reuters.com/business/nasdaq-futures-jump-nvidia-forecast-lifts-ai-trade-ahead-anthropic-pricing-2026-11-18/",
+    image: PHOTOS.nvidia,
+  },
+  {
+    id: "p2",
+    ticker: "XOM",
+    assetName: "ExxonMobil",
+    assetClass: "equity",
+    sector: "Energia · GNL",
+    geography: "Moçambique",
+    eventType: "ma",
+    status: "confirmed",
+    headline:
+      "ExxonMobil sobe para 50% no Rovuma LNG e aponta decisão final de investimento até dezembro",
+    summary:
+      "Reorganização com a Eni na Área 4: a ExxonMobil duplica a participação no Rovuma LNG e a Eni concentra-se nas unidades flutuantes. O Coral Norte está 70% concluído, com arranque previsto para 2028.",
+    timestamp: "2026-11-17T07:59:00Z",
+    minutesAgo: ago("2026-11-17T07:59:00Z"),
+    impactScore: 90,
+    confidenceBand: "high",
+    attentionLevel: "critical",
+    horizon: "structural",
+    priceChange: 0,
+    volumeChange: 0,
+    volChange: 0,
+    evidenceLayers: {
+      fundamental:
+        "Decisão final de investimento esperada até dezembro de 2026; o projeto promete mais de 100 mil milhões de dólares de valor para Moçambique e 7 000 empregos.",
+      documentary:
+        "O.Económico, 17 nov 2026 · Eni prevê ainda a unidade Mamba Leste (decisão em 2027) e uma central a gás (2029).",
+      statistical: "Coral Norte: 70% de execução; operação prevista para 2028.",
+    },
+    evidenceCount: 3,
+    sourceCount: 2,
+    tags: ["Rovuma LNG", "Área 4", "Eni", "Gás natural"],
+    source: "O.Económico",
+    url: "https://www.oeconomico.com/exxonmobil-assume-50-do-rovuma-lng-e-aponta-para-decisao-de-investimento-ate-dezembro/",
+    image: PHOTOS.lng,
   },
   {
     id: "p3",
-    ticker: "MSFT",
-    assetName: "Microsoft Corp.",
-    assetClass: "equity",
-    sector: "Technology",
-    geography: "US",
-    eventType: "regulatory",
-    status: "new",
-    headline: "EU DMA investigation expanded to Azure AI — Potential remedies by Q1 2027",
+    ticker: "FED",
+    assetName: "Reserva Federal (EUA)",
+    assetClass: "bond",
+    sector: "Política monetária",
+    geography: "EUA",
+    eventType: "macro",
+    status: "developing",
+    headline:
+      "Fed inclina-se para subir juros a 9 de dezembro: mercado atribui cerca de 87% a +25 pb",
     summary:
-      "European Commission formally expanded Digital Markets Act probe to include Azure OpenAI bundling. No immediate financial impact expected, but headline risk elevated. Legal proceedings could extend 18–24 months.",
-    timestamp: "2026-07-12T14:10:00Z",
-    minutesAgo: 190,
-    impactScore: 62,
+      "As atas mostram responsáveis preocupados com a inflação persistente. O mercado de futuros dá como provável uma subida de 25 pontos base; a história mostra reações mistas das ações a subidas antecipadas.",
+    timestamp: "2026-11-18T19:00:00Z",
+    minutesAgo: ago("2026-11-18T19:00:00Z"),
+    impactScore: 88,
     confidenceBand: "medium",
-    attentionLevel: "moderate",
-    horizon: "structural",
-    priceChange: -0.9,
-    volumeChange: 145,
-    volChange: 1.4,
+    attentionLevel: "critical",
+    horizon: "1-4w",
+    priceChange: 0,
+    volumeChange: 0,
+    volChange: 0,
     evidenceLayers: {
-      market: "MSFT -0.9%. European tech peers down 0.3–0.6% in sympathy.",
-      fundamental: "Azure represents ~28% of MSFT revenue. Structural remedies unlikely before 2027.",
-      documentary: "EC press release published 14:05 CET. Bloomberg Law article with full probe scope.",
-      social: "Tech policy accounts flagging significance. 40% below earnings-season noise level.",
+      market:
+        "Probabilidade implícita de ~87% de subida de 25 pb na reunião de 9 de dezembro (Yahoo Finance).",
+      documentary:
+        "Atas da Fed publicadas a 18 nov; o governador Christopher Waller sinalizou abertura a subidas (Reuters).",
+      statistical:
+        "Em 2015 o S&P 500 subiu após a subida; em 2018 e 2022 caiu nas semanas seguintes.",
     },
-    evidenceCount: 4,
-    sourceCount: 5,
-    tags: ["Regulatory Risk", "EU DMA", "Azure", "AI Bundling"],
+    evidenceCount: 3,
+    sourceCount: 2,
+    tags: ["Juros", "Inflação", "Dólar", "Obrigações"],
+    source: "Reuters · Yahoo Finance",
+    url: "https://finance.yahoo.com/markets/stocks/articles/market-react-potential-fed-rate-122200823.html",
+    image: PHOTOS.fed,
   },
   {
     id: "p4",
-    ticker: "BTC",
-    assetName: "Bitcoin",
-    assetClass: "crypto",
-    sector: "Digital Assets",
+    ticker: "CL",
+    assetName: "Petróleo WTI",
+    assetClass: "commodity",
+    sector: "Energia",
     geography: "Global",
-    eventType: "macro",
+    eventType: "supply",
     status: "confirmed",
-    headline: "BTC breaks $75K on spot ETF inflow record — BlackRock IBIT logs $1.4B single-day",
+    headline: "Petróleo cai mais de 4% com subida de inventários e dólar em máximos",
     summary:
-      "Bitcoin crossed $75,000 for first time since January. BlackRock IBIT recorded largest single-day inflow since inception. CME futures open interest at all-time high. On-chain metrics confirm institutional accumulation.",
-    timestamp: "2026-07-12T16:30:00Z",
-    minutesAgo: 22,
-    impactScore: 87,
-    confidenceBand: "high",
-    attentionLevel: "critical",
-    horizon: "intraday",
-    priceChange: 6.2,
-    volumeChange: 520,
-    volChange: 4.8,
-    evidenceLayers: {
-      market: "BTC +6.2%, ETH +4.1%, SOL +5.8%. Altcoin market cap +3.9%. Fear & Greed: 82 (Extreme Greed).",
-      technical: "Clean break above $73K resistance zone. Next key level: $80K psychological.",
-      fundamental: "ETF AUM now $112B. Spot ETFs collectively >200K BTC under management.",
-      statistical: "Post-ATH breakouts historically sustained >10% over 2 weeks in 68% of cases.",
-      documentary: "SEC approved two additional spot ETF products today.",
-      social: "Google Trends BTC searches +340% week-over-week.",
-    },
-    evidenceCount: 6,
-    sourceCount: 9,
-    tags: ["ATH Breakout", "ETF Inflows", "Institutional", "Risk-On"],
-  },
-  {
-    id: "p5",
-    ticker: "JPM",
-    assetName: "JPMorgan Chase",
-    assetClass: "equity",
-    sector: "Financials",
-    geography: "US",
-    eventType: "earnings",
-    status: "confirmed",
-    headline: "JPM Net Interest Income guidance cut — Dimon signals rate sensitivity headwind into 2027",
-    summary:
-      "JPMorgan revised NII guidance to $89.5B from $91.5B for FY2026, citing Fed rate path uncertainty. Investment banking fees were a bright spot. CET1 ratio held at 15.3%, well above regulatory minimums.",
-    timestamp: "2026-07-12T13:45:00Z",
-    minutesAgo: 217,
-    impactScore: 74,
-    confidenceBand: "high",
-    attentionLevel: "high",
-    horizon: "1-4w",
-    priceChange: -2.1,
-    volumeChange: 260,
-    volChange: 2.3,
-    evidenceLayers: {
-      market: "JPM -2.1%. KBW Bank Index -1.4%. Financials sector -1.1% vs SPX -0.2%.",
-      technical: "Testing 50-day support at $218. Key level to watch.",
-      fundamental: "NII miss of $2B annualised. IB revenue +22% YoY offsetting partially.",
-      statistical: "Post-NII guidance cut, bank stocks average -2.8% over 5 days (n=14, 71% hit rate).",
-      documentary: "Earnings call transcript: Dimon comments on rate sensitivity and commercial RE.",
-    },
-    evidenceCount: 5,
-    sourceCount: 7,
-    tags: ["NII Guidance Cut", "Rate Sensitivity", "Financials", "Earnings Miss"],
-  },
-  {
-    id: "p6",
-    ticker: "GOLD",
-    assetName: "SPDR Gold Trust",
-    assetClass: "etf",
-    sector: "Commodities",
-    geography: "Global",
-    eventType: "macro",
-    status: "developing",
-    headline: "Gold ETF GLD surges as dollar weakens — CPI print misses expectations by 0.2pp",
-    summary:
-      "Weaker-than-expected June CPI (3.1% vs 3.3% est.) triggered USD selloff and gold rally. GLD +1.9% on above-average volume. Market pricing 2.2 cuts in 2026 vs 1.8 cuts yesterday.",
-    timestamp: "2026-07-12T14:35:00Z",
-    minutesAgo: 167,
-    impactScore: 68,
+      "As ações globais recuaram numa sessão agitada; o dólar ganhou força depois de comentários do governador da Fed Christopher Waller e o crude afundou com o aumento dos inventários.",
+    timestamp: "2026-11-18T21:49:00Z",
+    minutesAgo: ago("2026-11-18T21:49:00Z"),
+    impactScore: 81,
     confidenceBand: "high",
     attentionLevel: "high",
     horizon: "1-5d",
-    priceChange: 1.9,
-    volumeChange: 190,
-    volChange: -0.6,
+    priceChange: -4.0,
+    volumeChange: 0,
+    volChange: 0,
     evidenceLayers: {
-      market: "GLD +1.9%, DXY -0.8%, 2Y UST -14bps, 10Y UST -9bps. Rate cut pricing surging.",
-      technical: "Gold tested and held $2,400 support. Momentum indicators turning bullish.",
-      fundamental: "CPI miss signals disinflation trend intact. Fed's preferred measure (PCE) divergence watch.",
-      statistical: "Post-CPI miss, gold averaged +1.3% over 5 days in 8 of last 10 instances.",
-      documentary: "BLS CPI release, Fed commentary from Williams and Waller.",
+      market:
+        "Crude −4% ou mais; índice global de ações em queda; dólar em máximos de vários meses.",
+      documentary: "Reuters · Rodrigo Campos, 18 nov 2026.",
     },
-    evidenceCount: 5,
-    sourceCount: 6,
-    tags: ["CPI Miss", "Disinflation", "Gold Rally", "Rate Cut Expectations"],
+    evidenceCount: 2,
+    sourceCount: 1,
+    tags: ["Petróleo", "Inventários", "Dólar"],
+    source: "Reuters",
+    url: "https://www.reuters.com/world/china/global-markets-wrapup-1-2026-11-18/",
+    image: PHOTOS.oil,
+  },
+  {
+    id: "p5",
+    ticker: "IPO",
+    assetName: "Anthropic",
+    assetClass: "equity",
+    sector: "Inteligência artificial",
+    geography: "EUA",
+    eventType: "fundamental",
+    status: "new",
+    headline: "Semana decisiva: entrada em bolsa da Anthropic testa o apetite por IA",
+    summary:
+      "A Morningstar destaca a estreia da Anthropic e os resultados da Nvidia como os eventos da semana. A Morgan Stanley vê oportunidade em ações de qualidade depois da correção das tecnológicas de IA.",
+    timestamp: "2026-11-16T07:00:00Z",
+    minutesAgo: ago("2026-11-16T07:00:00Z"),
+    impactScore: 79,
+    confidenceBand: "medium",
+    attentionLevel: "high",
+    horizon: "1-4w",
+    priceChange: 0,
+    volumeChange: 0,
+    volChange: 0,
+    evidenceLayers: {
+      fundamental: "Morgan Stanley privilegia hyperscalers e infraestrutura de IA após a correção.",
+      documentary: "Morningstar · Tom Lauricella e Sarah Hansen, 16 nov 2026.",
+    },
+    evidenceCount: 2,
+    sourceCount: 2,
+    tags: ["IPO", "IA", "Tecnologia"],
+    source: "Morningstar",
+    url: "https://www.morningstar.com/markets/markets-brief-big-week-ahead-nvidia-report-earnings-anthropic-debut-ipo",
+    image: PHOTOS.datacenter,
+  },
+  {
+    id: "p6",
+    ticker: "MZN",
+    assetName: "Economia de Moçambique",
+    assetClass: "fx",
+    sector: "Macro",
+    geography: "Moçambique",
+    eventType: "macro",
+    status: "confirmed",
+    headline: "Standard Bank prevê crescimento de 2,3% em 2027 e pede ajustamento fiscal e cambial",
+    summary:
+      "O crescimento previsto fica abaixo do aumento da população (2,7%), sem subida do PIB por habitante. O banco defende consolidação orçamental e mais flexibilidade cambial para aliviar a escassez de divisas.",
+    timestamp: "2026-11-06T15:20:00Z",
+    minutesAgo: ago("2026-11-06T15:20:00Z"),
+    impactScore: 76,
+    confidenceBand: "high",
+    attentionLevel: "high",
+    horizon: "structural",
+    priceChange: 0,
+    volumeChange: 0,
+    volChange: 0,
+    evidenceLayers: {
+      fundamental:
+        "PIB 2027: +2,3% vs população +2,7%; os projetos de gás são o motor de longo prazo.",
+      documentary:
+        "Diário Económico · Alfredo Ubisse, 6 nov 2026 (Economic Briefing do Standard Bank).",
+    },
+    evidenceCount: 2,
+    sourceCount: 1,
+    tags: ["PIB", "Metical", "Divisas", "FMI"],
+    source: "Diário Económico",
+    url: "https://www.diarioeconomico.co.mz/2026/11/06/economia/economic-briefing-standard-bank-anteve-ajustamento-macroeconomico-em-mocambique-em-2027/",
+    image: PHOTOS.metical,
   },
 ];
 
 // ─────────────────────────────────────────────────────────────────────────────
-// SECONDARY NEWS
+// SECONDARY NEWS — regime, macro and sector signals
 // ─────────────────────────────────────────────────────────────────────────────
+const sec = (
+  id: string,
+  ts: string,
+  headline: string,
+  summary: string,
+  source: string,
+  url: string,
+  extra: Partial<SecondaryNewsItem> &
+    Pick<SecondaryNewsItem, "theme" | "eventType" | "transmissionVector" | "regimeFlag" | "tags">,
+): SecondaryNewsItem => ({
+  id,
+  assetName: extra.assetName ?? "Moçambique",
+  status: "confirmed",
+  headline,
+  summary,
+  timestamp: ts,
+  minutesAgo: ago(ts),
+  confidenceBand: "high",
+  attentionLevel: "moderate",
+  horizon: "1-4w",
+  source,
+  url,
+  ...extra,
+});
+
 export const secondaryNews: SecondaryNewsItem[] = [
-  {
-    id: "s1",
-    ticker: "TSM",
-    assetName: "TSMC",
-    theme: "Semiconductor Supply Chain",
-    eventType: "earnings",
-    status: "confirmed",
-    headline: "TSMC Q2 revenue +40% YoY — N2 node orders exceed 2025 full-year capacity",
-    summary: "TSMC's Q2 revenue surge confirms AI chip demand resilience. N2 node pre-orders already exhausted for 2027. Implication for NVDA, AMD, AAPL customers: supply priority reshuffling.",
-    timestamp: "2026-07-12T12:00:00Z",
-    minutesAgo: 340,
-    confidenceBand: "high",
-    attentionLevel: "high",
-    horizon: "structural",
-    transmissionVector: "Directly impacts NVDA & AAPL chip supply timelines in portfolio",
-    regimeFlag: "AI Infrastructure Supercycle",
-    tags: ["TSMC", "N2 Node", "AI Chips", "Supply Priority"],
-  },
-  {
-    id: "s2",
-    assetName: "US 10Y Treasury",
-    theme: "Rates & Macro Regime",
-    eventType: "macro",
-    status: "confirmed",
-    headline: "10Y UST yield drops to 4.08% post-CPI — Real rates regime shifting",
-    summary: "The CPI miss pushed 10Y yields to lowest since March. A sustained sub-4.1% environment changes the discount rate narrative for growth equities. Watch for rotation from value to growth.",
-    timestamp: "2026-07-12T14:40:00Z",
-    minutesAgo: 162,
-    confidenceBand: "high",
-    attentionLevel: "critical",
-    horizon: "1-4w",
-    transmissionVector: "Lower discount rates benefit growth positions (AAPL, NVDA, MSFT)",
-    regimeFlag: "Rates Regime Shift",
-    tags: ["10Y Yield", "Real Rates", "Growth vs Value", "Duration"],
-  },
-  {
-    id: "s3",
-    ticker: "META",
-    assetName: "Meta Platforms",
-    theme: "Ad Tech & Social Media",
-    eventType: "fundamental",
-    status: "new",
-    headline: "Meta raises 2026 capex to $72B — AI infrastructure war escalates",
-    summary: "Meta's capex raise signals continued AI arms race. Positive for NVDA/AMD data centre business. Broader market implication: AI infrastructure spending is not decelerating.",
-    timestamp: "2026-07-12T11:30:00Z",
-    minutesAgo: 370,
-    confidenceBand: "high",
-    attentionLevel: "high",
-    horizon: "structural",
-    transmissionVector: "AI infrastructure capex regime bullish for semiconductor holdings",
-    regimeFlag: "AI Capex Acceleration",
-    tags: ["Meta", "AI Capex", "Data Centre", "Infra War"],
-  },
-  {
-    id: "s4",
-    assetName: "EUR/USD",
-    theme: "FX & Currency Risk",
-    eventType: "macro",
-    status: "developing",
-    headline: "EUR/USD breaks above 1.09 — ECB Lagarde signals July hold, dollar weakness persists",
-    summary: "EUR/USD at 4-month high following CPI miss and Lagarde's cautious tone. Affects multinational revenue translation for US companies with European exposure.",
-    timestamp: "2026-07-12T15:00:00Z",
-    minutesAgo: 112,
-    confidenceBand: "medium",
-    attentionLevel: "moderate",
-    horizon: "1-4w",
-    transmissionVector: "USD weakness supports non-US earnings translation. Monitor AAPL, MSFT EU revenues.",
-    regimeFlag: "Dollar Weakness Regime",
-    tags: ["EUR/USD", "FX", "Dollar Weakness", "Revenue Translation"],
-  },
-  {
-    id: "s5",
-    ticker: "XOM",
-    assetName: "ExxonMobil",
-    theme: "Energy & Commodities",
-    eventType: "supply",
-    status: "new",
-    headline: "OPEC+ signals further production cut extension through Q4 — Oil +3.2%",
-    summary: "OPEC+ meeting outcome: production cuts extended to December 2026. Brent crude +3.2%, WTI +3.1%. Energy sector outperforming. Inflationary tail risk re-emerges if sustained.",
-    timestamp: "2026-07-12T10:15:00Z",
-    minutesAgo: 487,
-    confidenceBand: "high",
-    attentionLevel: "high",
-    horizon: "1-4w",
-    transmissionVector: "Oil spike re-ignites CPI upside risk, complicating Fed rate cut narrative",
-    regimeFlag: "Energy Supply Shock",
-    tags: ["OPEC+", "Oil", "Brent", "Inflation Risk"],
-  },
-  {
-    id: "s6",
-    assetName: "Chinese A-Shares",
-    theme: "China & EM Risk",
-    eventType: "geopolitical",
-    status: "developing",
-    headline: "China stimulus package $500B announced — EM sentiment reversal underway",
-    summary: "Beijing announced a RMB 3.6T fiscal stimulus package targeting infrastructure and consumption. EM equities rallying broadly. Risk-on signal with potential correlation shift.",
-    timestamp: "2026-07-12T09:00:00Z",
-    minutesAgo: 582,
-    confidenceBand: "medium",
-    attentionLevel: "high",
-    horizon: "structural",
-    transmissionVector: "EM rally reduces flight-to-quality flows. Monitor beta vs correlation shifts in portfolio.",
-    regimeFlag: "EM Risk-On Rotation",
-    tags: ["China Stimulus", "EM", "Risk-On", "Fiscal Policy"],
-  },
-  {
-    id: "s7",
-    assetName: "Vix Index",
-    theme: "Volatility & Regime",
-    eventType: "technical",
-    status: "confirmed",
-    headline: "VIX drops below 13 — Multi-year low signals complacency or genuine regime calm",
-    summary: "VIX at 12.8, lowest since pre-2020. Either markets correctly pricing low-risk environment, or tail risk building. Skew elevated: protection is being bought despite low VIX.",
-    timestamp: "2026-07-12T16:00:00Z",
-    minutesAgo: 52,
-    confidenceBand: "medium",
-    attentionLevel: "moderate",
-    horizon: "1-4w",
-    transmissionVector: "Low VIX compresses risk premia. Review portfolio hedge adequacy.",
-    regimeFlag: "Low Volatility Regime",
-    tags: ["VIX", "Volatility", "Skew", "Complacency"],
-  },
-  {
-    id: "s8",
-    ticker: "AMZN",
-    assetName: "Amazon",
-    theme: "Cloud & AI",
-    eventType: "fundamental",
-    status: "new",
-    headline: "AWS gains 3pp market share in H1 2026 — AI workloads driving $28B quarterly run rate",
-    summary: "AWS H1 data: cloud market share expanded from 31% to 34%. AI workloads now represent 22% of AWS revenue. Synergy Intelligence: competitive dynamics shifting away from Azure and GCP.",
-    timestamp: "2026-07-12T13:00:00Z",
-    minutesAgo: 252,
-    confidenceBand: "medium",
-    attentionLevel: "moderate",
-    horizon: "structural",
-    transmissionVector: "Cloud market share shift may pressure MSFT Azure growth narrative",
-    regimeFlag: "Cloud AI Competition",
-    tags: ["AWS", "Cloud Share", "AI Workloads", "Azure Risk"],
-  },
+  sec(
+    "s1",
+    "2026-11-17T08:00:00Z",
+    "Investimento estrangeiro cai 55,6% no segundo trimestre",
+    "A queda evidencia a dependência de Moçambique dos grandes projetos de recursos naturais.",
+    "O.Económico",
+    "https://www.oeconomico.com/investimento-estrangeiro-cai-556-no-segundo-trimestre-e-evidencia-dependencia-dos-grandes-projectos/",
+    {
+      theme: "Investimento",
+      eventType: "macro",
+      attentionLevel: "high",
+      transmissionVector: "Menos entrada de divisas pressiona o metical e a liquidez em dólares.",
+      regimeFlag: "Risco cambial",
+      tags: ["IDE", "Divisas"],
+      image: PHOTOS.maputo,
+    },
+  ),
+  sec(
+    "s2",
+    "2026-11-12T08:00:00Z",
+    "Parlamento aprova relatório: gás rendeu 88,13 milhões de dólares ao Estado",
+    "Receitas da exploração de gás constam do relatório aprovado pela Assembleia da República.",
+    "AIM",
+    "https://aimnews.org/2026/11/12/parlamento-aprova-relatorio-que-aponta-receitas-de-8813-milhoes-de-usd-com-exploracao-do-gas/",
+    {
+      theme: "Gás natural",
+      eventType: "regulatory",
+      transmissionVector: "Receitas fiscais do gás sustentam o orçamento e o fundo soberano.",
+      regimeFlag: "Finanças públicas",
+      tags: ["Gás", "Receitas"],
+      image: PHOTOS.lng,
+    },
+  ),
+  sec(
+    "s3",
+    "2026-11-02T08:00:00Z",
+    "Banco de Moçambique: os grandes desafios do novo governador",
+    "Inflação, câmbio e liquidez em divisas dominam a agenda da nova liderança do banco central.",
+    "Diário Económico",
+    "https://www.diarioeconomico.co.mz/2026/11/02/economia/banca/banco-de-mocambique-os-grandes-desafios-que-esperam-o-novo-governador/",
+    {
+      theme: "Banco central",
+      eventType: "macro",
+      attentionLevel: "high",
+      transmissionVector: "Mudança na política monetária afeta taxas de juro e o metical.",
+      regimeFlag: "Política monetária",
+      tags: ["BdM", "Juros"],
+      image: PHOTOS.metical,
+    },
+  ),
+  sec(
+    "s4",
+    "2026-11-13T08:00:00Z",
+    "Numerário em circulação recua em setembro e interrompe cinco meses de subida",
+    "Dados do Banco de Moçambique mostram a primeira descida desde abril.",
+    "Diário Económico",
+    "https://www.diarioeconomico.co.mz/2026/11/13/economia/financas/bdm-numerario-em-circulacao-recua-em-setembro-e-interrompe-cinco-meses-de-subida/",
+    {
+      theme: "Liquidez",
+      eventType: "macro",
+      transmissionVector: "Menos numerário pode aliviar a pressão inflacionista.",
+      regimeFlag: "Liquidez",
+      tags: ["BdM", "Moeda"],
+    },
+  ),
+  sec(
+    "s5",
+    "2026-11-07T08:00:00Z",
+    "Jogos online: novas regras a 20 de novembro e capital mínimo de 100 milhões de meticais",
+    "O regulamento dos jogos de fortuna online entra em vigor com exigências de capital mais altas.",
+    "Diário Económico",
+    "https://www.diarioeconomico.co.mz/2026/11/07/negocios/jogos-de-fortuna-online-novas-regras-entram-em-vigor-a-20-de-novembro-e-exigem-capital-minimo-de-100-milhoes-de-meticais/",
+    {
+      theme: "Regulação",
+      eventType: "regulatory",
+      horizon: "1-5d",
+      transmissionVector: "Consolidação do setor; operadores pequenos podem sair.",
+      regimeFlag: "Regulatório",
+      tags: ["Regulação", "Apostas"],
+    },
+  ),
+  sec(
+    "s6",
+    "2026-11-17T09:00:00Z",
+    "Do gás à industrialização: Salim Valá apresenta em Luanda a visão económica até 2044",
+    "A estratégia de longo prazo aposta no gás como base para a industrialização.",
+    "O.Económico",
+    "https://www.oeconomico.com/do-gas-a-industrializacao-salim-vala-apresenta-em-luanda-a-visao-economica-de-mocambique-ate-2044/",
+    {
+      theme: "Estratégia",
+      eventType: "fundamental",
+      horizon: "structural",
+      attentionLevel: "low",
+      transmissionVector: "Sinaliza prioridades de investimento público e privado.",
+      regimeFlag: "Estrutural",
+      tags: ["Industrialização", "2044"],
+      image: PHOTOS.maputo,
+    },
+  ),
+  sec(
+    "s7",
+    "2026-11-16T07:00:00Z",
+    "Morgan Stanley: a correção das ações de IA é oportunidade em empresas de qualidade",
+    "A casa privilegia hyperscalers e infraestrutura de IA, com o S&P 500 ainda a ganhar cerca de 11% no ano.",
+    "Morningstar",
+    "https://www.morningstar.com/markets/markets-brief-big-week-ahead-nvidia-report-earnings-anthropic-debut-ipo",
+    {
+      assetName: "Ações dos EUA",
+      theme: "Estratégia de investimento",
+      eventType: "fundamental",
+      transmissionVector: "Rotação para qualidade dentro da tecnologia.",
+      regimeFlag: "Risco de IA",
+      tags: ["IA", "Qualidade"],
+      image: PHOTOS.nyse,
+    },
+  ),
 ];
 
 // ─────────────────────────────────────────────────────────────────────────────
-// IMPACT PANEL
+// IMPACT PANEL — only moves reported by the sources above
 // ─────────────────────────────────────────────────────────────────────────────
 export const impactPanelAssets: ImpactPanelAsset[] = [
-  { ticker: "AAPL", name: "Apple", change: 3.8, vol: -2.1, impactScore: 91, attentionLevel: "critical", relatedNewsId: "p1" },
-  { ticker: "BTC", name: "Bitcoin", change: 6.2, vol: 4.8, impactScore: 87, attentionLevel: "critical", relatedNewsId: "p4" },
-  { ticker: "NVDA", name: "NVIDIA", change: 1.4, vol: 0.8, impactScore: 78, attentionLevel: "high", relatedNewsId: "p2" },
-  { ticker: "JPM", name: "JPMorgan", change: -2.1, vol: 2.3, impactScore: 74, attentionLevel: "high", relatedNewsId: "p5" },
-  { ticker: "GOLD", name: "Gold ETF", change: 1.9, vol: -0.6, impactScore: 68, attentionLevel: "high", relatedNewsId: "p6" },
-  { ticker: "MSFT", name: "Microsoft", change: -0.9, vol: 1.4, impactScore: 62, attentionLevel: "moderate", relatedNewsId: "p3" },
+  {
+    ticker: "NVDA",
+    name: "NVIDIA",
+    change: -2.4,
+    vol: 0,
+    impactScore: 92,
+    attentionLevel: "critical",
+    relatedNewsId: "p1",
+  },
+  {
+    ticker: "WTI",
+    name: "Petróleo",
+    change: -4.0,
+    vol: 0,
+    impactScore: 81,
+    attentionLevel: "high",
+    relatedNewsId: "p4",
+  },
 ];
 
-// ─────────────────────────────────────────────────────────────────────────────
-// MARKET PULSE
-// ─────────────────────────────────────────────────────────────────────────────
+// Closing moves of 18 Nov 2026 as reported by Reuters.
 export const marketPulse = {
-  spx: { value: "5,842", change: 0.4, label: "S&P 500" },
-  ndx: { value: "21,204", change: 0.9, label: "Nasdaq 100" },
-  vix: { value: "12.8", change: -8.2, label: "VIX" },
-  dxy: { value: "101.4", change: -0.8, label: "DXY" },
-  gold: { value: "2,418", change: 1.9, label: "Gold $/oz" },
-  btc: { value: "75,240", change: 6.2, label: "BTC/USD" },
+  dow: { value: "", change: -0.8, label: "Dow Jones" },
 };

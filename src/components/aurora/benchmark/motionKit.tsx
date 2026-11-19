@@ -139,10 +139,10 @@ export function ProbabilityRing({
           value={v * 100}
           format={(n) => `${Math.round(n)}%`}
           className="font-bold text-white"
-          style={{ fontSize: size * 0.22 }}
+          style={{ fontSize: Math.max(11, size * 0.22) }}
         />
         {label ? (
-          <span className="mt-1 text-[8px] uppercase tracking-[0.12em] text-white/45">{label}</span>
+          <span className="mt-1 text-micro uppercase tracking-[0.12em] text-white/45">{label}</span>
         ) : null}
       </div>
     </div>
@@ -329,7 +329,7 @@ export function FanChart({
                 stroke={CHART.grid}
                 strokeDasharray="3 4"
               />
-              <text x={pad.l - 8} y={geo.y(v) + 3} textAnchor="end" fontSize={10} fill={CHART.axis}>
+              <text x={pad.l - 8} y={geo.y(v) + 3} textAnchor="end" fontSize={11} fill={CHART.axis}>
                 {format(v)}
               </text>
             </g>
@@ -340,7 +340,7 @@ export function FanChart({
               x={geo.x(d.t)}
               y={height - 6}
               textAnchor="middle"
-              fontSize={10}
+              fontSize={11}
               fill={CHART.axis}
             >
               {timeLabel(d.t)}
@@ -437,7 +437,7 @@ export function FanChart({
             boxShadow: "0 12px 40px rgba(0,0,0,0.45)",
           }}
         >
-          <p className="mb-1 text-[10px] text-white/50">{timeLabel(hv.t)}</p>
+          <p className="mb-1 text-micro text-white/50">{timeLabel(hv.t)}</p>
           <p className="flex justify-between gap-3 text-white">
             <span className="text-white/60">Resultado central</span>
             <b className="tabular-nums">{format(hv.p50)}</b>
@@ -472,7 +472,7 @@ export function LegendDot({
   dashed?: boolean;
 }) {
   return (
-    <span className="flex items-center gap-1.5 text-[10px] text-white/55">
+    <span className="flex items-center gap-1.5 text-micro text-white/55">
       <span
         className="inline-block h-[2px] w-4 rounded-full"
         style={{

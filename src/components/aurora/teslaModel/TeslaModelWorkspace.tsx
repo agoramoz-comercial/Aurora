@@ -92,7 +92,12 @@ type PipelineGroupId =
   | "statements"
   | "dcf";
 
-const PIPELINE_GROUPS: { id: PipelineGroupId; number: string; label: string; icon: typeof Sliders }[] = [
+const PIPELINE_GROUPS: {
+  id: PipelineGroupId;
+  number: string;
+  label: string;
+  icon: typeof Sliders;
+}[] = [
   { id: "drivers", number: "01", label: "Cover & Drivers", icon: Sliders },
   { id: "volume", number: "02", label: "Segment Volume & Units", icon: Package },
   { id: "revenue", number: "03", label: "Revenue Build-up", icon: Layers },
@@ -126,21 +131,48 @@ function fmtCurrency(n: number): string {
   return `$${n.toFixed(2)}`;
 }
 
-function MetricCard({ label, value, format = "currency", small = false }: { label: string; value: number; format?: "currency" | "pct" | "number"; small?: boolean }) {
+function MetricCard({
+  label,
+  value,
+  format = "currency",
+  small = false,
+}: {
+  label: string;
+  value: number;
+  format?: "currency" | "pct" | "number" | "price";
+  small?: boolean;
+}) {
   return (
     <div className="glass-soft flex flex-col gap-1 rounded-2xl px-3 py-2.5">
-      <span className="text-[10px] uppercase tracking-wider text-white/50">{label}</span>
+      <span className="text-micro uppercase tracking-wider text-white/50">{label}</span>
       <span className={cn("font-semibold tabular-nums text-white", small ? "text-sm" : "text-lg")}>
-        {format === "pct" ? `${(value * 100).toFixed(1)}%` : format === "number" ? value.toLocaleString() : fmtCurrency(value)}
+        {format === "pct"
+          ? `${(value * 100).toFixed(1)}%`
+          : format === "number"
+            ? value.toLocaleString()
+            : format === "price"
+              ? `$${value.toFixed(2)}`
+              : fmtCurrency(value)}
       </span>
     </div>
   );
 }
 
-function GlassTooltip({ active, payload, label }: { active?: boolean; payload?: Array<{ name: string; value: number; color: string }>; label?: string }) {
+function GlassTooltip({
+  active,
+  payload,
+  label,
+}: {
+  active?: boolean;
+  payload?: Array<{ name: string; value: number; color: string }>;
+  label?: string;
+}) {
   if (!active || !payload?.length) return null;
   return (
-    <div className="glass rounded-xl px-3 py-2 text-[11px]" style={{ border: "1px solid rgba(255,255,255,0.12)" }}>
+    <div
+      className="glass rounded-xl px-3 py-2 text-[11px]"
+      style={{ border: "1px solid rgba(255,255,255,0.12)" }}
+    >
       <p className="mb-1 font-medium text-white/80">{label}</p>
       {payload.map((p, i) => (
         <p key={i} className="flex items-center gap-1.5 text-white/70">
@@ -167,16 +199,18 @@ function BIRationalePanel({ ticker, groupKey }: { ticker: TechTicker; groupKey: 
       </div>
       <p className="text-xs leading-relaxed text-white/90 font-medium">{bi.executiveSummary}</p>
       <div className="mt-2.5 flex flex-wrap items-center gap-2 text-[11px]">
-        <span className="rounded-md bg-white/10 px-2 py-0.5 font-mono text-blue-200">Formula: {bi.formula}</span>
+        <span className="rounded-md bg-white/10 px-2 py-0.5 font-mono text-blue-200">
+          Formula: {bi.formula}
+        </span>
         <span className="text-white/70">{bi.keyMetricRationale}</span>
       </div>
       {bi.peerBenchmarks.length > 0 && (
-        <div className="mt-3 grid gap-1.5 sm:grid-cols-2 lg:grid-cols-4 text-[10px]">
+        <div className="mt-3 grid gap-1.5 sm:grid-cols-2 lg:grid-cols-4 text-micro">
           {bi.peerBenchmarks.map((peer, idx) => (
             <div key={idx} className="glass-soft rounded-lg p-2">
               <div className="font-semibold text-white">{peer.company}</div>
               <div className="text-blue-300 font-mono">{peer.metricValue}</div>
-              <div className="text-white/50 text-[9px] mt-0.5">{peer.comparisonNote}</div>
+              <div className="text-white/50 text-micro mt-0.5">{peer.comparisonNote}</div>
             </div>
           ))}
         </div>
@@ -185,17 +219,29 @@ function BIRationalePanel({ ticker, groupKey }: { ticker: TechTicker; groupKey: 
   );
 }
 
-function GlassTable({ headers, rows }: { headers: string[]; rows: { label: string; values: (string | number)[]; isBold?: boolean; indent?: number }[] }) {
+function GlassTable({
+  headers,
+  rows,
+}: {
+  headers: string[];
+  rows: { label: string; values: (string | number)[]; isBold?: boolean; indent?: number }[];
+}) {
   return (
     <div className="overflow-x-auto rounded-2xl">
       <table className="w-full text-[11px]">
         <thead>
           <tr>
-            <th className="sticky left-0 z-10 bg-white/5 backdrop-blur-sm px-3 py-2 text-left text-[10px] font-medium uppercase tracking-wider text-white/50">
+            <th className="sticky left-0 z-10 bg-white/5 backdrop-blur-sm px-3 py-2 text-left text-micro font-medium uppercase tracking-wider text-white/50">
               Line Item
             </th>
             {headers.map((h, i) => (
-              <th key={h} className={cn("px-2 py-2 text-right text-[10px] font-medium uppercase tracking-wider whitespace-nowrap", i < 5 ? "text-blue-300/70" : "text-purple-300/60")}>
+              <th
+                key={h}
+                className={cn(
+                  "px-2 py-2 text-right text-micro font-medium uppercase tracking-wider whitespace-nowrap",
+                  i < 5 ? "text-blue-300/70" : "text-purple-300/60",
+                )}
+              >
                 {h}
               </th>
             ))}
@@ -203,12 +249,33 @@ function GlassTable({ headers, rows }: { headers: string[]; rows: { label: strin
         </thead>
         <tbody>
           {rows.map((row, ri) => (
-            <tr key={ri} className={cn("transition-colors hover:bg-white/5", ri % 2 === 0 ? "bg-white/[0.02]" : "", row.isBold && "bg-white/[0.06]")}>
-              <td className={cn("sticky left-0 z-10 bg-white/5 backdrop-blur-sm px-3 py-1.5 text-left whitespace-nowrap", row.isBold ? "font-semibold text-white" : "text-white/80")} style={{ paddingLeft: row.indent ? `${12 + row.indent * 16}px` : undefined }}>
+            <tr
+              key={ri}
+              className={cn(
+                "transition-colors hover:bg-white/5",
+                ri % 2 === 0 ? "bg-white/[0.02]" : "",
+                row.isBold && "bg-white/[0.06]",
+              )}
+            >
+              <td
+                className={cn(
+                  "sticky left-0 z-10 bg-white/5 backdrop-blur-sm px-3 py-1.5 text-left whitespace-nowrap",
+                  row.isBold ? "font-semibold text-white" : "text-white/80",
+                )}
+                style={{ paddingLeft: row.indent ? `${12 + row.indent * 16}px` : undefined }}
+              >
                 {row.label}
               </td>
               {row.values.map((v, vi) => (
-                <td key={vi} className={cn("px-2 py-1.5 text-right tabular-nums whitespace-nowrap", row.isBold ? "font-semibold text-white" : "text-white/75", typeof v === "number" && v < 0 && "text-red-400/80", vi < 5 && "bg-blue-500/[0.03]")}>
+                <td
+                  key={vi}
+                  className={cn(
+                    "px-2 py-1.5 text-right tabular-nums whitespace-nowrap",
+                    row.isBold ? "font-semibold text-white" : "text-white/75",
+                    typeof v === "number" && v < 0 && "text-red-400/80",
+                    vi < 5 && "bg-blue-500/[0.03]",
+                  )}
+                >
                   {typeof v === "number" ? fmtM(v) : v}
                 </td>
               ))}
@@ -237,7 +304,10 @@ export function TeslaModelWorkspace() {
 
   const meta = FULL_38_DATABASE[selectedTicker].meta;
   const triCase = useMemo(() => runFullTriCase(selectedTicker, drivers), [selectedTicker, drivers]);
-  const dcf = useMemo(() => runFullDCFValuation(selectedTicker, drivers, triCase.base), [selectedTicker, drivers, triCase.base]);
+  const dcf = useMemo(
+    () => runFullDCFValuation(selectedTicker, drivers, triCase.base),
+    [selectedTicker, drivers, triCase.base],
+  );
 
   const updateDriver = useCallback((key: keyof FullEditableDrivers, value: number) => {
     setDrivers((prev) => ({ ...prev, [key]: value }));
@@ -251,8 +321,8 @@ export function TeslaModelWorkspace() {
         badge={<AccentBadge>{selectedTicker}</AccentBadge>}
         right={
           <>
-            <Pill className="hidden md:inline-flex !text-[10px]">Cap ${meta.marketCap}B</Pill>
-            <Pill className="hidden lg:inline-flex !text-[10px]" tone="mute">
+            <Pill className="hidden md:inline-flex !text-micro">Cap ${meta.marketCap}B</Pill>
+            <Pill className="hidden lg:inline-flex !text-micro" tone="mute">
               {meta.analystRating}
             </Pill>
           </>
@@ -270,12 +340,14 @@ export function TeslaModelWorkspace() {
             return (
               <Icon
                 size={12}
-                style={{ color: isActive ? "#fff" : FULL_38_DATABASE[t as TechTicker].meta.badgeColor }}
+                style={{
+                  color: isActive ? "#fff" : FULL_38_DATABASE[t as TechTicker].meta.badgeColor,
+                }}
               />
             );
           }}
           renderTrail={(t) => (
-            <span className="text-[10px] tabular-nums opacity-70">
+            <span className="text-micro tabular-nums opacity-70">
               ${FULL_38_DATABASE[t as TechTicker].meta.sharePrice}
             </span>
           )}
@@ -297,22 +369,65 @@ export function TeslaModelWorkspace() {
       </div>
 
       {/* Active Pipeline Group Content */}
-      <div className="mt-3 min-h-0 flex-1 overflow-y-auto pr-1" style={{ scrollbarGutter: "stable" }}>
+      <div
+        className="mt-3 min-h-0 flex-1 overflow-y-auto pr-1"
+        style={{ scrollbarGutter: "stable" }}
+      >
         <AnimatePresence mode="wait">
-          <motion.div key={`${selectedTicker}-${activeGroup}`} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }} transition={{ duration: 0.2 }} className="flex flex-col gap-3">
+          <motion.div
+            key={`${selectedTicker}-${activeGroup}`}
+            initial={{ opacity: 0, y: 6 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -6 }}
+            transition={{ duration: 0.2 }}
+            className="flex flex-col gap-3"
+          >
             {/* Always Render Group BI Rationale Panel at Top */}
             <BIRationalePanel ticker={selectedTicker} groupKey={activeGroup} />
 
-            {activeGroup === "drivers" && <DriversGroup ticker={selectedTicker} drivers={drivers} onUpdate={updateDriver} dcf={dcf} />}
+            {activeGroup === "drivers" && (
+              <DriversGroup
+                ticker={selectedTicker}
+                drivers={drivers}
+                onUpdate={updateDriver}
+                dcf={dcf}
+              />
+            )}
             {activeGroup === "volume" && <VolumeGroup ticker={selectedTicker} triCase={triCase} />}
-            {activeGroup === "revenue" && <RevenueGroup ticker={selectedTicker} triCase={triCase} />}
-            {activeGroup === "margins" && <MarginsGroup ticker={selectedTicker} triCase={triCase} />}
-            {activeGroup === "opex" && <OpExGroup ticker={selectedTicker} triCase={triCase} drivers={drivers} onUpdate={updateDriver} />}
-            {activeGroup === "ppe" && <PPEGroup ticker={selectedTicker} triCase={triCase} drivers={drivers} />}
-            {activeGroup === "wc" && <WCGroup ticker={selectedTicker} triCase={triCase} drivers={drivers} onUpdate={updateDriver} />}
-            {activeGroup === "financing" && <FinancingGroup ticker={selectedTicker} triCase={triCase} />}
-            {activeGroup === "statements" && <StatementsGroup ticker={selectedTicker} triCase={triCase} />}
-            {activeGroup === "dcf" && <DCFGroup dcf={dcf} drivers={drivers} onUpdate={updateDriver} />}
+            {activeGroup === "revenue" && (
+              <RevenueGroup ticker={selectedTicker} triCase={triCase} />
+            )}
+            {activeGroup === "margins" && (
+              <MarginsGroup ticker={selectedTicker} triCase={triCase} />
+            )}
+            {activeGroup === "opex" && (
+              <OpExGroup
+                ticker={selectedTicker}
+                triCase={triCase}
+                drivers={drivers}
+                onUpdate={updateDriver}
+              />
+            )}
+            {activeGroup === "ppe" && (
+              <PPEGroup ticker={selectedTicker} triCase={triCase} drivers={drivers} />
+            )}
+            {activeGroup === "wc" && (
+              <WCGroup
+                ticker={selectedTicker}
+                triCase={triCase}
+                drivers={drivers}
+                onUpdate={updateDriver}
+              />
+            )}
+            {activeGroup === "financing" && (
+              <FinancingGroup ticker={selectedTicker} triCase={triCase} />
+            )}
+            {activeGroup === "statements" && (
+              <StatementsGroup ticker={selectedTicker} triCase={triCase} />
+            )}
+            {activeGroup === "dcf" && (
+              <DCFGroup dcf={dcf} drivers={drivers} onUpdate={updateDriver} />
+            )}
           </motion.div>
         </AnimatePresence>
       </div>
@@ -324,19 +439,56 @@ export function TeslaModelWorkspace() {
 // GROUP 1: COVER & DRIVERS
 // ═══════════════════════════════════════════════════════════════════════════
 
-function DriverInput({ label, value, onChange, format = "pct", min = 0, max = 1, step = 0.005 }: { label: string; value: number; onChange: (v: number) => void; format?: "pct" | "number"; min?: number; max?: number; step?: number }) {
+function DriverInput({
+  label,
+  value,
+  onChange,
+  format = "pct",
+  min = 0,
+  max = 1,
+  step = 0.005,
+}: {
+  label: string;
+  value: number;
+  onChange: (v: number) => void;
+  format?: "pct" | "number";
+  min?: number;
+  max?: number;
+  step?: number;
+}) {
   return (
     <div className="flex items-center justify-between gap-3 rounded-xl bg-white/[0.04] px-3 py-2">
       <span className="text-[11px] text-white/70">{label}</span>
       <div className="flex items-center gap-2">
-        <input type="range" min={min} max={max} step={step} value={value} onChange={(e) => onChange(parseFloat(e.target.value))} className="h-1 w-20 cursor-pointer appearance-none rounded-full bg-white/15 accent-blue-400 sm:w-28" />
-        <span className="w-14 text-right text-[11px] font-semibold tabular-nums text-white">{format === "pct" ? `${(value * 100).toFixed(1)}%` : value.toFixed(1)}</span>
+        <input
+          type="range"
+          aria-label={label}
+          min={min}
+          max={max}
+          step={step}
+          value={value}
+          onChange={(e) => onChange(parseFloat(e.target.value))}
+          className="h-6 w-20 cursor-pointer accent-[#4a9eff] sm:w-28"
+        />
+        <span className="w-14 text-right text-[11px] font-semibold tabular-nums text-white">
+          {format === "pct" ? `${(value * 100).toFixed(1)}%` : value.toFixed(1)}
+        </span>
       </div>
     </div>
   );
 }
 
-function DriversGroup({ ticker, drivers, onUpdate, dcf }: { ticker: TechTicker; drivers: FullEditableDrivers; onUpdate: (k: keyof FullEditableDrivers, v: number) => void; dcf: DCFValuationOutput }) {
+function DriversGroup({
+  ticker,
+  drivers,
+  onUpdate,
+  dcf,
+}: {
+  ticker: TechTicker;
+  drivers: FullEditableDrivers;
+  onUpdate: (k: keyof FullEditableDrivers, v: number) => void;
+  dcf: DCFValuationOutput;
+}) {
   const model = FULL_38_DATABASE[ticker];
 
   return (
@@ -347,48 +499,122 @@ function DriversGroup({ ticker, drivers, onUpdate, dcf }: { ticker: TechTicker; 
         <MetricCard label="Beta" value={dcf.beta} format="number" small />
         <MetricCard label="Tax Rate" value={drivers.taxRate} format="pct" small />
         <MetricCard label="Bond Yield (Kd)" value={model.meta.bondYield} format="pct" small />
-        <MetricCard label="Implied Share Price" value={dcf.impliedSharePrice} small />
+        <MetricCard
+          label="Implied Share Price"
+          value={dcf.impliedSharePrice}
+          format="price"
+          small
+        />
       </div>
 
       <div className="grid gap-3 lg:grid-cols-2">
         <GlassCard className="!p-4">
-          <Pill className="!px-3 !py-1 !text-[11px] !font-semibold">📈 Segment Drivers & Margins</Pill>
+          <Pill className="!px-3 !py-1 !text-[11px] !font-semibold">Segment Drivers & Margins</Pill>
           <div className="mt-3 flex flex-col gap-1.5">
-            <DriverInput label={`Primary Volume Growth (${model.meta.segmentPrimaryLabel})`} value={drivers.primaryVolumeGrowth} onChange={(v) => onUpdate("primaryVolumeGrowth", v)} />
-            <DriverInput label="Primary Gross Margin" value={drivers.primaryGrossMargin} onChange={(v) => onUpdate("primaryGrossMargin", v)} />
-            <DriverInput label={`Secondary Growth (${model.meta.segmentSecondaryLabel})`} value={drivers.secondaryGrowthRate} onChange={(v) => onUpdate("secondaryGrowthRate", v)} />
-            <DriverInput label="Secondary Gross Margin" value={drivers.secondaryGrossMargin} onChange={(v) => onUpdate("secondaryGrossMargin", v)} />
+            <DriverInput
+              label={`Primary Volume Growth (${model.meta.segmentPrimaryLabel})`}
+              value={drivers.primaryVolumeGrowth}
+              onChange={(v) => onUpdate("primaryVolumeGrowth", v)}
+            />
+            <DriverInput
+              label="Primary Gross Margin"
+              value={drivers.primaryGrossMargin}
+              onChange={(v) => onUpdate("primaryGrossMargin", v)}
+            />
+            <DriverInput
+              label={`Secondary Growth (${model.meta.segmentSecondaryLabel})`}
+              value={drivers.secondaryGrowthRate}
+              onChange={(v) => onUpdate("secondaryGrowthRate", v)}
+            />
+            <DriverInput
+              label="Secondary Gross Margin"
+              value={drivers.secondaryGrossMargin}
+              onChange={(v) => onUpdate("secondaryGrossMargin", v)}
+            />
           </div>
         </GlassCard>
 
         <GlassCard className="!p-4">
-          <Pill className="!px-3 !py-1 !text-[11px] !font-semibold">⚙️ OpEx & Working Capital Days</Pill>
+          <Pill className="!px-3 !py-1 !text-[11px] !font-semibold">
+            OpEx & Working Capital Days
+          </Pill>
           <div className="mt-3 flex flex-col gap-1.5">
-            <DriverInput label="SG&A % of Revenue" value={drivers.sgaPctOfRev} onChange={(v) => onUpdate("sgaPctOfRev", v)} max={0.5} />
-            <DriverInput label="R&D % of Revenue" value={drivers.rdPctOfRev} onChange={(v) => onUpdate("rdPctOfRev", v)} max={0.3} />
-            <DriverInput label="DSO (Accounts Receivable)" value={drivers.dso} onChange={(v) => onUpdate("dso", v)} format="number" min={5} max={90} step={1} />
-            <DriverInput label="DIO (Inventory Days)" value={drivers.dio} onChange={(v) => onUpdate("dio", v)} format="number" min={2} max={150} step={1} />
-            <DriverInput label="DPO (Payables Days)" value={drivers.dpo} onChange={(v) => onUpdate("dpo", v)} format="number" min={10} max={150} step={1} />
+            <DriverInput
+              label="SG&A % of Revenue"
+              value={drivers.sgaPctOfRev}
+              onChange={(v) => onUpdate("sgaPctOfRev", v)}
+              max={0.5}
+            />
+            <DriverInput
+              label="R&D % of Revenue"
+              value={drivers.rdPctOfRev}
+              onChange={(v) => onUpdate("rdPctOfRev", v)}
+              max={0.3}
+            />
+            <DriverInput
+              label="DSO (Accounts Receivable)"
+              value={drivers.dso}
+              onChange={(v) => onUpdate("dso", v)}
+              format="number"
+              min={5}
+              max={90}
+              step={1}
+            />
+            <DriverInput
+              label="DIO (Inventory Days)"
+              value={drivers.dio}
+              onChange={(v) => onUpdate("dio", v)}
+              format="number"
+              min={2}
+              max={150}
+              step={1}
+            />
+            <DriverInput
+              label="DPO (Payables Days)"
+              value={drivers.dpo}
+              onChange={(v) => onUpdate("dpo", v)}
+              format="number"
+              min={10}
+              max={150}
+              step={1}
+            />
           </div>
         </GlassCard>
       </div>
 
       {/* KPI Scorecard Matrix */}
       <GlassCard className="!p-4">
-        <Pill className="!px-3 !py-1 !text-[11px] !font-semibold">🏆 Institutional KPI Scorecard ({ticker})</Pill>
+        <Pill className="!px-3 !py-1 !text-[11px] !font-semibold">
+          Institutional KPI Scorecard ({ticker})
+        </Pill>
         <div className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
           {model.kpiScorecard.map((kpi, i) => (
             <div key={i} className="glass-soft flex flex-col gap-1 rounded-2xl p-3">
               <div className="flex items-center justify-between">
-                <span className="text-[10px] text-white/50">{kpi.category}</span>
-                <span className="rounded-full bg-blue-500/20 px-2 py-0.5 text-[9px] font-semibold text-blue-300">Weight {kpi.weightPct}%</span>
+                <span className="text-micro text-white/50">{kpi.category}</span>
+                <span className="rounded-full bg-blue-500/20 px-2 py-0.5 text-micro font-semibold text-blue-300">
+                  Weight {kpi.weightPct}%
+                </span>
               </div>
               <span className="text-xs font-semibold text-white/90">{kpi.name}</span>
               <div className="mt-1 flex items-end justify-between">
                 <span className="text-xl font-bold text-white tabular-nums">
-                  {kpi.format === "pct" ? `${(kpi.value * 100).toFixed(1)}%` : kpi.format === "days" ? `${kpi.value.toFixed(1)}d` : kpi.value.toFixed(2)}
+                  {kpi.format === "pct"
+                    ? `${(kpi.value * 100).toFixed(1)}%`
+                    : kpi.format === "days"
+                      ? `${kpi.value.toFixed(1)}d`
+                      : kpi.value.toFixed(2)}
                 </span>
-                <span className={cn("text-[10px] font-semibold rounded-full px-2 py-0.5", kpi.status === "Excellent" ? "bg-emerald-500/20 text-emerald-300" : "bg-[rgba(74,158,255,0.20)] text-[var(--aurora-accent)]")}>{kpi.status}</span>
+                <span
+                  className={cn(
+                    "text-micro font-semibold rounded-full px-2 py-0.5",
+                    kpi.status === "Excellent"
+                      ? "bg-emerald-500/20 text-emerald-300"
+                      : "bg-[rgba(74,158,255,0.20)] text-[var(--aurora-accent)]",
+                  )}
+                >
+                  {kpi.status}
+                </span>
               </div>
             </div>
           ))}
@@ -408,17 +634,28 @@ function VolumeGroup({ ticker, triCase }: { ticker: TechTicker; triCase: TriCase
   return (
     <>
       <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
-        <MetricCard label="Base Volume Units" value={model.drivers.primaryVolumeBase} format="number" />
+        <MetricCard
+          label="Base Volume Units"
+          value={model.drivers.primaryVolumeBase}
+          format="number"
+        />
         <MetricCard label="Avg Price (ASP)" value={model.drivers.primaryAvgPrice} />
-        <MetricCard label="Volume YoY Growth" value={model.drivers.primaryVolumeGrowth} format="pct" />
+        <MetricCard
+          label="Volume YoY Growth"
+          value={model.drivers.primaryVolumeGrowth}
+          format="pct"
+        />
         <MetricCard label="ASP Growth" value={model.drivers.primaryPriceGrowth} format="pct" />
       </div>
 
       <GlassCard className="!p-4">
-        <Pill className="!px-3 !py-1 !text-[11px] !font-semibold">📦 Segment Volume & Unit Workings — {model.meta.segmentPrimaryLabel}</Pill>
+        <Pill className="!px-3 !py-1 !text-[11px] !font-semibold">
+          Segment Volume & Unit Workings — {model.meta.segmentPrimaryLabel}
+        </Pill>
         <div className="mt-3">
           <p className="text-[12px] text-white/70">
-            Unit volumes modeled across historical actuals (2015–2019) and forecast projections (2020–2029) with real-time CAGR adjustment.
+            Unit volumes modeled across historical actuals (2015–2019) and forecast projections
+            (2020–2029) with real-time CAGR adjustment.
           </p>
         </div>
       </GlassCard>
@@ -446,20 +683,46 @@ function RevenueGroup({ ticker, triCase }: { ticker: TechTicker; triCase: TriCas
         <MetricCard label="2029 Total Revenue" value={triCase.base.totalRevenue[14]!} />
         <MetricCard label="Primary Revenue" value={triCase.base.primaryRevenue[14]!} />
         <MetricCard label="Secondary Revenue" value={triCase.base.secondaryRevenue[14]!} />
-        <MetricCard label="Revenue CAGR '19-'29" value={Math.pow(triCase.base.totalRevenue[14]! / triCase.base.totalRevenue[4]!, 1 / 10) - 1} format="pct" />
+        <MetricCard
+          label="Revenue CAGR '19-'29"
+          value={
+            Math.pow(triCase.base.totalRevenue[14]! / triCase.base.totalRevenue[4]!, 1 / 10) - 1
+          }
+          format="pct"
+        />
       </div>
 
       <GlassCard className="!p-4">
-        <Pill className="!px-3 !py-1 !text-[11px] !font-semibold">📊 Revenue Build-up — Primary vs. Secondary Segments</Pill>
+        <Pill className="!px-3 !py-1 !text-[11px] !font-semibold">
+          Revenue Build-up — Primary vs. Secondary Segments
+        </Pill>
         <div className="mt-3 h-[280px]">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={chartData}>
               <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.06)" />
-              <XAxis dataKey="year" tick={{ fill: "rgba(255,255,255,0.5)", fontSize: 10 }} />
-              <YAxis tick={{ fill: "rgba(255,255,255,0.5)", fontSize: 10 }} tickFormatter={(v: number) => fmtM(v)} />
+              <XAxis dataKey="year" tick={{ fill: "rgba(255,255,255,0.5)", fontSize: 11 }} />
+              <YAxis
+                tick={{ fill: "rgba(255,255,255,0.5)", fontSize: 11 }}
+                tickFormatter={(v: number) => fmtM(v)}
+              />
               <Tooltip content={<GlassTooltip />} />
-              <Bar dataKey="Primary" name={model.meta.segmentPrimaryLabel} stackId="a" fill={CHART.accent} />
-              <Bar dataKey="Secondary" name={model.meta.segmentSecondaryLabel} stackId="a" fill={CHART.violet} radius={[3, 3, 0, 0]} />
+              <Bar
+                animationDuration={300}
+                animationEasing="ease-out"
+                dataKey="Primary"
+                name={model.meta.segmentPrimaryLabel}
+                stackId="a"
+                fill={CHART.accent}
+              />
+              <Bar
+                animationDuration={300}
+                animationEasing="ease-out"
+                dataKey="Secondary"
+                name={model.meta.segmentSecondaryLabel}
+                stackId="a"
+                fill={CHART.violet}
+                radius={[3, 3, 0, 0]}
+              />
             </BarChart>
           </ResponsiveContainer>
         </div>
@@ -478,17 +741,28 @@ function MarginsGroup({ ticker, triCase }: { ticker: TechTicker; triCase: TriCas
   return (
     <>
       <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
-        <MetricCard label="Primary Gross Margin" value={model.drivers.primaryGrossMargin} format="pct" />
-        <MetricCard label="Secondary Gross Margin" value={model.drivers.secondaryGrossMargin} format="pct" />
+        <MetricCard
+          label="Primary Gross Margin"
+          value={model.drivers.primaryGrossMargin}
+          format="pct"
+        />
+        <MetricCard
+          label="Secondary Gross Margin"
+          value={model.drivers.secondaryGrossMargin}
+          format="pct"
+        />
         <MetricCard label="2029 Gross Profit" value={triCase.base.grossProfit[14]!} />
         <MetricCard label="Overall GP Margin %" value={triCase.base.gpMargin[14]!} format="pct" />
       </div>
 
       <GlassCard className="!p-4">
-        <Pill className="!px-3 !py-1 !text-[11px] !font-semibold">🏷️ Cost of Sales & Gross Margin Workings ({ticker})</Pill>
+        <Pill className="!px-3 !py-1 !text-[11px] !font-semibold">
+          🏷️ Cost of Sales & Gross Margin Workings ({ticker})
+        </Pill>
         <div className="mt-3">
           <p className="text-xs text-white/70">
-            Detailed Cost of Goods Sold (COGS) for Primary vs Secondary segments mapped across historical benchmarks and peer comparables.
+            Detailed Cost of Goods Sold (COGS) for Primary vs Secondary segments mapped across
+            historical benchmarks and peer comparables.
           </p>
         </div>
       </GlassCard>
@@ -500,7 +774,17 @@ function MarginsGroup({ ticker, triCase }: { ticker: TechTicker; triCase: TriCas
 // GROUP 5: OPERATING EXPENSES
 // ═══════════════════════════════════════════════════════════════════════════
 
-function OpExGroup({ ticker, triCase, drivers, onUpdate }: { ticker: TechTicker; triCase: TriCaseProjections; drivers: FullEditableDrivers; onUpdate: (k: keyof FullEditableDrivers, v: number) => void }) {
+function OpExGroup({
+  ticker,
+  triCase,
+  drivers,
+  onUpdate,
+}: {
+  ticker: TechTicker;
+  triCase: TriCaseProjections;
+  drivers: FullEditableDrivers;
+  onUpdate: (k: keyof FullEditableDrivers, v: number) => void;
+}) {
   const opexData = YEAR_LABELS_15.map((yr, i) => ({
     year: yr,
     EBIT: triCase.base.ebit[i]!,
@@ -518,17 +802,43 @@ function OpExGroup({ ticker, triCase, drivers, onUpdate }: { ticker: TechTicker;
       </div>
 
       <GlassCard className="!p-4">
-        <Pill className="!px-3 !py-1 !text-[11px] !font-semibold">📑 Operating Expenses & Operating Leverage Graph</Pill>
+        <Pill className="!px-3 !py-1 !text-[11px] !font-semibold">
+          Operating Expenses & Operating Leverage Graph
+        </Pill>
         <div className="mt-3 h-[240px]">
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={opexData}>
               <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.06)" />
-              <XAxis dataKey="year" tick={{ fill: "rgba(255,255,255,0.5)", fontSize: 10 }} />
-              <YAxis tick={{ fill: "rgba(255,255,255,0.5)", fontSize: 10 }} tickFormatter={(v: number) => fmtM(v)} />
+              <XAxis dataKey="year" tick={{ fill: "rgba(255,255,255,0.5)", fontSize: 11 }} />
+              <YAxis
+                tick={{ fill: "rgba(255,255,255,0.5)", fontSize: 11 }}
+                tickFormatter={(v: number) => fmtM(v)}
+              />
               <Tooltip content={<GlassTooltip />} />
-              <Line type="monotone" dataKey="GrossProfit" stroke={CHART.accent} strokeWidth={2} />
-              <Line type="monotone" dataKey="OpEx" stroke={CHART.amber} strokeWidth={2} />
-              <Line type="monotone" dataKey="EBIT" stroke={CHART.positive} strokeWidth={2} />
+              <Line
+                animationDuration={300}
+                animationEasing="ease-out"
+                type="monotone"
+                dataKey="GrossProfit"
+                stroke={CHART.accent}
+                strokeWidth={2}
+              />
+              <Line
+                animationDuration={300}
+                animationEasing="ease-out"
+                type="monotone"
+                dataKey="OpEx"
+                stroke={CHART.amber}
+                strokeWidth={2}
+              />
+              <Line
+                animationDuration={300}
+                animationEasing="ease-out"
+                type="monotone"
+                dataKey="EBIT"
+                stroke={CHART.positive}
+                strokeWidth={2}
+              />
             </LineChart>
           </ResponsiveContainer>
         </div>
@@ -541,7 +851,15 @@ function OpExGroup({ ticker, triCase, drivers, onUpdate }: { ticker: TechTicker;
 // GROUP 6: PP&E & CAPEX
 // ═══════════════════════════════════════════════════════════════════════════
 
-function PPEGroup({ ticker, triCase, drivers }: { ticker: TechTicker; triCase: TriCaseProjections; drivers: FullEditableDrivers }) {
+function PPEGroup({
+  ticker,
+  triCase,
+  drivers,
+}: {
+  ticker: TechTicker;
+  triCase: TriCaseProjections;
+  drivers: FullEditableDrivers;
+}) {
   const model = FULL_38_DATABASE[ticker];
 
   return (
@@ -553,7 +871,9 @@ function PPEGroup({ ticker, triCase, drivers }: { ticker: TechTicker; triCase: T
       </div>
 
       <GlassCard className="!p-4">
-        <Pill className="!px-3 !py-1 !text-[11px] !font-semibold">🏭 PP&E Roll-forward & Capex Schedule</Pill>
+        <Pill className="!px-3 !py-1 !text-[11px] !font-semibold">
+          PP&E Roll-forward & Capex Schedule
+        </Pill>
         <div className="mt-3 font-mono text-[11px] text-white/80">
           Beginning PP&E + Capital Expenditures (Capex) - Depreciation = Ending PP&E
         </div>
@@ -566,7 +886,17 @@ function PPEGroup({ ticker, triCase, drivers }: { ticker: TechTicker; triCase: T
 // GROUP 7: WORKING CAPITAL
 // ═══════════════════════════════════════════════════════════════════════════
 
-function WCGroup({ ticker, triCase, drivers, onUpdate }: { ticker: TechTicker; triCase: TriCaseProjections; drivers: FullEditableDrivers; onUpdate: (k: keyof FullEditableDrivers, v: number) => void }) {
+function WCGroup({
+  ticker,
+  triCase,
+  drivers,
+  onUpdate,
+}: {
+  ticker: TechTicker;
+  triCase: TriCaseProjections;
+  drivers: FullEditableDrivers;
+  onUpdate: (k: keyof FullEditableDrivers, v: number) => void;
+}) {
   const ntc = drivers.dso + drivers.dio - drivers.dpo;
 
   return (
@@ -579,9 +909,12 @@ function WCGroup({ ticker, triCase, drivers, onUpdate }: { ticker: TechTicker; t
       </div>
 
       <GlassCard className="!p-4">
-        <Pill className="!px-3 !py-1 !text-[11px] !font-semibold">⏱️ Working Capital & Cash Conversion Cycle</Pill>
+        <Pill className="!px-3 !py-1 !text-[11px] !font-semibold">
+          Working Capital & Cash Conversion Cycle
+        </Pill>
         <div className="mt-3 text-xs text-white/70">
-          Net Trade Cycle (NTC) = DSO + DIO - DPO. Lower or negative NTC reflects superior working capital efficiency.
+          Net Trade Cycle (NTC) = DSO + DIO - DPO. Lower or negative NTC reflects superior working
+          capital efficiency.
         </div>
       </GlassCard>
     </>
@@ -605,9 +938,12 @@ function FinancingGroup({ ticker, triCase }: { ticker: TechTicker; triCase: TriC
       </div>
 
       <GlassCard className="!p-4">
-        <Pill className="!px-3 !py-1 !text-[11px] !font-semibold">🏦 Debt Structure & Capitalization Schedule</Pill>
+        <Pill className="!px-3 !py-1 !text-[11px] !font-semibold">
+          Debt Structure & Capitalization Schedule
+        </Pill>
         <div className="mt-3 text-xs text-white/70">
-          Cost of Debt after tax = $K_d \cdot (1 - t)$. Weighted capital structure feeds directly into the CAPM WACC schedule.
+          Cost of Debt after tax = $K_d \cdot (1 - t)$. Weighted capital structure feeds directly
+          into the CAPM WACC schedule.
         </div>
       </GlassCard>
     </>
@@ -632,32 +968,82 @@ function StatementsGroup({ ticker, triCase }: { ticker: TechTicker; triCase: Tri
   return (
     <>
       <div className="flex gap-2">
-        <button onClick={() => setStatementType("pl")} className={cn("rounded-xl px-3 py-1.5 text-xs font-semibold", statementType === "pl" ? "bg-white/20 text-white" : "text-white/50 hover:bg-white/10")}>
-          📄 P&L Statement (20 Lines)
+        <button
+          onClick={() => setStatementType("pl")}
+          className={cn(
+            "rounded-xl px-3 py-1.5 text-xs font-semibold",
+            statementType === "pl" ? "bg-white/20 text-white" : "text-white/50 hover:bg-white/10",
+          )}
+        >
+          P&L Statement (20 Lines)
         </button>
-        <button onClick={() => setStatementType("bs")} className={cn("rounded-xl px-3 py-1.5 text-xs font-semibold", statementType === "bs" ? "bg-white/20 text-white" : "text-white/50 hover:bg-white/10")}>
-          🏦 Balance Sheet (28 Lines)
+        <button
+          onClick={() => setStatementType("bs")}
+          className={cn(
+            "rounded-xl px-3 py-1.5 text-xs font-semibold",
+            statementType === "bs" ? "bg-white/20 text-white" : "text-white/50 hover:bg-white/10",
+          )}
+        >
+          Balance Sheet (28 Lines)
         </button>
-        <button onClick={() => setStatementType("cf")} className={cn("rounded-xl px-3 py-1.5 text-xs font-semibold", statementType === "cf" ? "bg-white/20 text-white" : "text-white/50 hover:bg-white/10")}>
+        <button
+          onClick={() => setStatementType("cf")}
+          className={cn(
+            "rounded-xl px-3 py-1.5 text-xs font-semibold",
+            statementType === "cf" ? "bg-white/20 text-white" : "text-white/50 hover:bg-white/10",
+          )}
+        >
           💸 Cash Flow (21 Lines)
         </button>
       </div>
 
       <GlassCard className="!p-4">
         <Pill className="!px-3 !py-1 !text-[11px] !font-semibold">
-          {statementType === "pl" && `📄 Income Statement — 20 Lines (${model.meta.name}, $M)`}
-          {statementType === "bs" && `🏦 Balance Sheet — 28 Lines (${model.meta.name}, $M)`}
+          {statementType === "pl" && `Income Statement — 20 Lines (${model.meta.name}, $M)`}
+          {statementType === "bs" && `Balance Sheet — 28 Lines (${model.meta.name}, $M)`}
           {statementType === "cf" && `💸 Cash Flow Statement — 21 Lines (${model.meta.name}, $M)`}
         </Pill>
         <div className="mt-3">
-          {statementType === "pl" && <GlassTable headers={YEAR_LABELS_15} rows={model.plLines.map((r) => ({ label: r.label, values: r.values, isBold: r.isBold, indent: r.indent }))} />}
-          {statementType === "bs" && <GlassTable headers={YEAR_LABELS_15} rows={model.bsLines.map((r) => ({ label: r.label, values: r.values, isBold: r.isBold, indent: r.indent }))} />}
-          {statementType === "cf" && <GlassTable headers={YEAR_LABELS_15} rows={model.cfLines.map((r) => ({ label: r.label, values: r.values, isBold: r.isBold, indent: r.indent }))} />}
+          {statementType === "pl" && (
+            <GlassTable
+              headers={YEAR_LABELS_15}
+              rows={model.plLines.map((r) => ({
+                label: r.label,
+                values: r.values,
+                isBold: r.isBold,
+                indent: r.indent,
+              }))}
+            />
+          )}
+          {statementType === "bs" && (
+            <GlassTable
+              headers={YEAR_LABELS_15}
+              rows={model.bsLines.map((r) => ({
+                label: r.label,
+                values: r.values,
+                isBold: r.isBold,
+                indent: r.indent,
+              }))}
+            />
+          )}
+          {statementType === "cf" && (
+            <GlassTable
+              headers={YEAR_LABELS_15}
+              rows={model.cfLines.map((r) => ({
+                label: r.label,
+                values: r.values,
+                isBold: r.isBold,
+                indent: r.indent,
+              }))}
+            />
+          )}
         </div>
       </GlassCard>
 
       <GlassCard className="!p-4">
-        <Pill className="!px-3 !py-1 !text-[11px] !font-semibold">📊 Financial Trajectory Graph (15-Year Growth)</Pill>
+        <Pill className="!px-3 !py-1 !text-[11px] !font-semibold">
+          Financial Trajectory Graph (15-Year Growth)
+        </Pill>
         <div className="mt-3 h-[220px]">
           <ResponsiveContainer width="100%" height="100%">
             <AreaChart data={trendData}>
@@ -668,12 +1054,37 @@ function StatementsGroup({ ticker, triCase }: { ticker: TechTicker; triCase: Tri
                 </linearGradient>
               </defs>
               <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.06)" />
-              <XAxis dataKey="year" tick={{ fill: "rgba(255,255,255,0.5)", fontSize: 10 }} />
-              <YAxis tick={{ fill: "rgba(255,255,255,0.5)", fontSize: 10 }} tickFormatter={(v: number) => fmtM(v)} />
+              <XAxis dataKey="year" tick={{ fill: "rgba(255,255,255,0.5)", fontSize: 11 }} />
+              <YAxis
+                tick={{ fill: "rgba(255,255,255,0.5)", fontSize: 11 }}
+                tickFormatter={(v: number) => fmtM(v)}
+              />
               <Tooltip content={<GlassTooltip />} />
-              <Area type="monotone" dataKey="Revenue" stroke={CHART.accent} fill="url(#gradRev)" strokeWidth={2} />
-              <Line type="monotone" dataKey="NetIncome" stroke={CHART.positive} strokeWidth={2} />
-              <Line type="monotone" dataKey="Cash" stroke={CHART.violet} strokeWidth={2} />
+              <Area
+                animationDuration={300}
+                animationEasing="ease-out"
+                type="monotone"
+                dataKey="Revenue"
+                stroke={CHART.accent}
+                fill="url(#gradRev)"
+                strokeWidth={2}
+              />
+              <Line
+                animationDuration={300}
+                animationEasing="ease-out"
+                type="monotone"
+                dataKey="NetIncome"
+                stroke={CHART.positive}
+                strokeWidth={2}
+              />
+              <Line
+                animationDuration={300}
+                animationEasing="ease-out"
+                type="monotone"
+                dataKey="Cash"
+                stroke={CHART.violet}
+                strokeWidth={2}
+              />
             </AreaChart>
           </ResponsiveContainer>
         </div>
@@ -686,7 +1097,15 @@ function StatementsGroup({ ticker, triCase }: { ticker: TechTicker; triCase: Tri
 // GROUP 10: DCF VALUATION & SENSITIVITY
 // ═══════════════════════════════════════════════════════════════════════════
 
-function DCFGroup({ dcf, drivers, onUpdate }: { dcf: DCFValuationOutput; drivers: FullEditableDrivers; onUpdate: (k: keyof FullEditableDrivers, v: number) => void }) {
+function DCFGroup({
+  dcf,
+  drivers,
+  onUpdate,
+}: {
+  dcf: DCFValuationOutput;
+  drivers: FullEditableDrivers;
+  onUpdate: (k: keyof FullEditableDrivers, v: number) => void;
+}) {
   const waccVals = [...new Set(dcf.sensitivityMatrix.map((s) => s.wacc))];
   const growthVals = [...new Set(dcf.sensitivityMatrix.map((s) => s.growth))];
 
@@ -695,37 +1114,56 @@ function DCFGroup({ dcf, drivers, onUpdate }: { dcf: DCFValuationOutput; drivers
       <GlassCard className="!p-5">
         <div className="flex flex-col items-center gap-3 sm:flex-row sm:justify-between">
           <div>
-            <span className="text-[10px] uppercase tracking-widest text-white/40">DCF Implied Share Price</span>
+            <span className="text-micro uppercase tracking-widest text-white/40">
+              DCF Implied Share Price
+            </span>
             <div className="mt-1 flex items-end gap-3">
-              <span className="text-4xl font-bold tabular-nums text-white">${dcf.impliedSharePrice.toFixed(2)}</span>
-              <span className={cn("flex items-center gap-1 rounded-full px-2.5 py-1 text-sm font-semibold", dcf.upsidePct >= 0 ? "bg-emerald-500/15 text-emerald-400" : "bg-red-500/15 text-red-400")}>
+              <span className="text-4xl font-bold tabular-nums text-white">
+                ${dcf.impliedSharePrice.toFixed(2)}
+              </span>
+              <span
+                className={cn(
+                  "flex items-center gap-1 rounded-full px-2.5 py-1 text-sm font-semibold",
+                  dcf.upsidePct >= 0
+                    ? "bg-emerald-500/15 text-emerald-400"
+                    : "bg-red-500/15 text-red-400",
+                )}
+              >
                 {dcf.upsidePct >= 0 ? <ArrowUpRight size={14} /> : <ArrowDownRight size={14} />}
                 {(dcf.upsidePct * 100).toFixed(1)}%
               </span>
             </div>
-            <p className="mt-1 text-[11px] text-white/50">Current Market Price: ${dcf.currentSharePrice.toFixed(2)}</p>
+            <p className="mt-1 text-[11px] text-white/50">
+              Current Market Price: ${dcf.currentSharePrice.toFixed(2)}
+            </p>
           </div>
           <div className="grid grid-cols-3 gap-2">
             <div className="glass-soft flex flex-col items-center rounded-xl px-3 py-2">
-              <span className="text-[9px] text-white/40">EV</span>
-              <span className="text-sm font-bold tabular-nums text-white">{fmtM(dcf.enterpriseValue)}</span>
+              <span className="text-micro text-white/40">EV</span>
+              <span className="text-sm font-bold tabular-nums text-white">
+                {fmtM(dcf.enterpriseValue)}
+              </span>
             </div>
             <div className="glass-soft flex flex-col items-center rounded-xl px-3 py-2">
-              <span className="text-[9px] text-white/40">Net Debt</span>
+              <span className="text-micro text-white/40">Net Debt</span>
               <span className="text-sm font-bold tabular-nums text-white">{fmtM(dcf.netDebt)}</span>
             </div>
             <div className="glass-soft flex flex-col items-center rounded-xl px-3 py-2">
-              <span className="text-[9px] text-white/40">Equity Val</span>
-              <span className="text-sm font-bold tabular-nums text-white">{fmtM(dcf.equityValue)}</span>
+              <span className="text-micro text-white/40">Equity Val</span>
+              <span className="text-sm font-bold tabular-nums text-white">
+                {fmtM(dcf.equityValue)}
+              </span>
             </div>
           </div>
         </div>
       </GlassCard>
 
       <GlassCard className="!p-4">
-        <Pill className="!px-3 !py-1 !text-[11px] !font-semibold">🔬 5x6 Sensitivity Matrix (WACC × Terminal Growth Rate)</Pill>
+        <Pill className="!px-3 !py-1 !text-[11px] !font-semibold">
+          🔬 5x6 Sensitivity Matrix (WACC × Terminal Growth Rate)
+        </Pill>
         <div className="mt-3 overflow-x-auto">
-          <table className="w-full text-[10px]">
+          <table className="w-full text-micro">
             <thead>
               <tr>
                 <th className="px-2 py-1.5 text-left text-white/50">WACC \ Growth</th>
@@ -739,13 +1177,34 @@ function DCFGroup({ dcf, drivers, onUpdate }: { dcf: DCFValuationOutput; drivers
             <tbody>
               {waccVals.map((w) => (
                 <tr key={w} className="hover:bg-white/5">
-                  <td className={cn("px-2 py-1.5 font-medium", Math.abs(w - dcf.wacc) < 0.001 ? "text-blue-300" : "text-white/70")}>{(w * 100).toFixed(1)}%</td>
+                  <td
+                    className={cn(
+                      "px-2 py-1.5 font-medium",
+                      Math.abs(w - dcf.wacc) < 0.001 ? "text-blue-300" : "text-white/70",
+                    )}
+                  >
+                    {(w * 100).toFixed(1)}%
+                  </td>
                   {growthVals.map((g) => {
-                    const entry = dcf.sensitivityMatrix.find((s) => Math.abs(s.wacc - w) < 0.0001 && Math.abs(s.growth - g) < 0.0001);
+                    const entry = dcf.sensitivityMatrix.find(
+                      (s) => Math.abs(s.wacc - w) < 0.0001 && Math.abs(s.growth - g) < 0.0001,
+                    );
                     const price = entry?.price ?? 0;
-                    const isCenter = Math.abs(w - dcf.wacc) < 0.001 && Math.abs(g - dcf.terminalGrowthRate) < 0.001;
+                    const isCenter =
+                      Math.abs(w - dcf.wacc) < 0.001 &&
+                      Math.abs(g - dcf.terminalGrowthRate) < 0.001;
                     return (
-                      <td key={`${w}-${g}`} className={cn("px-2 py-1.5 text-right tabular-nums", isCenter ? "font-bold text-white bg-blue-500/20 rounded" : price > dcf.currentSharePrice ? "text-emerald-400/80" : "text-red-400/80")}>
+                      <td
+                        key={`${w}-${g}`}
+                        className={cn(
+                          "px-2 py-1.5 text-right tabular-nums",
+                          isCenter
+                            ? "font-bold text-white bg-blue-500/20 rounded"
+                            : price > dcf.currentSharePrice
+                              ? "text-emerald-400/80"
+                              : "text-red-400/80",
+                        )}
+                      >
                         {price > 0 ? `$${price.toFixed(0)}` : "—"}
                       </td>
                     );

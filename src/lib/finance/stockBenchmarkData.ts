@@ -160,7 +160,7 @@ export const STOCK_BENCHMARK_DATABASE: Record<string, StockBenchmarkMeta> = {
       averageUnitPrice: 28000,
       priceGrowthRate: 0.08,
       secondaryRevenueBase: 14000000000,
-      secondaryGrowthRate: 0.20,
+      secondaryGrowthRate: 0.2,
       grossMarginPct: 0.76,
       secondaryGrossMarginPct: 0.62,
       sgaPctOfRev: 0.05,
@@ -285,7 +285,7 @@ export const STOCK_BENCHMARK_DATABASE: Record<string, StockBenchmarkMeta> = {
       ticker: "META",
       baseYear: 2025,
       unitVolumeBase: 6200000000000,
-      volumeGrowthRate: 0.10,
+      volumeGrowthRate: 0.1,
       averageUnitPrice: 0.024,
       priceGrowthRate: 0.03,
       secondaryRevenueBase: 3500000000,
@@ -377,7 +377,8 @@ for (const meta of Object.values(STOCK_BENCHMARK_DATABASE)) {
   const basePrimaryRev = d.unitVolumeBase * d.averageUnitPrice;
   const baseRevenue = basePrimaryRev + d.secondaryRevenueBase;
   const baseCogs =
-    basePrimaryRev * (1 - d.grossMarginPct) + d.secondaryRevenueBase * (1 - d.secondaryGrossMarginPct);
+    basePrimaryRev * (1 - d.grossMarginPct) +
+    d.secondaryRevenueBase * (1 - d.secondaryGrossMarginPct);
   d.initialAr = (baseRevenue * d.dso) / 365;
   d.initialInventory = (baseCogs * d.dio) / 365;
   d.initialAp = (baseCogs * d.dpo) / 365;

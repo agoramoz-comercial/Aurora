@@ -134,7 +134,7 @@ function CaseSwitch({ active, onSelect }: { active: CaseId; onSelect: (c: CaseId
             aria-pressed={isActive}
             title={s.note}
             className={cn(
-              "flex items-center gap-1.5 px-2.5 py-1.5 text-[10px] font-bold uppercase tracking-[0.1em] transition-[color,background-color,box-shadow]",
+              "flex items-center gap-1.5 px-2.5 py-1.5 text-micro font-bold uppercase tracking-[0.1em] transition-[color,background-color,box-shadow]",
               isActive ? "text-white" : "text-white/50 hover:text-white",
             )}
             style={{
@@ -282,6 +282,7 @@ export function IssuersSection() {
                 key={`${symbol}-${caseId}`}
                 data={field}
                 layout="vertical"
+                className="aurora-hbar"
                 margin={{ top: 4, right: 24, left: 8, bottom: 0 }}
               >
                 <CartesianGrid strokeDasharray="3 3" stroke={CHART.grid} horizontal={false} />
@@ -360,7 +361,7 @@ export function IssuersSection() {
             })}
           </div>
           <p
-            className="mt-3 flex items-center gap-1.5 text-[10px]"
+            className="mt-3 flex items-center gap-1.5 text-micro"
             style={{ color: passed >= 4 ? CHART.positive : CHART.warn }}
           >
             {passed >= 4 ? <BadgeCheck size={12} /> : <ShieldAlert size={12} />}

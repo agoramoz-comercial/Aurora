@@ -131,6 +131,7 @@ export function RiskSection({ model }: { model: IipaModel }) {
               <BarChart
                 data={stressData}
                 layout="vertical"
+                className="aurora-hbar aurora-hbar-neg"
                 margin={{ top: 4, right: 56, left: 8, bottom: 0 }}
               >
                 <CartesianGrid strokeDasharray="3 3" stroke={CHART.grid} horizontal={false} />
@@ -162,7 +163,7 @@ export function RiskSection({ model }: { model: IipaModel }) {
                     dataKey="usd"
                     position="right"
                     formatter={(v: number) => money(v)}
-                    style={{ fill: "rgba(255,255,255,0.6)", fontSize: 10 }}
+                    style={{ fill: "rgba(255,255,255,0.6)", fontSize: 11 }}
                   />
                 </Bar>
               </BarChart>

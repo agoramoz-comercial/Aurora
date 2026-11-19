@@ -123,7 +123,7 @@ export function ProjectionsSection({ model }: { model: IipaModel }) {
               label="meta"
             />
             <div className="min-w-0">
-              <p className="text-[10px] uppercase tracking-[0.12em] text-white/45">Valor central</p>
+              <p className="text-micro uppercase tracking-[0.12em] text-white/45">Valor central</p>
               <AnimatedNumber
                 value={mc.terminal.p50}
                 format={(n) => money(n)}
@@ -213,6 +213,7 @@ export function ProjectionsSection({ model }: { model: IipaModel }) {
               <BarChart
                 data={sources}
                 layout="vertical"
+                className="aurora-hbar"
                 margin={{ top: 4, right: 8, left: 4, bottom: 0 }}
                 stackOffset="sign"
               >
@@ -270,7 +271,7 @@ export function ProjectionsSection({ model }: { model: IipaModel }) {
           </div>
           <div className="mt-1 flex flex-wrap gap-x-3 gap-y-1">
             {riskReturn.map((d) => (
-              <span key={d.name} className="flex items-center gap-1 text-[10px] text-white/55">
+              <span key={d.name} className="flex items-center gap-1 text-micro text-white/55">
                 <span className="h-2 w-2 rounded-full" style={{ background: d.color }} /> {d.name}
               </span>
             ))}

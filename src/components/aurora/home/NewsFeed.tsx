@@ -5,7 +5,7 @@ import type { ImpactPanelAsset, PrimaryNewsItem, SecondaryNewsItem } from "@/dat
 import { cn } from "@/lib/utils";
 import { CHART } from "../chartTheme";
 import { EmptyState } from "../primitives";
-import { EvidenceDots, ImpactMeter, SaveButton } from "./NewsAtoms";
+import { EvidenceDots, ImpactMeter, PhotoCredit, SaveButton, SourceLink } from "./NewsAtoms";
 import {
   EVENT_ICON,
   EVENT_LABEL,
@@ -49,23 +49,38 @@ function StoryCard({
       onMouseEnter={(e) => (e.currentTarget.style.boxShadow = `inset 0 0 0 1px ${col.border}`)}
       onMouseLeave={(e) => (e.currentTarget.style.boxShadow = "")}
     >
+      {item.image ? (
+        <div className="relative -mx-4 -mt-4 mb-1 h-40 overflow-hidden rounded-t-[16px]">
+          <img
+            src={item.image.src}
+            alt=""
+            aria-hidden
+            loading="lazy"
+            className="h-full w-full object-cover transition-transform duration-300 ease-out group-hover:scale-[1.04]"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-[rgba(8,12,22,0.85)] via-transparent to-transparent" />
+          <PhotoCredit image={item.image} className="absolute bottom-2 right-2" />
+        </div>
+      ) : null}
       <div className="flex items-center gap-2">
-        <span className="rounded-md bg-white/12 px-1.5 py-0.5 text-[10px] font-bold text-white">
+        <span className="rounded-md bg-white/12 px-1.5 py-0.5 text-micro font-bold text-white">
           {item.ticker}
         </span>
         <span
-          className="flex items-center gap-1 text-[10px] font-semibold uppercase tracking-[0.08em]"
+          className="flex items-center gap-1 text-micro font-semibold uppercase tracking-[0.08em]"
           style={{ color: col.text }}
         >
           <EventIcon size={10} /> {EVENT_LABEL[item.eventType]}
         </span>
-        <span className="truncate text-[10px] text-white/40">{item.sector}</span>
-        <span
-          className="ml-auto text-[12px] font-bold tabular-nums"
-          style={{ color: item.priceChange >= 0 ? CHART.positive : CHART.negative }}
-        >
-          {signed(item.priceChange)}
-        </span>
+        <span className="truncate text-micro text-white/40">{item.sector}</span>
+        {item.priceChange !== 0 ? (
+          <span
+            className="ml-auto text-[12px] font-bold tabular-nums"
+            style={{ color: item.priceChange >= 0 ? CHART.positive : CHART.negative }}
+          >
+            {signed(item.priceChange)}
+          </span>
+        ) : null}
       </div>
 
       <h3 className="text-[14px] font-semibold leading-snug text-white/95">{item.headline}</h3>
@@ -75,14 +90,15 @@ function StoryCard({
         </p>
       ) : null}
 
+      <SourceLink source={item.source} url={item.url} />
       <div className="mt-auto flex flex-wrap items-center gap-x-3 gap-y-1.5 pt-0.5">
         <ImpactMeter score={item.impactScore} level={item.attentionLevel} />
-        <span className="text-[10px]" style={{ color: conf.color }}>
+        <span className="text-micro" style={{ color: conf.color }}>
           {conf.label}
         </span>
-        <span className="text-[10px] text-white/40">{HORIZON_LABEL[item.horizon]}</span>
+        <span className="text-micro text-white/40">{HORIZON_LABEL[item.horizon]}</span>
         {layout === "grid" ? (
-          <span className="text-[10px] text-white/40">há {formatMinutesAgo(item.minutesAgo)}</span>
+          <span className="text-micro text-white/40">há {formatMinutesAgo(item.minutesAgo)}</span>
         ) : null}
         <span className="ml-auto flex items-center gap-2">
           <EvidenceDots count={item.evidenceCount} />
@@ -163,7 +179,7 @@ export function NewsFeed({
               layout="position"
               className="grid grid-cols-[46px_16px_minmax(0,1fr)] items-start gap-x-1"
             >
-              <span className="whitespace-nowrap pt-4 text-right text-[10px] font-semibold tabular-nums text-white/45">
+              <span className="whitespace-nowrap pt-4 text-right text-micro font-semibold tabular-nums text-white/45">
                 {formatMinutesAgo(it.minutesAgo)}
               </span>
               <span className="relative flex justify-center pt-[18px]">
@@ -203,7 +219,7 @@ export function ImpactRadar({
         <span className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-white/65">
           <Radar size={13} className="text-[var(--aurora-accent)]" /> Radar de impacto
         </span>
-        <span className="text-[10px] text-white/35">carteira</span>
+        <span className="text-micro text-white/35">carteira</span>
       </header>
       <ul className="flex flex-col gap-1">
         {assets.map((a, i) => {
@@ -233,13 +249,17 @@ export function ImpactRadar({
                     className="block h-full rounded-full"
                     initial={{ width: 0 }}
                     animate={{ width: `${a.impactScore}%` }}
-                    transition={{ duration: 0.9, delay: 0.15 + i * 0.06, ease: [0.22, 1, 0.36, 1] }}
+                    transition={{
+                      duration: 0.3,
+                      delay: Math.min(i, 6) * 0.04,
+                      ease: [0.23, 1, 0.32, 1],
+                    }}
                     style={{
                       background: `linear-gradient(90deg, ${col.dot}, var(--aurora-accent))`,
                     }}
                   />
                 </span>
-                <span className="w-6 text-right text-[10px] tabular-nums text-white/45">
+                <span className="w-6 text-right text-micro tabular-nums text-white/45">
                   {a.impactScore}
                 </span>
               </button>
@@ -275,7 +295,7 @@ export function TrendingTopics({
               aria-pressed={isActive}
               onClick={() => onSelect(isActive ? null : tag)}
               className={cn(
-                "flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[10px] font-medium transition-[background-color,color,box-shadow] duration-150",
+                "flex items-center gap-1.5 rounded-full px-2.5 py-1 text-micro font-medium transition-[background-color,color,box-shadow] duration-150",
                 isActive
                   ? "bg-[rgba(74,158,255,0.22)] text-white shadow-[inset_0_0_0_1px_rgba(74,158,255,0.5)]"
                   : "bg-white/6 text-white/60 hover:bg-white/12 hover:text-white",
@@ -307,7 +327,7 @@ function SecondaryRow({ item }: { item: SecondaryNewsItem }) {
         className="flex w-full flex-col gap-1.5 px-3 py-2.5 text-left transition-colors hover:bg-white/[0.04]"
       >
         <span
-          className="flex items-center gap-1.5 text-[9px] font-bold uppercase tracking-[0.12em]"
+          className="flex items-center gap-1.5 text-micro font-bold uppercase tracking-[0.12em]"
           style={{ color: col.text }}
         >
           <EventIcon size={10} /> {item.regimeFlag}
@@ -349,8 +369,9 @@ function SecondaryRow({ item }: { item: SecondaryNewsItem }) {
                 <b className="font-semibold text-[var(--aurora-accent)]">Transmissão · </b>
                 {item.transmissionVector}
               </p>
-              <span className="text-[10px] text-white/35">
+              <span className="flex flex-wrap items-center justify-between gap-2 text-micro text-white/60">
                 {EVENT_LABEL[item.eventType]} · {HORIZON_LABEL[item.horizon]}
+                <SourceLink source={item.source} url={item.url} />
               </span>
             </div>
           </motion.div>
@@ -369,7 +390,7 @@ export function SecondaryList({ items }: { items: SecondaryNewsItem[] }) {
         <span className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-white/65">
           <span className="h-1.5 w-1.5 rounded-full bg-[var(--aurora-violet)]" /> Regime & macro
         </span>
-        <span className="text-[10px] tabular-nums text-white/35">{items.length}</span>
+        <span className="text-micro tabular-nums text-white/35">{items.length}</span>
       </header>
       {items.length === 0 ? (
         <p className="py-3 text-center text-[11px] text-white/35">Sem sinais para esta pesquisa</p>

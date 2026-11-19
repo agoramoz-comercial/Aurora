@@ -59,7 +59,7 @@ export function CategoryRail({
               >
                 <Icon size={16} strokeWidth={1.8} />
               </span>
-              <span className="text-[10px] font-semibold tabular-nums text-white/45">{count}</span>
+              <span className="text-micro font-semibold tabular-nums text-white/45">{count}</span>
             </span>
             <span className="text-[12px] font-semibold leading-tight">{label}</span>
           </button>

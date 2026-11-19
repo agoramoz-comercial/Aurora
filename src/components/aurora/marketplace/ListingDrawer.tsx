@@ -109,7 +109,7 @@ export function ListingDrawer({
       eyebrow={
         <>
           <CategoryBadge category={listing.category} />
-          <span className="text-[10px] font-semibold uppercase tracking-[0.14em] text-white/50">
+          <span className="text-micro font-semibold uppercase tracking-[0.14em] text-white/50">
             {listing.brand}
           </span>
         </>
@@ -156,7 +156,8 @@ export function ListingDrawer({
               disabled={mode === "offer" && !!offerError}
               className="flex h-10 flex-1 items-center justify-center gap-2 rounded-xl text-[13px] font-bold text-white transition-[filter,transform,opacity] duration-150 hover:brightness-110 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-45"
               style={{
-                background: "var(--aurora-accent)",
+                background: "rgba(255,255,255,0.92)",
+                color: "#0b0f17",
                 boxShadow: "0 0 24px rgba(74,158,255,0.4)",
               }}
             >
@@ -210,7 +211,7 @@ export function ListingDrawer({
         {/* Price + location */}
         <div className="flex flex-wrap items-end justify-between gap-3">
           <div>
-            <span className="block text-[10px] uppercase tracking-[0.14em] text-white/40">
+            <span className="block text-micro uppercase tracking-[0.14em] text-white/40">
               {isTicket ? "Preço por lugar" : "Preço pedido"}
             </span>
             <span className="text-[30px] font-bold tabular-nums tracking-[-0.02em] text-white">
@@ -245,7 +246,7 @@ export function ListingDrawer({
               className="rounded-[12px] px-3 py-2.5"
               style={{ background: "var(--aurora-surface-2)" }}
             >
-              <dt className="text-[10px] uppercase tracking-[0.1em] text-white/40">{s.label}</dt>
+              <dt className="text-micro uppercase tracking-[0.1em] text-white/40">{s.label}</dt>
               <dd className="mt-0.5 text-[13px] font-semibold tabular-nums text-white">
                 {s.value}
               </dd>
@@ -344,7 +345,7 @@ export function ListingDrawer({
                       key={r}
                       type="button"
                       onClick={() => setOffer(String(Math.round(listing.priceUsd * r)))}
-                      className="rounded-full bg-white/8 px-2.5 py-1 text-[10px] font-semibold text-white/65 hover:bg-white/14 hover:text-white"
+                      className="rounded-full bg-white/8 px-2.5 py-1 text-micro font-semibold text-white/65 hover:bg-white/14 hover:text-white"
                     >
                       {r === 1 ? "Preço pedido" : `${Math.round(r * 100)}%`}
                     </button>
@@ -391,7 +392,7 @@ export function ListingDrawer({
               className="resize-none rounded-xl bg-black/30 px-3 py-2 text-[12px] text-white outline-none placeholder:text-white/35 focus:shadow-[inset_0_0_0_1px_rgba(74,158,255,0.5)]"
             />
 
-            <p className="flex items-start gap-1.5 text-[10px] leading-relaxed text-white/40">
+            <p className="flex items-start gap-1.5 text-micro leading-relaxed text-white/40">
               <ShieldCheck size={12} className="mt-px shrink-0 text-[var(--aurora-accent)]" />
               Pedidos intermediados pelo concierge Ollympius. Nenhum pagamento é processado nesta
               plataforma.

@@ -1,5 +1,5 @@
 import { Bookmark } from "lucide-react";
-import type { AttentionLevel } from "@/data/newsData";
+import type { AttentionLevel, NewsImage } from "@/data/newsData";
 import { cn } from "@/lib/utils";
 import { ATTENTION_LABEL, attentionColor } from "./newsUtils";
 
@@ -7,6 +7,7 @@ export function EvidenceDots({ count, max = 6 }: { count: number; max?: number }
   return (
     <div
       className="flex items-center gap-[3px]"
+      role="img"
       aria-label={`${count} de ${max} camadas de evidência`}
     >
       {Array.from({ length: max }).map((_, i) => (
@@ -74,7 +75,7 @@ export function ImpactRing({
       </svg>
       <div className="flex flex-col items-center leading-none">
         <span className="text-[13px] font-bold tabular-nums text-white">{score}</span>
-        <span className="text-[8px] uppercase tracking-[0.1em] text-white/45">impacto</span>
+        <span className="text-micro uppercase tracking-[0.1em] text-white/45">impacto</span>
       </div>
     </div>
   );
@@ -90,7 +91,7 @@ export function AttentionBadge({
   const col = attentionColor(level);
   return (
     <span
-      className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.1em]"
+      className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-micro font-bold uppercase tracking-[0.1em]"
       style={{
         background: col.bg,
         border: `1px solid ${col.border}`,
@@ -129,7 +130,7 @@ export function ImpactMeter({ score, level }: { score: number; level: AttentionL
           }}
         />
       </div>
-      <span className="text-[10px] font-semibold tabular-nums text-white/55">{score}</span>
+      <span className="text-micro font-semibold tabular-nums text-white/55">{score}</span>
     </div>
   );
 }
@@ -192,5 +193,39 @@ export function StoryArt({ ticker, level }: { ticker: string; level: AttentionLe
         }}
       />
     </div>
+  );
+}
+
+/** Photo credit (author · licence) linking to the Commons file page. */
+export function PhotoCredit({ image, className }: { image?: NewsImage; className?: string }) {
+  if (!image) return null;
+  return (
+    <a
+      href={image.page}
+      target="_blank"
+      rel="noreferrer"
+      onClick={(e) => e.stopPropagation()}
+      className={
+        "rounded-full bg-black/55 px-2 py-0.5 text-micro text-white/80 backdrop-blur-md transition-colors duration-150 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60 " +
+        (className ?? "")
+      }
+    >
+      Foto: {image.credit} · {image.license}
+    </a>
+  );
+}
+
+/** "Ler na fonte" link to the original article. */
+export function SourceLink({ source, url }: { source: string; url: string }) {
+  return (
+    <a
+      href={url}
+      target="_blank"
+      rel="noreferrer"
+      onClick={(e) => e.stopPropagation()}
+      className="inline-flex items-center gap-1 text-micro font-semibold text-white/80 underline-offset-2 transition-colors duration-150 hover:text-white hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60"
+    >
+      {source} · Ler na fonte ↗
+    </a>
   );
 }

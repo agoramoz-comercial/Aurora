@@ -2,7 +2,15 @@ import { AnimatePresence, motion } from "framer-motion";
 import { ArrowUpRight, BarChart2, Clock, Eye } from "lucide-react";
 import type { PrimaryNewsItem } from "@/data/newsData";
 import { CHART } from "../chartTheme";
-import { AttentionBadge, EvidenceDots, ImpactRing, SaveButton, StoryArt } from "./NewsAtoms";
+import {
+  AttentionBadge,
+  EvidenceDots,
+  ImpactRing,
+  PhotoCredit,
+  SaveButton,
+  SourceLink,
+  StoryArt,
+} from "./NewsAtoms";
 import {
   EVENT_LABEL,
   HERO_IMAGES,
@@ -44,7 +52,7 @@ function LeadStory({
           src={img}
           alt=""
           aria-hidden
-          className="absolute inset-0 h-full w-full object-cover opacity-60 transition-transform duration-[1200ms] ease-out group-hover:scale-[1.04]"
+          className="absolute inset-0 h-full w-full object-cover opacity-80 transition-transform duration-300 ease-out group-hover:scale-[1.04]"
         />
       ) : (
         <StoryArt ticker={item.ticker} level={item.attentionLevel} />
@@ -60,11 +68,14 @@ function LeadStory({
       <div className="relative flex items-start justify-between gap-3 p-5">
         <div className="flex flex-wrap items-center gap-2">
           <AttentionBadge level={item.attentionLevel} pulse />
-          <span className="rounded-full bg-black/40 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.1em] text-white/75 backdrop-blur-md">
+          <span className="rounded-full bg-black/40 px-2.5 py-1 text-micro font-semibold uppercase tracking-[0.1em] text-white/75 backdrop-blur-md">
             {EVENT_LABEL[item.eventType]}
           </span>
         </div>
-        <ImpactRing score={item.impactScore} level={item.attentionLevel} />
+        <div className="flex flex-col items-end gap-2">
+          <ImpactRing score={item.impactScore} level={item.attentionLevel} />
+          <PhotoCredit image={item.image} />
+        </div>
       </div>
 
       <div className="relative mt-auto flex flex-col gap-3 p-5 pt-0">
@@ -87,30 +98,35 @@ function LeadStory({
           {item.summary}
         </p>
 
+        <SourceLink source={item.source} url={item.url} />
         <div className="flex flex-wrap items-center gap-2">
-          <span
-            className="rounded-xl bg-black/45 px-3 py-1.5 text-[12px] font-bold tabular-nums backdrop-blur-md"
-            style={{
-              color: item.priceChange >= 0 ? CHART.positive : CHART.negative,
-              border: "1px solid rgba(255,255,255,0.1)",
-            }}
-          >
-            {signed(item.priceChange)}
-          </span>
-          <span
-            className="flex items-center gap-1.5 rounded-xl bg-black/45 px-3 py-1.5 text-[11px] text-white/70 backdrop-blur-md"
-            style={{ border: "1px solid rgba(255,255,255,0.1)" }}
-          >
-            <BarChart2 size={11} /> Vol{" "}
-            <b className="font-semibold tabular-nums text-white">+{item.volumeChange}%</b>
-          </span>
+          {item.priceChange !== 0 ? (
+            <span
+              className="rounded-xl bg-black/45 px-3 py-1.5 text-[12px] font-bold tabular-nums backdrop-blur-md"
+              style={{
+                color: item.priceChange >= 0 ? CHART.positive : CHART.negative,
+                border: "1px solid rgba(255,255,255,0.1)",
+              }}
+            >
+              {signed(item.priceChange)}
+            </span>
+          ) : null}
+          {item.volumeChange ? (
+            <span
+              className="flex items-center gap-1.5 rounded-xl bg-black/45 px-3 py-1.5 text-[11px] text-white/70 backdrop-blur-md"
+              style={{ border: "1px solid rgba(255,255,255,0.1)" }}
+            >
+              <BarChart2 size={11} /> Vol{" "}
+              <b className="font-semibold tabular-nums text-white">+{item.volumeChange}%</b>
+            </span>
+          ) : null}
           <span
             className="rounded-xl bg-black/45 px-3 py-1.5 text-[11px] font-medium backdrop-blur-md"
             style={{ color: conf.color, border: "1px solid rgba(255,255,255,0.1)" }}
           >
             {conf.label}
           </span>
-          <span className="flex items-center gap-2 text-[10px] text-white/45">
+          <span className="flex items-center gap-2 text-micro text-white/45">
             <EvidenceDots count={item.evidenceCount} /> {HORIZON_LABEL[item.horizon]}
           </span>
           <div className="ml-auto flex items-center gap-1.5">
@@ -127,7 +143,8 @@ function LeadStory({
               }}
               className="flex h-9 items-center gap-1.5 rounded-xl px-4 text-[11px] font-bold text-white transition-[filter,transform] duration-150 hover:brightness-110 active:scale-[0.97]"
               style={{
-                background: "var(--aurora-accent)",
+                background: "rgba(255,255,255,0.92)",
+                color: "#0b0f17",
                 boxShadow: "0 0 20px rgba(74,158,255,0.45)",
               }}
             >
@@ -155,7 +172,7 @@ function SideStory({ item, onOpen }: { item: PrimaryNewsItem; onOpen: () => void
           src={img}
           alt=""
           aria-hidden
-          className="absolute inset-0 h-full w-full object-cover opacity-45 transition-transform duration-700 group-hover:scale-[1.05]"
+          className="absolute inset-0 h-full w-full object-cover opacity-65 transition-transform duration-300 group-hover:scale-[1.05]"
         />
       ) : (
         <StoryArt ticker={item.ticker} level={item.attentionLevel} />
@@ -171,21 +188,23 @@ function SideStory({ item, onOpen }: { item: PrimaryNewsItem; onOpen: () => void
         style={{ background: `linear-gradient(90deg, transparent, ${col.dot}, transparent)` }}
       />
       <div className="relative flex flex-col gap-1.5">
-        <div className="flex items-center gap-2 text-[10px]">
+        <div className="flex items-center gap-2 text-micro">
           <span className="h-1.5 w-1.5 rounded-full" style={{ background: col.dot }} />
           <span className="font-bold text-white">{item.ticker}</span>
           <span className="text-white/45">{EVENT_LABEL[item.eventType]}</span>
-          <span
-            className="ml-auto font-bold tabular-nums"
-            style={{ color: item.priceChange >= 0 ? CHART.positive : CHART.negative }}
-          >
-            {signed(item.priceChange)}
-          </span>
+          {item.priceChange !== 0 ? (
+            <span
+              className="ml-auto font-bold tabular-nums"
+              style={{ color: item.priceChange >= 0 ? CHART.positive : CHART.negative }}
+            >
+              {signed(item.priceChange)}
+            </span>
+          ) : null}
         </div>
         <p className="line-clamp-2 text-[13px] font-semibold leading-snug text-white">
           {item.headline}
         </p>
-        <span className="flex items-center gap-1 text-[10px] text-white/45">
+        <span className="flex items-center gap-1 text-micro text-white/45">
           há {formatMinutesAgo(item.minutesAgo)} · {HORIZON_LABEL[item.horizon]}
           <ArrowUpRight
             size={11}
@@ -266,7 +285,7 @@ export function NewsHero({
                 aria-selected={isActive}
                 aria-label={`${l.ticker}: ${l.headline}`}
                 onClick={() => onSelectLead(i)}
-                className="group relative h-4 flex-1"
+                className="group relative h-6 flex-1"
               >
                 <span className="absolute inset-x-0 top-1/2 h-[3px] -translate-y-1/2 overflow-hidden rounded-full bg-white/15 group-hover:bg-white/25">
                   <span

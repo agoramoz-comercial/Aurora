@@ -214,7 +214,7 @@ export function HomeWorkspace() {
                   <button
                     type="button"
                     onClick={() => setTopic(null)}
-                    className="flex shrink-0 items-center gap-1 rounded-full bg-[rgba(74,158,255,0.2)] px-2.5 py-1 text-[10px] font-semibold text-white shadow-[inset_0_0_0_1px_rgba(74,158,255,0.5)]"
+                    className="flex shrink-0 items-center gap-1 rounded-full bg-[rgba(74,158,255,0.2)] px-2.5 py-1 text-micro font-semibold text-white shadow-[inset_0_0_0_1px_rgba(74,158,255,0.5)]"
                   >
                     #{topic} <X size={11} />
                   </button>
