@@ -133,6 +133,7 @@ export const EVIDENCE_META: Record<string, { label: string; icon: LucideIcon }> 
 
 export function formatMinutesAgo(min: number) {
   if (min < 60) return `${min}m`;
+  if (min >= 1440) return `${Math.floor(min / 1440)}d`;
   const h = Math.floor(min / 60);
   const m = min % 60;
   return m ? `${h}h ${m}m` : `${h}h`;

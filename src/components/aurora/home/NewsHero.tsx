@@ -192,12 +192,14 @@ function SideStory({ item, onOpen }: { item: PrimaryNewsItem; onOpen: () => void
           <span className="h-1.5 w-1.5 rounded-full" style={{ background: col.dot }} />
           <span className="font-bold text-white">{item.ticker}</span>
           <span className="text-white/45">{EVENT_LABEL[item.eventType]}</span>
-          <span
-            className="ml-auto font-bold tabular-nums"
-            style={{ color: item.priceChange >= 0 ? CHART.positive : CHART.negative }}
-          >
-            {signed(item.priceChange)}
-          </span>
+          {item.priceChange !== 0 ? (
+            <span
+              className="ml-auto font-bold tabular-nums"
+              style={{ color: item.priceChange >= 0 ? CHART.positive : CHART.negative }}
+            >
+              {signed(item.priceChange)}
+            </span>
+          ) : null}
         </div>
         <p className="line-clamp-2 text-[13px] font-semibold leading-snug text-white">
           {item.headline}

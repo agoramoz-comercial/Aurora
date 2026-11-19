@@ -543,6 +543,4 @@ export const impactPanelAssets: ImpactPanelAsset[] = [
 // Closing moves of 18 Nov 2026 as reported by Reuters.
 export const marketPulse = {
   dow: { value: "", change: -0.8, label: "Dow Jones" },
-  oil: { value: "", change: -4.0, label: "Petróleo" },
-  nvda: { value: "", change: -2.4, label: "Nvidia" },
 };
