@@ -2,7 +2,15 @@ import { AnimatePresence, motion } from "framer-motion";
 import { ArrowUpRight, BarChart2, Clock, Eye } from "lucide-react";
 import type { PrimaryNewsItem } from "@/data/newsData";
 import { CHART } from "../chartTheme";
-import { AttentionBadge, EvidenceDots, ImpactRing, SaveButton, StoryArt } from "./NewsAtoms";
+import {
+  AttentionBadge,
+  EvidenceDots,
+  ImpactRing,
+  PhotoCredit,
+  SaveButton,
+  SourceLink,
+  StoryArt,
+} from "./NewsAtoms";
 import {
   EVENT_LABEL,
   HERO_IMAGES,
@@ -44,7 +52,7 @@ function LeadStory({
           src={img}
           alt=""
           aria-hidden
-          className="absolute inset-0 h-full w-full object-cover opacity-60 transition-transform duration-300 ease-out group-hover:scale-[1.04]"
+          className="absolute inset-0 h-full w-full object-cover opacity-80 transition-transform duration-300 ease-out group-hover:scale-[1.04]"
         />
       ) : (
         <StoryArt ticker={item.ticker} level={item.attentionLevel} />
@@ -64,7 +72,10 @@ function LeadStory({
             {EVENT_LABEL[item.eventType]}
           </span>
         </div>
-        <ImpactRing score={item.impactScore} level={item.attentionLevel} />
+        <div className="flex flex-col items-end gap-2">
+          <ImpactRing score={item.impactScore} level={item.attentionLevel} />
+          <PhotoCredit image={item.image} />
+        </div>
       </div>
 
       <div className="relative mt-auto flex flex-col gap-3 p-5 pt-0">
@@ -87,23 +98,28 @@ function LeadStory({
           {item.summary}
         </p>
 
+        <SourceLink source={item.source} url={item.url} />
         <div className="flex flex-wrap items-center gap-2">
-          <span
-            className="rounded-xl bg-black/45 px-3 py-1.5 text-[12px] font-bold tabular-nums backdrop-blur-md"
-            style={{
-              color: item.priceChange >= 0 ? CHART.positive : CHART.negative,
-              border: "1px solid rgba(255,255,255,0.1)",
-            }}
-          >
-            {signed(item.priceChange)}
-          </span>
-          <span
-            className="flex items-center gap-1.5 rounded-xl bg-black/45 px-3 py-1.5 text-[11px] text-white/70 backdrop-blur-md"
-            style={{ border: "1px solid rgba(255,255,255,0.1)" }}
-          >
-            <BarChart2 size={11} /> Vol{" "}
-            <b className="font-semibold tabular-nums text-white">+{item.volumeChange}%</b>
-          </span>
+          {item.priceChange !== 0 ? (
+            <span
+              className="rounded-xl bg-black/45 px-3 py-1.5 text-[12px] font-bold tabular-nums backdrop-blur-md"
+              style={{
+                color: item.priceChange >= 0 ? CHART.positive : CHART.negative,
+                border: "1px solid rgba(255,255,255,0.1)",
+              }}
+            >
+              {signed(item.priceChange)}
+            </span>
+          ) : null}
+          {item.volumeChange ? (
+            <span
+              className="flex items-center gap-1.5 rounded-xl bg-black/45 px-3 py-1.5 text-[11px] text-white/70 backdrop-blur-md"
+              style={{ border: "1px solid rgba(255,255,255,0.1)" }}
+            >
+              <BarChart2 size={11} /> Vol{" "}
+              <b className="font-semibold tabular-nums text-white">+{item.volumeChange}%</b>
+            </span>
+          ) : null}
           <span
             className="rounded-xl bg-black/45 px-3 py-1.5 text-[11px] font-medium backdrop-blur-md"
             style={{ color: conf.color, border: "1px solid rgba(255,255,255,0.1)" }}
@@ -156,7 +172,7 @@ function SideStory({ item, onOpen }: { item: PrimaryNewsItem; onOpen: () => void
           src={img}
           alt=""
           aria-hidden
-          className="absolute inset-0 h-full w-full object-cover opacity-45 transition-transform duration-300 group-hover:scale-[1.05]"
+          className="absolute inset-0 h-full w-full object-cover opacity-65 transition-transform duration-300 group-hover:scale-[1.05]"
         />
       ) : (
         <StoryArt ticker={item.ticker} level={item.attentionLevel} />

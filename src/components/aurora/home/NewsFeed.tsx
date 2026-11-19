@@ -5,7 +5,7 @@ import type { ImpactPanelAsset, PrimaryNewsItem, SecondaryNewsItem } from "@/dat
 import { cn } from "@/lib/utils";
 import { CHART } from "../chartTheme";
 import { EmptyState } from "../primitives";
-import { EvidenceDots, ImpactMeter, SaveButton } from "./NewsAtoms";
+import { EvidenceDots, ImpactMeter, PhotoCredit, SaveButton, SourceLink } from "./NewsAtoms";
 import {
   EVENT_ICON,
   EVENT_LABEL,
@@ -49,6 +49,19 @@ function StoryCard({
       onMouseEnter={(e) => (e.currentTarget.style.boxShadow = `inset 0 0 0 1px ${col.border}`)}
       onMouseLeave={(e) => (e.currentTarget.style.boxShadow = "")}
     >
+      {item.image ? (
+        <div className="relative -mx-4 -mt-4 mb-1 h-40 overflow-hidden rounded-t-[16px]">
+          <img
+            src={item.image.src}
+            alt=""
+            aria-hidden
+            loading="lazy"
+            className="h-full w-full object-cover transition-transform duration-300 ease-out group-hover:scale-[1.04]"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-[rgba(8,12,22,0.85)] via-transparent to-transparent" />
+          <PhotoCredit image={item.image} className="absolute bottom-2 right-2" />
+        </div>
+      ) : null}
       <div className="flex items-center gap-2">
         <span className="rounded-md bg-white/12 px-1.5 py-0.5 text-micro font-bold text-white">
           {item.ticker}
@@ -60,12 +73,14 @@ function StoryCard({
           <EventIcon size={10} /> {EVENT_LABEL[item.eventType]}
         </span>
         <span className="truncate text-micro text-white/40">{item.sector}</span>
-        <span
-          className="ml-auto text-[12px] font-bold tabular-nums"
-          style={{ color: item.priceChange >= 0 ? CHART.positive : CHART.negative }}
-        >
-          {signed(item.priceChange)}
-        </span>
+        {item.priceChange !== 0 ? (
+          <span
+            className="ml-auto text-[12px] font-bold tabular-nums"
+            style={{ color: item.priceChange >= 0 ? CHART.positive : CHART.negative }}
+          >
+            {signed(item.priceChange)}
+          </span>
+        ) : null}
       </div>
 
       <h3 className="text-[14px] font-semibold leading-snug text-white/95">{item.headline}</h3>
@@ -75,6 +90,7 @@ function StoryCard({
         </p>
       ) : null}
 
+      <SourceLink source={item.source} url={item.url} />
       <div className="mt-auto flex flex-wrap items-center gap-x-3 gap-y-1.5 pt-0.5">
         <ImpactMeter score={item.impactScore} level={item.attentionLevel} />
         <span className="text-micro" style={{ color: conf.color }}>
@@ -353,8 +369,9 @@ function SecondaryRow({ item }: { item: SecondaryNewsItem }) {
                 <b className="font-semibold text-[var(--aurora-accent)]">Transmissão · </b>
                 {item.transmissionVector}
               </p>
-              <span className="text-micro text-white/35">
+              <span className="flex flex-wrap items-center justify-between gap-2 text-micro text-white/60">
                 {EVENT_LABEL[item.eventType]} · {HORIZON_LABEL[item.horizon]}
+                <SourceLink source={item.source} url={item.url} />
               </span>
             </div>
           </motion.div>

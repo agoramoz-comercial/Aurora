@@ -17,14 +17,12 @@ import type {
   PrimaryNewsItem,
   SecondaryNewsItem,
 } from "@/data/newsData";
-import heroAapl from "@/assets/hero_aapl.png";
-import heroBtc from "@/assets/hero_btc.png";
+import { primaryNews, secondaryNews } from "@/data/newsData";
 
-/** Editorial imagery keyed by story id; stories without one get generated art. */
-export const HERO_IMAGES: Record<string, string> = {
-  p1: heroAapl,
-  p4: heroBtc,
-};
+/** Free-licence photo per story (Wikimedia Commons); stories without one get generated art. */
+export const HERO_IMAGES: Record<string, string> = Object.fromEntries(
+  [...primaryNews, ...secondaryNews].flatMap((n) => (n.image ? [[n.id, n.image.src]] : [])),
+);
 
 export interface AttentionPalette {
   bg: string;

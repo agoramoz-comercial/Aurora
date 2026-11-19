@@ -1,5 +1,5 @@
 import { Bookmark } from "lucide-react";
-import type { AttentionLevel } from "@/data/newsData";
+import type { AttentionLevel, NewsImage } from "@/data/newsData";
 import { cn } from "@/lib/utils";
 import { ATTENTION_LABEL, attentionColor } from "./newsUtils";
 
@@ -193,5 +193,39 @@ export function StoryArt({ ticker, level }: { ticker: string; level: AttentionLe
         }}
       />
     </div>
+  );
+}
+
+/** Photo credit (author · licence) linking to the Commons file page. */
+export function PhotoCredit({ image, className }: { image?: NewsImage; className?: string }) {
+  if (!image) return null;
+  return (
+    <a
+      href={image.page}
+      target="_blank"
+      rel="noreferrer"
+      onClick={(e) => e.stopPropagation()}
+      className={
+        "rounded-full bg-black/55 px-2 py-0.5 text-micro text-white/80 backdrop-blur-md transition-colors duration-150 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60 " +
+        (className ?? "")
+      }
+    >
+      Foto: {image.credit} · {image.license}
+    </a>
+  );
+}
+
+/** "Ler na fonte" link to the original article. */
+export function SourceLink({ source, url }: { source: string; url: string }) {
+  return (
+    <a
+      href={url}
+      target="_blank"
+      rel="noreferrer"
+      onClick={(e) => e.stopPropagation()}
+      className="inline-flex items-center gap-1 text-micro font-semibold text-white/80 underline-offset-2 transition-colors duration-150 hover:text-white hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60"
+    >
+      {source} · Ler na fonte ↗
+    </a>
   );
 }
