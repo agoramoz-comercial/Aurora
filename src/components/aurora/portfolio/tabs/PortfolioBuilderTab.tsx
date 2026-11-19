@@ -1,3 +1,4 @@
+import { Pie3D } from "../../charts/Pie3D";
 import { useState } from "react";
 import { GlassCard } from "../../GlassCard";
 import { Pill } from "../../primitives";
@@ -238,38 +239,19 @@ export function PortfolioBuilderTab() {
             <span className="text-micro uppercase tracking-wider text-white/40">Allocation</span>
           </div>
           <div className="flex items-center gap-3">
-            <ResponsiveContainer width={60} height={60}>
-              <RechartsPie>
-                <Pie
-                  animationDuration={300}
-                  animationEasing="ease-out"
-                  data={sectorData}
-                  cx="50%"
-                  cy="50%"
-                  innerRadius={16}
-                  outerRadius={28}
-                  paddingAngle={2}
-                  dataKey="value"
-                >
-                  {sectorData.map((entry) => (
-                    <Cell key={entry.name} fill={SECTOR_COLORS[entry.name] ?? "#6B7280"} />
-                  ))}
-                </Pie>
-                <Tooltip
-                  content={({ active, payload }) => {
-                    if (active && payload?.length) {
-                      const d = payload[0]!.payload;
-                      return (
-                        <div className="glass-pill px-2 py-0.5 text-micro font-semibold text-white">
-                          {d.name}: {formatPct(d.pct, 1)}
-                        </div>
-                      );
-                    }
-                    return null;
-                  }}
-                />
-              </RechartsPie>
-            </ResponsiveContainer>
+            <div className="w-[92px] shrink-0">
+              <Pie3D
+                label="Allocation"
+                size={92}
+                inner={0.5}
+                depth={0.16}
+                data={sectorData.map((e) => ({
+                  name: e.name,
+                  value: e.value,
+                  color: SECTOR_COLORS[e.name] ?? "#6B7280",
+                }))}
+              />
+            </div>
             <div className="flex-1 space-y-0.5">
               {sectorData.slice(0, 4).map((s) => (
                 <div key={s.name} className="flex items-center gap-1 text-micro">

@@ -1,3 +1,4 @@
+import { Pie3D } from "../charts/Pie3D";
 import { useEffect, useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import { Landmark, Plus, RefreshCw } from "lucide-react";
@@ -275,45 +276,27 @@ export function BrokersWorkspace({ wizardSignal = 0 }: { wizardSignal?: number }
             >
               {allocation.length ? (
                 <div className="flex flex-col gap-3">
-                  <div className="relative h-[160px]">
-                    {/* The list below carries the same values as text. */}
-                    <div aria-hidden inert className="h-full">
-                      <ResponsiveContainer width="100%" height="100%">
-                        <PieChart accessibilityLayer={false}>
-                          <Tooltip
-                            {...tooltipProps}
-                            formatter={(v: number) => [
-                              `${formatUsd(v)} · ${((v / (totals.value || 1)) * 100).toFixed(1)}%`,
-                              "Valor",
-                            ]}
-                          />
-                          <Pie
-                            data={allocation}
-                            dataKey="value"
-                            nameKey="name"
-                            innerRadius="64%"
-                            outerRadius="92%"
-                            paddingAngle={2}
-                            stroke="none"
-                            isAnimationActive={false}
-                          >
-                            {allocation.map((a) => (
-                              <Cell key={a.key} fill={a.color} />
-                            ))}
-                          </Pie>
-                        </PieChart>
-                      </ResponsiveContainer>
-                    </div>
-                    <div className="pointer-events-none absolute inset-0 grid place-items-center text-center">
-                      <div>
-                        <p className="text-micro uppercase tracking-[0.14em] text-white/45">
-                          Total
-                        </p>
-                        <p className="text-[16px] font-semibold tabular-nums text-white">
-                          {formatUsd(totals.value)}
-                        </p>
-                      </div>
-                    </div>
+                  <div className="mx-auto w-full max-w-[240px]">
+                    <Pie3D
+                      label="Alocação"
+                      size={240}
+                      data={allocation.map((a) => ({
+                        name: a.name,
+                        value: a.value,
+                        color: a.color,
+                      }))}
+                      format={(v) => formatUsd(v)}
+                      center={
+                        <div>
+                          <p className="text-micro font-bold uppercase tracking-wider text-white/60">
+                            Total
+                          </p>
+                          <p className="text-[16px] font-semibold tabular-nums text-white">
+                            {formatUsd(totals.value)}
+                          </p>
+                        </div>
+                      }
+                    />
                   </div>
                   <ul className="flex flex-col gap-2">
                     {allocation.map((a) => {

@@ -1,3 +1,4 @@
+import { Pie3D } from "../../charts/Pie3D";
 import { motion } from "framer-motion";
 import { CheckCircle2, CircleAlert, Pencil } from "lucide-react";
 import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
@@ -192,54 +193,40 @@ export function MandateSection({
 
         <Panel
           title="Alocação atual vs estratégica"
-          subtitle="Anel exterior: hoje · interior: aprovada pelo Comité"
+          subtitle="Esquerda: hoje · direita: aprovada pelo Comité"
         >
-          <div className="relative mx-auto h-[210px] w-full max-w-[260px]">
-            <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
-                <Tooltip {...tooltipProps} formatter={(v: number) => pct(v)} />
-                <Pie
-                  data={drift.filter((d) => d.policy > 0)}
-                  dataKey="policy"
-                  nameKey="label"
-                  innerRadius={46}
-                  outerRadius={66}
-                  paddingAngle={2}
-                  stroke="none"
-                  {...chart(0)}
-                >
-                  {drift
-                    .filter((d) => d.policy > 0)
-                    .map((d) => (
-                      <Cell key={d.id} fill={d.color} fillOpacity={0.45} />
-                    ))}
-                </Pie>
-                <Pie
-                  data={drift}
-                  dataKey="current"
-                  nameKey="label"
-                  innerRadius={72}
-                  outerRadius={96}
-                  paddingAngle={2}
-                  stroke="none"
-                  {...chart(2)}
-                >
-                  {drift.map((d) => (
-                    <Cell key={d.id} fill={d.color} />
-                  ))}
-                </Pie>
-              </PieChart>
-            </ResponsiveContainer>
-            <div className="pointer-events-none absolute inset-0 grid place-items-center text-center">
-              <div>
-                <p className="text-micro uppercase tracking-[0.12em] text-white/45">Maior desvio</p>
-                <p className="text-[14px] font-bold tabular-nums text-white">
-                  {pp(model.maxDrift.delta)}
+          <div className="grid grid-cols-2 gap-3">
+            <Pie3D
+              label="Alocação hoje"
+              size={170}
+              inner={0.52}
+              data={drift.map((d) => ({ name: d.label, value: d.current, color: d.color }))}
+              format={(v) => pct(v)}
+              center={
+                <p className="text-micro font-bold uppercase tracking-wider text-white/60">Hoje</p>
+              }
+            />
+            <Pie3D
+              label="Alocação aprovada pelo Comité"
+              size={170}
+              inner={0.52}
+              data={drift
+                .filter((d) => d.policy > 0)
+                .map((d) => ({ name: d.label, value: d.policy, color: d.color }))}
+              format={(v) => pct(v)}
+              center={
+                <p className="text-micro font-bold uppercase tracking-wider text-white/60">
+                  Comité
                 </p>
-                <p className="text-micro text-white/50">{model.maxDrift.short}</p>
-              </div>
-            </div>
+              }
+            />
           </div>
+          <p className="mt-1 text-center text-micro text-white/60">
+            Maior desvio:{" "}
+            <b className="text-white">
+              {model.maxDrift.short} {pp(model.maxDrift.delta)}
+            </b>
+          </p>
           <ul className="mt-2 flex flex-col gap-1.5">
             {drift.map((d, i) => {
               const level = levelFor(Math.abs(d.delta) / mandate.maxDrift);

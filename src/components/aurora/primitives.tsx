@@ -211,7 +211,7 @@ export function MetricCard({
       )}
     >
       <div className="flex items-start justify-between gap-2">
-        <span className="glass-pill inline-flex max-w-full items-center truncate px-2.5 py-1 text-micro font-medium text-white/80">
+        <span className="glass-pill inline-flex max-w-full items-center truncate px-2.5 py-1 text-micro font-bold uppercase tracking-wider text-white/80">
           {label}
         </span>
         {action}
@@ -227,7 +227,7 @@ export function MetricCard({
             </span>
           ) : null}
         </div>
-        {hint ? <span className="text-micro leading-snug text-white/60">{hint}</span> : null}
+        {hint ? <span className="text-micro leading-relaxed text-white/70">{hint}</span> : null}
       </div>
     </div>
   );
@@ -363,10 +363,12 @@ export function Panel({
     <section className={cn("glass flex min-w-0 flex-col p-4", className)}>
       <div className="flex shrink-0 flex-wrap items-center justify-between gap-2 pb-3">
         <div className="min-w-0">
-          <h3 className="glass-pill inline-flex max-w-full items-center truncate px-3 py-1 text-caption font-semibold text-white">
+          <h3 className="glass-pill inline-flex max-w-full items-center truncate px-3 py-1 text-caption font-bold text-white">
             {title}
           </h3>
-          {subtitle ? <p className="mt-1.5 truncate text-micro text-white/60">{subtitle}</p> : null}
+          {subtitle ? (
+            <p className="mt-1.5 text-micro leading-relaxed text-white/70">{subtitle}</p>
+          ) : null}
         </div>
         {right ? <div className="flex shrink-0 items-center gap-1.5">{right}</div> : null}
       </div>

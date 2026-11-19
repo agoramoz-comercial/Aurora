@@ -1,3 +1,4 @@
+import { Pie3D } from "../charts/Pie3D";
 import { useState } from "react";
 import {
   Area,
@@ -140,65 +141,26 @@ export function PortfolioCharts() {
             Sector Allocation
           </Pill>
           <div className="flex-1 flex flex-col items-center justify-center min-h-[220px]">
-            <div className="w-full h-[160px] relative">
-              {/* The sector list below carries the same values as text. */}
-              <div aria-hidden inert className="h-full w-full">
-                <ResponsiveContainer width="100%" height="100%">
-                  <PieChart>
-                    <Tooltip
-                      content={({ active, payload }) => {
-                        if (active && payload && payload.length) {
-                          const data = payload[0].payload;
-                          return (
-                            <div className="glass-pill px-2.5 py-1 text-[11px] font-semibold text-white shadow-lg border border-white/10">
-                              {data.name}: {formatPct(data.percentage)}
-                            </div>
-                          );
-                        }
-                        return null;
-                      }}
-                    />
-                    <Pie
-                      animationDuration={300}
-                      animationEasing="ease-out"
-                      activeIndex={activePieIndex ?? undefined}
-                      activeShape={renderActiveShape}
-                      data={sectorData}
-                      cx="50%"
-                      cy="50%"
-                      innerRadius={50}
-                      outerRadius={68}
-                      paddingAngle={3}
-                      dataKey="value"
-                      onMouseEnter={(_, index) => setActivePieIndex(index)}
-                      onMouseLeave={() => setActivePieIndex(null)}
-                    >
-                      {sectorData.map((entry, index) => (
-                        <Cell
-                          key={entry.name}
-                          fill={SECTOR_COLORS[entry.name] || "#6B7280"}
-                          opacity={activePieIndex === null || activePieIndex === index ? 1 : 0.4}
-                          style={{
-                            transition: "opacity 0.2s ease, transform 0.2s ease",
-                            cursor: "pointer",
-                          }}
-                        />
-                      ))}
-                    </Pie>
-                  </PieChart>
-                </ResponsiveContainer>
-              </div>
-
-              {/* Central Donut Label */}
-              <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none mt-[-4px]">
-                <span className="text-micro uppercase tracking-widest text-white/40 font-bold">
-                  Total AUM
-                </span>
-                <span className="text-[13px] font-black text-white font-mono mt-0.5">
-                  ${formatCompact(totalVal)}
-                </span>
-              </div>
-            </div>
+            <Pie3D
+              label="Sector Allocation"
+              size={240}
+              data={sectorData.map((e) => ({
+                name: e.name,
+                value: e.value,
+                color: SECTOR_COLORS[e.name] || "#6B7280",
+              }))}
+              format={(v) => "$" + formatCompact(v)}
+              center={
+                <div className="flex flex-col items-center">
+                  <span className="text-micro font-bold uppercase tracking-wider text-white/60">
+                    Total AUM
+                  </span>
+                  <span className="mt-0.5 font-mono text-[13px] font-black text-white">
+                    {"$" + formatCompact(totalVal)}
+                  </span>
+                </div>
+              }
+            />
 
             {/* Custom Legend */}
             <div className="w-full mt-3 grid grid-cols-2 gap-x-2 gap-y-1 text-micro text-white/70 border-t border-white/5 pt-2">

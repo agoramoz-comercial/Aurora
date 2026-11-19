@@ -15,7 +15,7 @@ export function GlassCard({ children, className }: { children: ReactNode; classN
       transition={{ type: "spring", stiffness: 220, damping: 22 }}
       className={cn(
         "glass relative flex min-w-0 flex-col p-5 text-white",
-        "before:pointer-events-none before:absolute before:inset-x-0 before:top-0 before:h-px before:rounded-t-[20px] before:bg-gradient-to-r before:from-transparent before:via-white/60 before:to-transparent",
+        "before:pointer-events-none before:absolute before:inset-x-0 before:top-0 before:h-px before:rounded-t-[14px] before:bg-gradient-to-r before:from-transparent before:via-white/35 before:to-transparent",
         className,
       )}
     >
