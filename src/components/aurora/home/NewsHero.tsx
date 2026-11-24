@@ -1,4 +1,4 @@
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, motion, useReducedMotionConfig } from "framer-motion";
 import { ArrowUpRight, BarChart2, Clock, Eye } from "lucide-react";
 import type { PrimaryNewsItem } from "@/data/newsData";
 import { CHART } from "../chartTheme";
@@ -242,6 +242,9 @@ export function NewsHero({
   isSaved: (id: string) => boolean;
   onToggleSave: (id: string) => void;
 }) {
+  // Reduced motion: no auto-rotation (the progress animation would end instantly
+  // and cycle the lead in a loop); the user picks leads with the tabs.
+  const still = useReducedMotionConfig() ?? false;
   const lead = leads[leadIndex % leads.length];
   if (!lead) return null;
   const sides = leads.filter((l) => l.id !== lead.id).slice(0, 2);
@@ -292,15 +295,17 @@ export function NewsHero({
                     key={isActive ? `run-${l.id}-${leadIndex}` : l.id}
                     className="block h-full origin-left rounded-full bg-[var(--aurora-accent)]"
                     style={
-                      isActive
-                        ? {
-                            animation: `aurora-progress ${ROTATE_SECONDS}s linear forwards`,
-                            animationPlayState: paused ? "paused" : "running",
-                            boxShadow: "0 0 8px rgba(74,158,255,0.7)",
-                          }
-                        : { transform: done ? "scaleX(1)" : "scaleX(0)", opacity: done ? 0.5 : 1 }
+                      isActive && still
+                        ? { transform: "scaleX(1)" }
+                        : isActive
+                          ? {
+                              animation: `aurora-progress ${ROTATE_SECONDS}s linear forwards`,
+                              animationPlayState: paused ? "paused" : "running",
+                              boxShadow: "0 0 8px rgba(74,158,255,0.7)",
+                            }
+                          : { transform: done ? "scaleX(1)" : "scaleX(0)", opacity: done ? 0.5 : 1 }
                     }
-                    onAnimationEnd={isActive ? onAdvance : undefined}
+                    onAnimationEnd={isActive && !still ? onAdvance : undefined}
                   />
                 </span>
               </button>

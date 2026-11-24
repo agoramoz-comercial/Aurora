@@ -9,7 +9,18 @@ export function AreaRail({
   onSelect: (id: SectionId) => void;
 }) {
   return (
-    <nav aria-label="Áreas" className="cx-glass-thin flex items-center gap-1 rounded-full p-1.5">
+    <nav
+      aria-label="Navegação principal"
+      className="cx-glass-thin flex w-max items-center gap-1 rounded-full p-1.5"
+      onKeyDown={(e) => {
+        if (e.key !== "ArrowRight" && e.key !== "ArrowLeft") return;
+        const btns = [...e.currentTarget.querySelectorAll("button")];
+        const i = btns.indexOf(document.activeElement as HTMLButtonElement);
+        if (i < 0) return;
+        e.preventDefault();
+        btns[(i + (e.key === "ArrowRight" ? 1 : btns.length - 1)) % btns.length]?.focus();
+      }}
+    >
       {SECTIONS.map((s) => {
         const on = s.id === active;
         const Icon = s.icon;

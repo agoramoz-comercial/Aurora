@@ -40,7 +40,9 @@ import {
   formatUsd,
 } from "./primitives";
 import { BrokerMark } from "./brokers/BrokerMark";
-import type { SectionId } from "./navigation";
+import { SECTIONS, type SectionId } from "./navigation";
+import { TopBar } from "./cockpit/TopBar";
+import { useAmbient } from "./cockpit/ambient";
 
 // Workspaces load on first visit: the shell paints immediately and heavy
 // modules (models, TradingView charts) only download when opened.
@@ -136,11 +138,37 @@ export function DashboardShell({ defaultActive = "home" }: { defaultActive?: Sec
   );
 }
 
+/** Where each area's ambient wash sits on the stage (crossfades on navigation). */
+const STAGE_SPOT: Record<SectionId, string> = {
+  home: "78% 12%",
+  proofmarket: "22% 18%",
+  financas: "70% 20%",
+  grid: "50% 34%",
+  bars: "82% 30%",
+  brokers: "30% 22%",
+  benchmarkPage: "60% 15%",
+  businessPlan: "25% 30%",
+  teslaModel: "75% 40%",
+  marketplace: "40% 20%",
+  settings: "50% 10%",
+};
+
 function Shell({ defaultActive }: { defaultActive: SectionId }) {
   const [active, setActive] = useState<SectionId>(defaultActive);
   const [paletteOpen, setPaletteOpen] = useState(false);
   const [wizardSignal, setWizardSignal] = useState(0);
   const [reduceMotion, setReduceMotion] = useState(loadReduceMotion);
+  // Cockpit Aurora (v3) is the default shell; ?design=v2 keeps the previous one.
+  const [v3] = useState(
+    () =>
+      typeof window === "undefined" ||
+      new URLSearchParams(window.location.search).get("design") !== "v2",
+  );
+  const [mode, setMode] = useAmbient();
+  useEffect(() => {
+    if (v3) document.documentElement.dataset.design = "v3";
+    else delete document.documentElement.dataset.design;
+  }, [v3]);
 
   useEffect(() => {
     try {
@@ -155,6 +183,15 @@ function Shell({ defaultActive }: { defaultActive: SectionId }) {
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
         e.preventDefault();
         setPaletteOpen((o) => !o);
+      }
+      // Alt + ← / → moves between areas (console-style shoulder buttons).
+      if (e.altKey && (e.key === "ArrowRight" || e.key === "ArrowLeft")) {
+        e.preventDefault();
+        setActive((cur) => {
+          const i = SECTIONS.findIndex((x) => x.id === cur);
+          const n = (i + (e.key === "ArrowRight" ? 1 : SECTIONS.length - 1)) % SECTIONS.length;
+          return SECTIONS[n]!.id;
+        });
       }
     };
     window.addEventListener("keydown", onKey);
@@ -221,6 +258,95 @@ function Shell({ defaultActive }: { defaultActive: SectionId }) {
       );
       break;
   }
+
+  const content = (
+    <AnimatePresence mode="wait">
+      <motion.div
+        key={active}
+        initial={{ opacity: 0, y: 6 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: -6 }}
+        transition={{ duration: 0.3 }}
+        className="flex flex-1 flex-col lg:min-h-0"
+      >
+        <WorkspaceBoundary onHome={() => setActive("grid")}>
+          <Suspense fallback={<WorkspaceSkeleton />}>{workspace}</Suspense>
+        </WorkspaceBoundary>
+      </motion.div>
+    </AnimatePresence>
+  );
+
+  if (v3)
+    return (
+      <MotionConfig reducedMotion={reduceMotion ? "always" : "user"}>
+        <div
+          className="relative min-h-screen w-full text-[var(--cx-ink-1)] lg:h-screen lg:overflow-hidden"
+          data-glass={active === "grid" ? "ollympius" : undefined}
+          style={{ fontFamily: "var(--font-display)", background: "var(--cx-bg)" }}
+        >
+          {/* Stage: one backdrop, an area-specific ambient wash that crossfades */}
+          <div aria-hidden className="pointer-events-none fixed inset-0 -z-10">
+            <img
+              src={roomBg}
+              alt=""
+              width={1920}
+              height={1216}
+              className="h-full w-full object-cover opacity-60"
+            />
+            <div
+              className="absolute inset-0"
+              style={{
+                background:
+                  "linear-gradient(180deg, rgba(5,7,12,.82) 0%, rgba(5,7,12,.66) 45%, rgba(5,7,12,.9) 100%)",
+              }}
+            />
+            <AnimatePresence>
+              <motion.div
+                key={active}
+                className="cx-stage-layer absolute inset-0"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.6 }}
+                style={{
+                  background: `radial-gradient(1100px 560px at ${STAGE_SPOT[active]}, rgba(var(--ambient-rgb), .13), transparent 62%)`,
+                }}
+              />
+            </AnimatePresence>
+            <div className="cx-ambient-line absolute inset-x-0 bottom-0" />
+          </div>
+
+          <main className="relative mx-auto flex min-h-screen w-full max-w-[1560px] flex-col gap-4 px-3 py-4 sm:px-5 lg:h-full lg:min-h-0 lg:px-8 lg:py-5">
+            <TopBar
+              active={active}
+              onSelect={setActive}
+              onCommand={openPalette}
+              mode={mode}
+              onMode={setMode}
+            />
+            <motion.section
+              initial={{ opacity: 0, scale: 0.985 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.3, ease: [0.23, 1, 0.32, 1] }}
+              className={cn(
+                "flex min-w-0 flex-1 flex-col lg:min-h-0",
+                active !== "proofmarket" && "cx-glass p-4 md:p-5",
+              )}
+              style={active !== "proofmarket" ? { borderRadius: "var(--cx-r4)" } : undefined}
+            >
+              {content}
+            </motion.section>
+          </main>
+
+          <CommandPalette
+            open={paletteOpen}
+            onOpenChange={setPaletteOpen}
+            onNavigate={setActive}
+            onAddBroker={addBroker}
+          />
+        </div>
+      </MotionConfig>
+    );
 
   return (
     <MotionConfig reducedMotion={reduceMotion ? "always" : "user"}>
