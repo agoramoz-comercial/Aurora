@@ -4,7 +4,6 @@
  * uploaded, follow button and a follow-up feed.
  */
 import type { ReactNode } from "react";
-import { useState } from "react";
 import {
   Bell,
   BellOff,
@@ -52,109 +51,43 @@ export function hiRes(img: NewsImage): { src: string; srcSet: string } {
   };
 }
 
-/** Instagram-style post: header, 4:5 graded photo, actions, caption with credit. */
-export function InstaPost({ t, foto, s }: { t: DemoTrader; foto?: string; s: Score }) {
-  const [gosto, setGosto] = useState(false);
-  const [guardado, setGuardado] = useState(false);
+/** Profile hero in Aurora style: the trader's own photo when uploaded, otherwise the free-licence cover at full resolution. */
+export function ProfileHero({ t, foto, s }: { t: DemoTrader; foto?: string; s: Score }) {
   const cover = COVER[t.categoria];
   const img = hiRes(cover);
   return (
-    <article
-      aria-label={`Publicação de ${t.nome}`}
-      className="overflow-hidden rounded-[var(--cx-r3)] border border-white/10 bg-[#0b0d13]"
-    >
-      <header className="flex items-center gap-2.5 px-3 py-2.5">
-        <Avatar nome={t.nome} foto={foto} size={38} />
-        <div className="min-w-0 flex-1 leading-tight">
-          <p className="truncate text-caption font-bold text-white">
-            {t.nome
-              .toLowerCase()
-              .replace(/\s+/g, ".")
-              .normalize("NFD")
-              .replace(/[\u0300-\u036f]/g, "")}
-          </p>
-          <p className="flex items-center gap-1 text-micro text-white/70">
-            <MapPin size={11} aria-hidden /> {LOCAL[t.categoria]}
-          </p>
-        </div>
-        <MoreHorizontal size={18} aria-hidden className="text-white/60" />
-      </header>
-      <div className="relative aspect-[4/5] overflow-hidden">
-        <img
-          src={img.src}
-          srcSet={img.srcSet}
-          sizes="(min-width: 1280px) 360px, 92vw"
-          alt={`${LOCAL[t.categoria]} — imagem de capa do perfil`}
-          loading="lazy"
-          decoding="async"
-          className="absolute inset-0 h-full w-full object-cover"
-          style={{ filter: "contrast(1.08) saturate(1.2) brightness(1.03)" }}
-        />
-        <div
-          aria-hidden
-          className="absolute inset-0 mix-blend-soft-light"
-          style={{
-            background: "linear-gradient(160deg, rgba(255,170,90,.35), rgba(80,120,255,.25))",
-          }}
-        />
-        <div
-          aria-hidden
-          className="absolute inset-0"
-          style={{
-            background:
-              "radial-gradient(120% 90% at 50% 40%, transparent 55%, rgba(0,0,0,.55) 100%)",
-          }}
-        />
-        <span className="absolute bottom-3 left-3 rounded-full bg-black/55 px-2.5 py-1 text-micro font-bold text-white backdrop-blur-md">
-          Nota {s.total} · {t.seal}
+    <figure className="relative m-0 aspect-[4/5] overflow-hidden rounded-[var(--cx-r3)] border border-white/10">
+      <img
+        src={foto ?? img.src}
+        srcSet={foto ? undefined : img.srcSet}
+        sizes="(min-width: 1280px) 380px, 92vw"
+        alt={foto ? `Fotografia de ${t.nome}` : `${LOCAL[t.categoria]} — imagem de capa`}
+        decoding="async"
+        className="absolute inset-0 h-full w-full object-cover"
+        style={{ filter: "contrast(1.05) saturate(1.1)", imageRendering: "auto" }}
+      />
+      <div
+        aria-hidden
+        className="absolute inset-0"
+        style={{
+          background:
+            "linear-gradient(to top, rgba(5,7,12,.92) 0%, rgba(5,7,12,.35) 38%, transparent 62%)",
+        }}
+      />
+      <figcaption className="absolute inset-x-0 bottom-0 flex flex-col gap-1.5 p-4">
+        <span
+          className="text-[20px] font-extrabold leading-tight text-white"
+          style={{ fontFamily: '"Inter Display", Inter, sans-serif' }}
+        >
+          {t.nome}
         </span>
-      </div>
-      <div className="flex items-center gap-1 px-1.5 pt-1">
-        <button
-          type="button"
-          aria-pressed={gosto}
-          aria-label="Gosto"
-          onClick={() => setGosto((g) => !g)}
-          className="grid h-10 w-10 place-items-center rounded-full text-white transition-transform duration-150 active:scale-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60"
-        >
-          <Heart
-            size={22}
-            aria-hidden
-            fill={gosto ? "#ff3b5c" : "none"}
-            color={gosto ? "#ff3b5c" : "currentColor"}
-          />
-        </button>
-        <button
-          type="button"
-          aria-label="Partilhar perfil"
-          onClick={() =>
-            void navigator.clipboard?.writeText(
-              `${location.origin}${location.pathname}#trader-${t.id}`,
-            )
-          }
-          className="grid h-10 w-10 place-items-center rounded-full text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60"
-        >
-          <Send size={20} aria-hidden />
-        </button>
-        <button
-          type="button"
-          aria-pressed={guardado}
-          aria-label="Guardar"
-          onClick={() => setGuardado((g) => !g)}
-          className="ml-auto grid h-10 w-10 place-items-center rounded-full text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60"
-        >
-          <Bookmark size={21} aria-hidden fill={guardado ? "currentColor" : "none"} />
-        </button>
-      </div>
-      <div className="px-3 pb-3 text-caption leading-relaxed text-white/90">
-        <b className="text-white">{t.nome.split(" ")[0]}</b> {t.categoria} · {s.metrics.trades}{" "}
-        operações · retorno {pct(s.metrics.retornoTotal)} · queda máx. {pct(-s.metrics.maxDD)}
-        <p className="mt-1 text-micro text-white/60">
-          Desempenho passado não garante resultados futuros.
-        </p>
-        <PhotoCredit image={cover} className="mt-1.5 !bg-white/8" />
-      </div>
-    </article>
+        <span className="flex flex-wrap items-center gap-2 text-micro text-white/85">
+          <MapPin size={12} aria-hidden /> {LOCAL[t.categoria]} · Nota {s.total}
+          <Chip tone={t.seal === "Verificado" ? "good" : undefined}>{t.seal}</Chip>
+        </span>
+      </figcaption>
+      {foto ? null : <PhotoCredit image={cover} className="absolute right-2 top-2" />}
+    </figure>
   );
 }
 
@@ -208,19 +141,19 @@ export function Avatar({
   );
 }
 
-/** Downscale an uploaded photo to a 320 px JPEG data URL (kept in this browser only). */
+/** Uploaded photo → high-quality JPEG (≤ 1600 px, original framing), kept in this browser only. */
 export function readPhoto(file: File): Promise<string> {
   return new Promise((resolve, reject) => {
     const img = new Image();
     img.onload = () => {
-      const s = 320;
+      const k = Math.min(1, 1600 / Math.max(img.width, img.height)); // keep detail, cap storage
       const c = document.createElement("canvas");
-      c.width = c.height = s;
-      const k = Math.max(s / img.width, s / img.height);
-      const w = img.width * k;
-      const h = img.height * k;
-      c.getContext("2d")!.drawImage(img, (s - w) / 2, (s - h) / 2, w, h);
-      resolve(c.toDataURL("image/jpeg", 0.85));
+      c.width = Math.round(img.width * k);
+      c.height = Math.round(img.height * k);
+      const g = c.getContext("2d")!;
+      g.imageSmoothingQuality = "high";
+      g.drawImage(img, 0, 0, c.width, c.height);
+      resolve(c.toDataURL("image/jpeg", 0.92));
       URL.revokeObjectURL(img.src);
     };
     img.onerror = () => reject(new Error("Imagem inválida"));
@@ -250,21 +183,9 @@ export function TraderProfile({
   return (
     <section aria-label={`Perfil de ${t.nome}`} className="cx-glass overflow-hidden">
       <div className="p-3 pb-0">
-        <InstaPost t={t} foto={foto} s={s} />
+        <ProfileHero t={t} foto={foto} s={s} />
       </div>
       <div className="flex flex-col gap-3 px-4 pb-4 pt-3">
-        <div className="flex items-center gap-3">
-          <Avatar nome={t.nome} foto={foto} size={64} />
-          <div className="min-w-0">
-            <p className="truncate text-body font-bold text-white">{t.nome}</p>
-            <p className="text-micro text-white/70">
-              Nota {s.total} · {t.categoria}
-            </p>
-          </div>
-          <span className="ml-auto pb-1">
-            <Chip tone={t.seal === "Verificado" ? "good" : undefined}>{t.seal}</Chip>
-          </span>
-        </div>
         <div className="flex flex-wrap gap-2">
           <label className="inline-flex min-h-10 cursor-pointer items-center gap-2 rounded-full border border-white/14 bg-white/8 px-3 text-micro font-semibold text-white focus-within:ring-2 focus-within:ring-white/60 hover:bg-white/14">
             <Camera size={14} aria-hidden /> {foto ? "Trocar fotografia" : "Carregar fotografia"}
