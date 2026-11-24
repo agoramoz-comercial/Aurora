@@ -342,3 +342,118 @@ h3 {
 .recharts-wrapper:has(.recharts-bar) .recharts-bar:hover .recharts-bar-rectangle:not(:hover) {
   opacity: 0.45;
 }
+
+/* ═══════════════════════════════════════════════════════════════════════
+   Cockpit Aurora · design tokens v3 (F2). Active only under data-design="v3";
+   v2 keeps working unchanged until each area migrates.
+   Spec: docs/design/PLANO-REDESIGN-COCKPIT.md §2 · docs/design/design-system.md
+   ═══════════════════════════════════════════════════════════════════════ */
+[data-design="v3"] {
+  --cx-bg: #05070c;
+  --cx-ink-1: #f5f7fb;
+  --cx-ink-2: rgba(235, 240, 250, 0.74);
+  --cx-ink-3: rgba(235, 240, 250, 0.56);
+  --cx-hair: rgba(255, 255, 255, 0.1);
+  --cx-hair-2: rgba(255, 255, 255, 0.16);
+  --cx-good: #3ee08f;
+  --cx-bad: #ff5d6c;
+  --cx-warn: #ffb547;
+  --cx-glass-thin: rgba(18, 22, 32, 0.42);
+  --cx-glass-regular: rgba(14, 18, 28, 0.58);
+  --cx-glass-thick: rgba(10, 13, 21, 0.74);
+  --cx-r1: 10px;
+  --cx-r2: 14px;
+  --cx-r3: 20px;
+  --cx-r4: 28px;
+  --cx-shadow-1: 0 6px 18px rgba(0, 0, 0, 0.28);
+  --cx-shadow-2: 0 18px 50px rgba(0, 0, 0, 0.35);
+  --cx-shadow-3: 0 30px 80px rgba(0, 0, 0, 0.5);
+  --cx-ease: cubic-bezier(0.23, 1, 0.32, 1);
+  --cx-t-micro: 120ms;
+  --cx-t-comp: 200ms;
+  --cx-t-view: 300ms;
+  --cx-t-stage: 600ms;
+  /* Ambient light (MBUX-style drive modes) — default: Equilibrado */
+  --ambient: #38e1d6;
+  --ambient-rgb: 56, 225, 214;
+  --ambient-ink: #04110f;
+  --ambient-glow: 0.35;
+}
+[data-design="v3"][data-ambient="conservador"] {
+  --ambient: #6cb8ff;
+  --ambient-rgb: 108, 184, 255;
+  --ambient-ink: #04101f;
+  --ambient-glow: 0.25;
+}
+[data-design="v3"][data-ambient="dinamico"] {
+  --ambient: #ffb547;
+  --ambient-rgb: 255, 181, 71;
+  --ambient-ink: #1f1300;
+  --ambient-glow: 0.45;
+}
+
+/* Glass materials — three thicknesses with a 1px top highlight */
+.cx-glass,
+.cx-glass-thin,
+.cx-glass-thick {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.015)),
+    var(--cx-glass-regular);
+  border: 1px solid var(--cx-hair);
+  border-radius: var(--cx-r3);
+  backdrop-filter: blur(28px) saturate(170%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    var(--cx-shadow-2);
+}
+.cx-glass-thin {
+  background: var(--cx-glass-thin);
+  backdrop-filter: blur(16px) saturate(160%);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06), var(--cx-shadow-1);
+}
+.cx-glass-thick {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.01)),
+    var(--cx-glass-thick);
+  backdrop-filter: blur(40px) saturate(170%);
+  border-radius: var(--cx-r4);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    inset 0 -40px 80px -40px rgba(var(--ambient-rgb), calc(var(--ambient-glow) * 0.5)),
+    var(--cx-shadow-3);
+}
+.cx-eyebrow {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--cx-ink-3);
+}
+.cx-focusable {
+  transition:
+    transform var(--cx-t-comp) var(--cx-ease),
+    box-shadow var(--cx-t-comp) var(--cx-ease),
+    border-color var(--cx-t-comp) var(--cx-ease);
+}
+.cx-focusable:focus-visible,
+.cx-focusable[data-focused="true"] {
+  outline: none;
+  transform: scale(1.04);
+  border-color: rgba(var(--ambient-rgb), 0.8);
+  box-shadow:
+    0 0 0 1px rgba(var(--ambient-rgb), 0.5),
+    0 0 46px rgba(var(--ambient-rgb), var(--ambient-glow)),
+    var(--cx-shadow-3);
+}
+.cx-ambient-line {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--ambient), transparent);
+  box-shadow: 0 0 24px 4px rgba(var(--ambient-rgb), var(--ambient-glow));
+}
+@media (prefers-reduced-motion: reduce) {
+  .cx-focusable,
+  .cx-stage-layer,
+  .cx-needle {
+    transition: none !important;
+  }
+}
