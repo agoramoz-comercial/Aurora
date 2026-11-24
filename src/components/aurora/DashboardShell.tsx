@@ -181,6 +181,9 @@ function Shell({ defaultActive }: { defaultActive: SectionId }) {
       // Preference stays in memory for this session.
     }
   }, [reduceMotion]);
+  useEffect(() => {
+    document.documentElement.dataset.reduceMotion = String(reduceMotion);
+  }, [reduceMotion]);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {

@@ -470,3 +470,55 @@ h3 {
     inset 0 1px 0 rgba(255, 255, 255, 0.08),
     var(--cx-shadow-2);
 }
+
+/* Living photos (Cockpit Aurora): richer grade, warm light + ambient glow, slow Ken Burns drift */
+.cx-photo {
+  /* position comes from the element's own classes (relative/absolute) */
+  overflow: hidden;
+  isolation: isolate;
+}
+.cx-photo > img {
+  filter: contrast(1.16) saturate(1.5) brightness(1.08);
+  transform-origin: 60% 40%;
+  animation: cx-drift 22s ease-in-out infinite alternate;
+  will-change: transform;
+}
+.cx-photo::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  mix-blend-mode: soft-light;
+  background:
+    radial-gradient(75% 60% at 85% 8%, rgba(255, 190, 110, 0.75), transparent 72%),
+    linear-gradient(200deg, rgba(255, 160, 80, 0.28), rgba(60, 120, 255, 0.22));
+}
+.cx-photo::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  mix-blend-mode: screen;
+  background: radial-gradient(60% 45% at 12% 0%, rgba(var(--ambient-rgb, 56, 225, 214), 0.24), transparent 70%);
+}
+.cx-photo > :not(img) {
+  z-index: 2;
+}
+@keyframes cx-drift {
+  from {
+    transform: scale(1.02) translate3d(0, 0, 0);
+  }
+  to {
+    transform: scale(1.09) translate3d(-1.5%, -1%, 0);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .cx-photo > img {
+    animation: none;
+  }
+}
+[data-reduce-motion="true"] .cx-photo > img {
+  animation: none;
+}

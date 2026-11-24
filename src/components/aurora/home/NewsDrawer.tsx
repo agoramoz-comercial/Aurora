@@ -90,7 +90,7 @@ export function NewsDrawer({
           <div
             className={
               FULL
-                ? "relative h-[38vh] min-h-[240px] overflow-hidden rounded-[20px] lg:col-span-2"
+                ? "cx-photo relative h-[38vh] min-h-[240px] overflow-hidden rounded-[20px] lg:col-span-2"
                 : "relative h-48 overflow-hidden rounded-[16px]"
             }
             style={{ border: `1px solid ${col!.border}` }}

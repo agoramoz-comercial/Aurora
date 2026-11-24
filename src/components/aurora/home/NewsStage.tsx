@@ -47,7 +47,7 @@ export function NewsStage({
         <motion.div
           key={cur.id}
           aria-hidden
-          className="cx-stage-layer absolute inset-0 -z-10"
+          className="cx-stage-layer cx-photo absolute inset-0 -z-10"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
@@ -198,12 +198,14 @@ export function NewsStage({
               detail: s.summary.split(". ")[0],
               meta: s.source,
               art: s.image ? (
-                <img
-                  src={s.image.src}
-                  alt=""
-                  loading="lazy"
-                  className="h-full w-full object-cover"
-                />
+                <div className="cx-photo relative h-full w-full">
+                  <img
+                    src={s.image.src}
+                    alt=""
+                    loading="lazy"
+                    className="h-full w-full object-cover"
+                  />
+                </div>
               ) : (
                 <div
                   className="h-full w-full"

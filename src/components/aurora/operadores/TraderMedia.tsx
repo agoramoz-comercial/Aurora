@@ -56,7 +56,7 @@ export function ProfileHero({ t, foto, s }: { t: DemoTrader; foto?: string; s: S
   const cover = COVER[t.categoria];
   const img = hiRes(cover);
   return (
-    <figure className="relative m-0 aspect-[4/5] overflow-hidden rounded-[var(--cx-r3)] border border-white/10">
+    <figure className="cx-photo relative m-0 aspect-[4/5] overflow-hidden rounded-[var(--cx-r3)] border border-white/10">
       <img
         src={foto ?? img.src}
         srcSet={foto ? undefined : img.srcSet}
@@ -64,14 +64,13 @@ export function ProfileHero({ t, foto, s }: { t: DemoTrader; foto?: string; s: S
         alt={foto ? `Fotografia de ${t.nome}` : `${LOCAL[t.categoria]} — imagem de capa`}
         decoding="async"
         className="absolute inset-0 h-full w-full object-cover"
-        style={{ filter: "contrast(1.05) saturate(1.1)", imageRendering: "auto" }}
       />
       <div
         aria-hidden
         className="absolute inset-0"
         style={{
           background:
-            "linear-gradient(to top, rgba(5,7,12,.92) 0%, rgba(5,7,12,.35) 38%, transparent 62%)",
+            "linear-gradient(to top, rgba(5,7,12,.88) 0%, rgba(5,7,12,.25) 30%, transparent 50%)",
         }}
       />
       <figcaption className="absolute inset-x-0 bottom-0 flex flex-col gap-1.5 p-4">
