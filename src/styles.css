@@ -19,6 +19,19 @@
  */
 
 @theme inline {
+  /* Aurora type scale — the only sizes UI text should use (min 11px for legibility). */
+  --text-micro: 11px;
+  --text-micro--line-height: 1.35;
+  --text-caption: 12px;
+  --text-caption--line-height: 1.4;
+  --text-body: 13px;
+  --text-body--line-height: 1.5;
+  --text-title: 15px;
+  --text-title--line-height: 1.35;
+  --text-metric: 22px;
+  --text-metric--line-height: 1.15;
+  --text-hero: 30px;
+  --text-hero--line-height: 1.1;
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
@@ -146,12 +159,26 @@
 /* ===== Aurora Glass tokens ===== */
 :root {
   --aurora-accent: #4a9eff;
+  /* Accent for filled surfaces with white text: 5.2:1 contrast (WCAG AA). */
+  --aurora-accent-strong: #1d6ad0;
+  /* Motion (Emil Kowalski): strong ease-out for UI, iOS drawer curve. */
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+  --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
   --aurora-accent-glow: rgba(74, 158, 255, 0.45);
-  --aurora-glass-bg: linear-gradient(
+  /* Dark glass for dense workspaces (legibility) and the original, lighter
+     Ollympius glass used by the Ollympius Dashboard (ollympius.vercel.app). */
+  --aurora-glass-bg-dense: linear-gradient(
+    135deg,
+    rgba(18, 20, 26, 0.66) 0%,
+    rgba(10, 12, 18, 0.56) 100%
+  );
+  --aurora-glass-bg-ollympius: linear-gradient(
     135deg,
     rgba(20, 24, 32, 0.42) 0%,
     rgba(10, 14, 22, 0.28) 100%
   );
+  --aurora-glass-bg: var(--aurora-glass-bg-dense);
   --aurora-glass-border: rgba(255, 255, 255, 0.18);
   --aurora-glass-shadow:
     0 12px 40px rgba(0, 0, 0, 0.32), inset 0 1px 0 rgba(255, 255, 255, 0.18),
@@ -233,16 +260,23 @@ h3 {
   --font-display: "Inter", "SF Pro Display", system-ui, sans-serif;
 }
 
+/* Card quality of the Alerts card: neutral tint over glass, crisp 1px hairline,
+   inner top highlight, compact radius. Every card in the app uses this. */
 @utility glass {
-  background: var(--aurora-glass-bg);
-  backdrop-filter: blur(28px) saturate(180%);
-  border: 1px solid var(--aurora-glass-border);
-  box-shadow: var(--aurora-glass-shadow);
-  border-radius: 20px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.055) 0%, rgba(255, 255, 255, 0.015) 100%),
+    var(--aurora-glass-bg);
+  backdrop-filter: blur(28px) saturate(170%);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    0 10px 30px rgba(0, 0, 0, 0.28);
+  border-radius: 14px;
+  transition: border-color 150ms cubic-bezier(0.23, 1, 0.32, 1);
 }
 
 @utility glass-soft {
-  background: linear-gradient(135deg, rgba(20, 24, 32, 0.35) 0%, rgba(10, 14, 22, 0.18) 100%);
+  background: linear-gradient(135deg, rgba(18, 20, 26, 0.58) 0%, rgba(10, 12, 18, 0.44) 100%);
   backdrop-filter: blur(18px) saturate(160%);
   border: 1px solid rgba(255, 255, 255, 0.14);
   border-radius: 14px;
@@ -253,4 +287,238 @@ h3 {
   border: 1px solid rgba(255, 255, 255, 0.28);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35);
   border-radius: 9999px;
+}
+
+/* Reduced motion: keep opacity/colour, drop movement (Emil Kowalski · visionOS comfort). */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Ollympius Dashboard slot uses the original lighter glass; its Reports view stays dense. */
+[data-glass="ollympius"] {
+  --aurora-glass-bg: var(--aurora-glass-bg-ollympius);
+}
+[data-glass="dense"] {
+  --aurora-glass-bg: var(--aurora-glass-bg-dense);
+}
+
+/* Bar charts: the visual finish of «P&L Contribution Since Inception» —
+   colour fading from 42% at the base to 95% at the tip, whisper grid,
+   quiet axes, soft hover band. Type and data are untouched. */
+.recharts-wrapper:has(.recharts-bar) .recharts-bar-rectangle path {
+  mask: url(#aurora-bar-mask-v);
+}
+.recharts-wrapper.aurora-hbar .recharts-bar-rectangle path {
+  mask: url(#aurora-bar-mask-h);
+}
+.recharts-wrapper.aurora-hbar-neg .recharts-bar-rectangle path {
+  mask: url(#aurora-bar-mask-hn);
+}
+.recharts-wrapper:has(.recharts-bar) .recharts-bar-rectangle path[fill^="url"] {
+  mask: none;
+}
+.recharts-wrapper:has(.recharts-bar) .recharts-cartesian-grid line {
+  stroke: rgba(255, 255, 255, 0.04);
+  stroke-dasharray: 3 3;
+}
+.recharts-wrapper:has(.recharts-bar) .recharts-cartesian-axis-line {
+  stroke: rgba(255, 255, 255, 0.3);
+}
+.recharts-wrapper:has(.recharts-bar) .recharts-cartesian-axis-tick-value {
+  font-size: 11px;
+}
+.recharts-wrapper:has(.recharts-bar) .recharts-tooltip-cursor {
+  fill: rgba(255, 255, 255, 0.04);
+}
+.recharts-wrapper:has(.recharts-bar) .recharts-bar-rectangle {
+  transition: opacity 200ms cubic-bezier(0.23, 1, 0.32, 1);
+}
+.recharts-wrapper:has(.recharts-bar) .recharts-bar:hover .recharts-bar-rectangle:not(:hover) {
+  opacity: 0.45;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   Cockpit Aurora · design tokens v3 (F2). Active only under data-design="v3";
+   v2 keeps working unchanged until each area migrates.
+   Spec: docs/design/PLANO-REDESIGN-COCKPIT.md §2 · docs/design/design-system.md
+   ═══════════════════════════════════════════════════════════════════════ */
+[data-design="v3"] {
+  --cx-bg: #05070c;
+  --cx-ink-1: #f5f7fb;
+  --cx-ink-2: rgba(235, 240, 250, 0.74);
+  --cx-ink-3: rgba(235, 240, 250, 0.56);
+  --cx-hair: rgba(255, 255, 255, 0.1);
+  --cx-hair-2: rgba(255, 255, 255, 0.16);
+  --cx-good: #3ee08f;
+  --cx-bad: #ff5d6c;
+  --cx-warn: #ffb547;
+  --cx-glass-thin: rgba(18, 22, 32, 0.42);
+  --cx-glass-regular: rgba(14, 18, 28, 0.58);
+  --cx-glass-thick: rgba(10, 13, 21, 0.74);
+  --cx-r1: 10px;
+  --cx-r2: 14px;
+  --cx-r3: 20px;
+  --cx-r4: 28px;
+  --cx-shadow-1: 0 6px 18px rgba(0, 0, 0, 0.28);
+  --cx-shadow-2: 0 18px 50px rgba(0, 0, 0, 0.35);
+  --cx-shadow-3: 0 30px 80px rgba(0, 0, 0, 0.5);
+  --cx-ease: cubic-bezier(0.23, 1, 0.32, 1);
+  --cx-t-micro: 120ms;
+  --cx-t-comp: 200ms;
+  --cx-t-view: 300ms;
+  --cx-t-stage: 600ms;
+  /* Ambient light (MBUX-style drive modes) — default: Equilibrado */
+  --ambient: #38e1d6;
+  --ambient-rgb: 56, 225, 214;
+  --ambient-ink: #04110f;
+  --ambient-glow: 0.35;
+}
+[data-design="v3"][data-ambient="conservador"] {
+  --ambient: #6cb8ff;
+  --ambient-rgb: 108, 184, 255;
+  --ambient-ink: #04101f;
+  --ambient-glow: 0.25;
+}
+[data-design="v3"][data-ambient="dinamico"] {
+  --ambient: #ffb547;
+  --ambient-rgb: 255, 181, 71;
+  --ambient-ink: #1f1300;
+  --ambient-glow: 0.45;
+}
+
+/* Glass materials — three thicknesses with a 1px top highlight */
+.cx-glass,
+.cx-glass-thin,
+.cx-glass-thick {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.015)),
+    var(--cx-glass-regular);
+  border: 1px solid var(--cx-hair);
+  border-radius: var(--cx-r3);
+  backdrop-filter: blur(28px) saturate(170%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    var(--cx-shadow-2);
+}
+.cx-glass-thin {
+  background: var(--cx-glass-thin);
+  backdrop-filter: blur(16px) saturate(160%);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06), var(--cx-shadow-1);
+}
+.cx-glass-thick {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.01)),
+    var(--cx-glass-thick);
+  backdrop-filter: blur(40px) saturate(170%);
+  border-radius: var(--cx-r4);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    inset 0 -40px 80px -40px rgba(var(--ambient-rgb), calc(var(--ambient-glow) * 0.5)),
+    var(--cx-shadow-3);
+}
+.cx-eyebrow {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--cx-ink-3);
+}
+.cx-focusable {
+  transition:
+    transform var(--cx-t-comp) var(--cx-ease),
+    box-shadow var(--cx-t-comp) var(--cx-ease),
+    border-color var(--cx-t-comp) var(--cx-ease);
+}
+.cx-focusable:focus-visible,
+.cx-focusable[data-focused="true"] {
+  outline: none;
+  transform: scale(1.04);
+  border-color: rgba(var(--ambient-rgb), 0.8);
+  box-shadow:
+    0 0 0 1px rgba(var(--ambient-rgb), 0.5),
+    0 0 46px rgba(var(--ambient-rgb), var(--ambient-glow)),
+    var(--cx-shadow-3);
+}
+.cx-ambient-line {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--ambient), transparent);
+  box-shadow: 0 0 24px 4px rgba(var(--ambient-rgb), var(--ambient-glow));
+}
+@media (prefers-reduced-motion: reduce) {
+  .cx-focusable,
+  .cx-stage-layer,
+  .cx-needle {
+    transition: none !important;
+  }
+}
+
+/* v3 material for every existing card (.glass) until areas migrate fully */
+[data-design="v3"] .glass {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.015)),
+    var(--cx-glass-regular);
+  border-color: var(--cx-hair);
+  border-radius: var(--cx-r3);
+  backdrop-filter: blur(28px) saturate(170%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    var(--cx-shadow-2);
+}
+
+/* Living photos (Cockpit Aurora): richer grade, warm light + ambient glow, slow Ken Burns drift */
+.cx-photo {
+  /* position comes from the element's own classes (relative/absolute) */
+  overflow: hidden;
+  isolation: isolate;
+}
+.cx-photo > img {
+  filter: contrast(1.16) saturate(1.5) brightness(1.08);
+  transform-origin: 60% 40%;
+  animation: cx-drift 22s ease-in-out infinite alternate;
+  will-change: transform;
+}
+.cx-photo::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  mix-blend-mode: soft-light;
+  background:
+    radial-gradient(75% 60% at 85% 8%, rgba(255, 190, 110, 0.75), transparent 72%),
+    linear-gradient(200deg, rgba(255, 160, 80, 0.28), rgba(60, 120, 255, 0.22));
+}
+.cx-photo::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  mix-blend-mode: screen;
+  background: radial-gradient(60% 45% at 12% 0%, rgba(var(--ambient-rgb, 56, 225, 214), 0.24), transparent 70%);
+}
+.cx-photo > :not(img) {
+  z-index: 2;
+}
+@keyframes cx-drift {
+  from {
+    transform: scale(1.02) translate3d(0, 0, 0);
+  }
+  to {
+    transform: scale(1.09) translate3d(-1.5%, -1%, 0);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .cx-photo > img {
+    animation: none;
+  }
+}
+[data-reduce-motion="true"] .cx-photo > img {
+  animation: none;
 }

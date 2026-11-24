@@ -58,7 +58,7 @@ export function LevelChip({ level, compact = false }: { level: AlertLevel; compa
   const m = LEVEL_META[level];
   return (
     <span
-      className="inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full px-2 py-0.5 text-[10px] font-semibold"
+      className="inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full px-2 py-0.5 text-micro font-semibold"
       style={{ color: m.color, background: m.bg, border: `1px solid ${m.border}` }}
     >
       <span className="relative flex h-1.5 w-1.5">
@@ -97,7 +97,7 @@ export function MetricRow({
         <span className="text-[13px] font-semibold tabular-nums" style={{ color: tone ?? "#fff" }}>
           {value}
         </span>
-        {hint ? <span className="text-[10px] text-white/40">{hint}</span> : null}
+        {hint ? <span className="text-micro text-white/40">{hint}</span> : null}
       </span>
     </div>
   );

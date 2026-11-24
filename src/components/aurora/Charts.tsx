@@ -46,6 +46,8 @@ export function AreaChartViz() {
           />
           <ReferenceLine x={peakLabel} stroke="rgba(255,255,255,0.35)" strokeDasharray="3 3" />
           <Area
+            animationDuration={300}
+            animationEasing="ease-out"
             type="monotone"
             dataKey="value"
             stroke="rgba(255,255,255,0.85)"
@@ -90,7 +92,12 @@ export function BarChartViz() {
               ) : null
             }
           />
-          <Bar dataKey="value" radius={[6, 6, 2, 2]}>
+          <Bar
+            animationDuration={300}
+            animationEasing="ease-out"
+            dataKey="value"
+            radius={[6, 6, 2, 2]}
+          >
             {barSeries.map((entry, i) => (
               <Cell
                 key={entry.label}

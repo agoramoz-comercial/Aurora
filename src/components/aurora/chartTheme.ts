@@ -7,9 +7,15 @@
  * colors (it writes SVG attributes), so the hex values live here once.
  */
 
+import { GlassTooltip } from "./charts/GlassTooltip";
+
 export const CHART = {
-  accent: "#4a9eff",
-  accentSoft: "rgba(74,158,255,0.35)",
+  /** Ollympius charts are monochrome: white lines, grey bars, colour only for meaning. */
+  accent: "rgba(255,255,255,0.88)",
+  accentSoft: "rgba(255,255,255,0.35)",
+  bar: "rgba(255,255,255,0.28)",
+  barActive: "rgba(255,255,255,0.58)",
+  blue: "#4a9eff",
   positive: "#4ade80",
   negative: "#f87171",
   warn: "#fbbf24",
@@ -24,6 +30,7 @@ export const CHART = {
 /** Categorical series order — used left-to-right for multi-series charts. */
 export const SERIES_COLORS = [
   CHART.accent,
+  CHART.blue,
   CHART.positive,
   CHART.violet,
   CHART.amber,
@@ -38,7 +45,7 @@ export const axisProps = {
   stroke: CHART.axis,
   tickLine: false,
   axisLine: false,
-  tick: { fontSize: 10, fill: CHART.axis },
+  tick: { fontSize: 11, fill: CHART.axis },
 } as const;
 
 export const tooltipStyle = {
@@ -52,14 +59,23 @@ export const tooltipStyle = {
 } as const;
 
 export const tooltipProps = {
+  content: GlassTooltip,
+  wrapperStyle: { outline: "none" },
   contentStyle: tooltipStyle,
   itemStyle: { color: "rgba(255,255,255,0.85)", fontSize: 11 },
-  labelStyle: { color: "rgba(255,255,255,0.5)", fontSize: 10, marginBottom: 4 },
+  labelStyle: { color: "rgba(255,255,255,0.6)", fontSize: 11, marginBottom: 4 },
   cursor: { fill: "rgba(255,255,255,0.05)" },
 } as const;
 
+/** Hover dot for line/area series: accent ring on a white core. */
+export const activeDotProps = {
+  r: 4,
+  stroke: "#ffffff",
+  strokeWidth: 2,
+} as const;
+
 export const legendProps = {
-  wrapperStyle: { fontSize: 10, color: "rgba(255,255,255,0.55)", paddingTop: 6 },
+  wrapperStyle: { fontSize: 11, color: "rgba(255,255,255,0.6)", paddingTop: 6 },
   iconType: "circle" as const,
   iconSize: 7,
 };

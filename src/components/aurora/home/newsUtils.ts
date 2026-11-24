@@ -17,14 +17,12 @@ import type {
   PrimaryNewsItem,
   SecondaryNewsItem,
 } from "@/data/newsData";
-import heroAapl from "@/assets/hero_aapl.png";
-import heroBtc from "@/assets/hero_btc.png";
+import { primaryNews, secondaryNews } from "@/data/newsData";
 
-/** Editorial imagery keyed by story id; stories without one get generated art. */
-export const HERO_IMAGES: Record<string, string> = {
-  p1: heroAapl,
-  p4: heroBtc,
-};
+/** Free-licence photo per story (Wikimedia Commons); stories without one get generated art. */
+export const HERO_IMAGES: Record<string, string> = Object.fromEntries(
+  [...primaryNews, ...secondaryNews].flatMap((n) => (n.image ? [[n.id, n.image.src]] : [])),
+);
 
 export interface AttentionPalette {
   bg: string;
@@ -135,12 +133,14 @@ export const EVIDENCE_META: Record<string, { label: string; icon: LucideIcon }> 
 
 export function formatMinutesAgo(min: number) {
   if (min < 60) return `${min}m`;
+  if (min >= 1440) return `${Math.floor(min / 1440)}d`;
   const h = Math.floor(min / 60);
   const m = min % 60;
   return m ? `${h}h ${m}m` : `${h}h`;
 }
 
-export const signed = (n: number, unit = "%") => `${n >= 0 ? "+" : ""}${n}${unit}`;
+export const signed = (n: number, unit = "%") =>
+  `${n > 0 ? "+" : n < 0 ? "−" : ""}${String(Math.abs(n)).replace(".", ",")}${unit}`;
 
 /** Lower-cased haystack for the newsroom search. */
 export function searchText(item: PrimaryNewsItem | SecondaryNewsItem) {

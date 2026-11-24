@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import { getTickerSnapshot, getWatchlist } from "@/lib/alphaVantage.functions";
@@ -20,12 +20,12 @@ import type { TickerSnapshot } from "@/lib/alphaVantage.types";
 import { GlassCard } from "../GlassCard";
 import { Pill, SegmentedTabs, TickerChips, WorkspaceHeader } from "../primitives";
 import { cn } from "@/lib/utils";
-import { MainPriceChart } from "./MainPriceChart";
-import { RsiChart } from "./RsiChart";
+import { MainPriceChart, type PriceMode } from "./MainPriceChart";
 import { Watchlist } from "./Watchlist";
 import { RiskScoreCard } from "./RiskScoreCard";
 import { AlertEngine } from "./AlertEngine";
 import { Sparkline } from "./Sparkline";
+import { ChartExpand, ExpandButton } from "./ChartExpand";
 import { CHART } from "../chartTheme";
 
 const TICKERS = ["AAPL", "MSFT", "NVDA", "TSLA", "AMZN", "GOOGL"] as const;
@@ -70,7 +70,7 @@ function Metric({
       </div>
       <div className="flex items-baseline gap-1.5">
         <span className="text-[12px] font-semibold tabular-nums text-white">{value}</span>
-        {hint ? <span className="text-[10px] text-white/40">{hint}</span> : null}
+        {hint ? <span className="text-micro text-white/40">{hint}</span> : null}
       </div>
     </div>
   );
@@ -84,7 +84,7 @@ function SourceBadge({ src }: { src: TickerSnapshot["source"] | undefined }) {
   } as const;
   const cfg = map[src ?? "baseline"];
   return (
-    <span className="glass-pill inline-flex items-center gap-1.5 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.18em] text-white/80">
+    <span className="glass-pill inline-flex items-center gap-1.5 px-2 py-0.5 text-micro font-semibold uppercase tracking-[0.18em] text-white/80">
       <span
         className="h-1.5 w-1.5 rounded-full"
         style={{ background: cfg.dot, boxShadow: `0 0 8px ${cfg.dot}88` }}
@@ -97,6 +97,7 @@ function SourceBadge({ src }: { src: TickerSnapshot["source"] | undefined }) {
 export function AnalyticsWorkspace() {
   const [symbol, setSymbol] = useState<(typeof TICKERS)[number]>("AAPL");
   const [tf, setTf] = useState<(typeof TIMEFRAMES)[number]>("3M");
+  const [mode, setMode] = useState<PriceMode>("candles");
 
   const { data } = useQuery({
     queryKey: ["av", symbol],
@@ -122,6 +123,19 @@ export function AnalyticsWorkspace() {
   const up = (data?.change ?? 0) >= 0;
   const accent = up ? CHART.positive : CHART.negative;
 
+  const [expanded, setExpanded] = useState(false);
+  const closeExpanded = useCallback(() => setExpanded(false), []);
+  const modeTabs = (
+    <SegmentedTabs
+      size="sm"
+      tabs={[
+        { id: "candles" as const, label: "Velas" },
+        { id: "area" as const, label: "Área" },
+      ]}
+      active={mode}
+      onSelect={setMode}
+    />
+  );
   return (
     <div className="flex min-h-0 flex-1 flex-col">
       <WorkspaceHeader
@@ -133,7 +147,7 @@ export function AnalyticsWorkspace() {
           <>
             <SourceBadge src={data?.source} />
             {data?.rateLimited && (
-              <span className="text-[10px] uppercase tracking-[0.18em] text-[var(--aurora-warn)]">
+              <span className="text-micro uppercase tracking-[0.18em] text-[var(--aurora-warn)]">
                 API throttled
               </span>
             )}
@@ -181,38 +195,56 @@ export function AnalyticsWorkspace() {
         <GlassCard className="sm:col-span-2 lg:col-span-8 lg:h-full lg:min-h-0 !p-4">
           <div className="flex shrink-0 flex-wrap items-center justify-between gap-2">
             <div className="flex flex-wrap items-center gap-2">
-              <Pill className="!px-3 !py-1 !text-[12px] !font-semibold">Close · {tf}</Pill>
-              <span className="flex items-center gap-1 text-[10px] text-white/60">
-                <span className="h-0.5 w-3 rounded-full bg-[var(--aurora-accent)]" /> SMA20
-              </span>
-              <span className="flex items-center gap-1 text-[10px] text-white/60">
-                <span className="h-0.5 w-3 rounded-full bg-[var(--aurora-warn)]" /> SMA50
+              <Pill className="!px-3 !py-1 !text-[12px] !font-semibold">Preço · {tf}</Pill>
+              <span className="hidden text-micro text-white/45 md:inline">
+                Volume · SMA20/50 · RSI14 · arraste e role para zoom
               </span>
             </div>
-            <span className="text-[10px] uppercase tracking-[0.25em] text-white/40">
-              Alpha Vantage
-            </span>
+            <div className="flex items-center gap-2">
+              {modeTabs}
+              <ExpandButton
+                label={`gráfico de preço ${symbol}`}
+                onClick={() => setExpanded(true)}
+              />
+            </div>
           </div>
-          <div className="relative mt-2 min-h-[220px] flex-[1.6] lg:min-h-0">
-            {slicedSeries.length > 1 ? (
-              <MainPriceChart series={slicedSeries} up={up} />
+          <ChartExpand
+            open={expanded}
+            onClose={closeExpanded}
+            title={`${symbol} · Preço · ${tf}`}
+            toolbar={modeTabs}
+          >
+            {slicedSeries.length > 1 && data ? (
+              <MainPriceChart
+                series={slicedSeries}
+                full={data.series}
+                up={up}
+                mode={mode}
+                symbol={symbol}
+              />
             ) : (
               <Skeleton />
             )}
-          </div>
-          <div className="mt-2 flex shrink-0 items-center justify-between">
-            <Pill className="!px-2.5 !py-0.5 !text-[10px]">RSI(14)</Pill>
-            <span className="text-[10px] text-white/45">30 oversold · 70 overbought</span>
-          </div>
-          <div className="relative mt-1 min-h-[100px] flex-1 lg:min-h-0">
-            {slicedSeries.length > 14 ? <RsiChart series={slicedSeries} /> : <Skeleton />}
+          </ChartExpand>
+          <div className="relative mt-2 min-h-[340px] flex-1 lg:min-h-0">
+            {slicedSeries.length > 1 && data ? (
+              <MainPriceChart
+                series={slicedSeries}
+                full={data.series}
+                up={up}
+                mode={mode}
+                symbol={symbol}
+              />
+            ) : (
+              <Skeleton />
+            )}
           </div>
         </GlassCard>
 
         <GlassCard className="sm:col-span-2 lg:col-span-4 lg:h-full lg:min-h-0 !p-4">
           <div className="flex shrink-0 items-center justify-between">
             <Pill className="!px-3 !py-1 !text-[12px] !font-semibold">Watchlist</Pill>
-            <span className="text-[10px] uppercase tracking-[0.25em] text-white/40">6 symbols</span>
+            <span className="text-micro uppercase tracking-[0.25em] text-white/40">6 símbolos</span>
           </div>
           <div className="mt-2 flex min-h-[240px] flex-1 flex-col lg:min-h-0">
             {watch && watch.length ? (
@@ -262,8 +294,8 @@ function PriceCard({
   return (
     <GlassCard className="lg:h-full lg:min-h-0 justify-between !p-4">
       <div className="flex shrink-0 items-center justify-between">
-        <Pill className="!px-2.5 !py-1 !text-[11px] text-white/70">Price</Pill>
-        <span className="text-[10px] uppercase tracking-[0.18em] text-white/40">
+        <Pill className="!px-2.5 !py-1 !text-[11px] text-white/70">Preço</Pill>
+        <span className="text-micro uppercase tracking-[0.18em] text-white/40">
           {data?.symbol ?? ""}
         </span>
       </div>
@@ -294,7 +326,7 @@ function DayRangeCard({ data }: { data: TickerSnapshot | undefined }) {
       : 50;
   return (
     <GlassCard className="lg:h-full lg:min-h-0 justify-between !p-4">
-      <Pill className="self-start !px-2.5 !py-1 !text-[11px] text-white/70">Day range</Pill>
+      <Pill className="self-start !px-2.5 !py-1 !text-[11px] text-white/70">Intervalo do dia</Pill>
       <div className="mt-1">
         <div className="flex items-baseline justify-between text-[11px] tabular-nums text-white/80">
           <span>L ${formatNum(data?.dayLow ?? null)}</span>
@@ -311,7 +343,7 @@ function DayRangeCard({ data }: { data: TickerSnapshot | undefined }) {
             }}
           />
         </div>
-        <div className="mt-2 text-[10px] uppercase tracking-[0.2em] text-white/45">
+        <div className="mt-2 text-micro uppercase tracking-[0.2em] text-white/45">
           Vol {formatCompact(data?.volume ?? null)} · Open ${formatNum(data?.open ?? null)}
         </div>
       </div>
@@ -326,7 +358,7 @@ function Week52Card({ data }: { data: TickerSnapshot | undefined }) {
       : 50;
   return (
     <GlassCard className="lg:h-full lg:min-h-0 justify-between !p-4">
-      <Pill className="self-start !px-2.5 !py-1 !text-[11px] text-white/70">52w range</Pill>
+      <Pill className="self-start !px-2.5 !py-1 !text-[11px] text-white/70">Intervalo 52 sem.</Pill>
       <div className="mt-1">
         <div className="flex items-baseline justify-between text-[11px] tabular-nums text-white/80">
           <span>${formatNum(data?.week52Low ?? null)}</span>
@@ -342,7 +374,7 @@ function Week52Card({ data }: { data: TickerSnapshot | undefined }) {
             }}
           />
         </div>
-        <div className="mt-2 text-[10px] uppercase tracking-[0.2em] text-white/45">
+        <div className="mt-2 text-micro uppercase tracking-[0.2em] text-white/45">
           β {formatNum(data?.beta ?? null)} · Mkt {formatCompact(data?.marketCap ?? null)}
         </div>
       </div>
@@ -386,7 +418,7 @@ function ValuationCard({ data }: { data: TickerSnapshot | undefined }) {
 function ProfitabilityCard({ data }: { data: TickerSnapshot | undefined }) {
   return (
     <GlassCard className="lg:h-full lg:min-h-0 !p-4">
-      <Pill className="shrink-0 !px-3 !py-1 !text-[12px] !font-semibold">Profitability</Pill>
+      <Pill className="shrink-0 !px-3 !py-1 !text-[12px] !font-semibold">Rentabilidade</Pill>
       <div className="mt-2 flex min-h-0 flex-1 flex-col justify-around">
         <Metric
           label="Gross margin"
@@ -420,7 +452,7 @@ function SentimentCard({ data }: { data: TickerSnapshot | undefined }) {
     data?.macd !== null && data?.macdSignal !== null && data ? data.macd > data.macdSignal : null;
   return (
     <GlassCard className="lg:h-full lg:min-h-0 !p-4">
-      <Pill className="shrink-0 !px-3 !py-1 !text-[12px] !font-semibold">Sentiment</Pill>
+      <Pill className="shrink-0 !px-3 !py-1 !text-[12px] !font-semibold">Sentimento</Pill>
       <div className="mt-2 flex min-h-0 flex-1 flex-col justify-around">
         <Metric
           label="RSI(14)"

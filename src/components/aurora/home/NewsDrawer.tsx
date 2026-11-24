@@ -2,8 +2,17 @@ import { useRef } from "react";
 import { AlertTriangle, CheckCircle2, Layers } from "lucide-react";
 import type { PrimaryNewsItem } from "@/data/newsData";
 import { CHART } from "../chartTheme";
+import { isV3 } from "../cockpit/ambient";
 import { Drawer } from "../primitives";
-import { AttentionBadge, EvidenceDots, ImpactRing, SaveButton, StoryArt } from "./NewsAtoms";
+import {
+  AttentionBadge,
+  EvidenceDots,
+  ImpactRing,
+  PhotoCredit,
+  SaveButton,
+  SourceLink,
+  StoryArt,
+} from "./NewsAtoms";
 import {
   ATTENTION_LABEL,
   EVENT_LABEL,
@@ -15,6 +24,15 @@ import {
   formatMinutesAgo,
   signed,
 } from "./newsUtils";
+
+const FULL = isV3();
+const STATUS_PT: Record<PrimaryNewsItem["status"], string> = {
+  new: "nova",
+  confirmed: "confirmada",
+  developing: "em desenvolvimento",
+  denied: "desmentida",
+  closed: "encerrada",
+};
 
 export function NewsDrawer({
   item: current,
@@ -38,12 +56,13 @@ export function NewsDrawer({
       open={current !== null}
       onClose={onClose}
       accent={col?.border}
+      fullscreen={FULL}
       eyebrow={
         item ? (
           <>
             <AttentionBadge level={item.attentionLevel} />
-            <span className="rounded-full bg-white/8 px-2.5 py-1 text-[10px] font-semibold text-white/65">
-              {EVENT_LABEL[item.eventType]} · {item.status}
+            <span className="rounded-full bg-white/8 px-2.5 py-1 text-micro font-semibold text-white/65">
+              {EVENT_LABEL[item.eventType]} · {STATUS_PT[item.status]}
             </span>
           </>
         ) : null
@@ -52,8 +71,9 @@ export function NewsDrawer({
       footer={
         item ? (
           <div className="flex items-center justify-between gap-3">
-            <span className="text-[10px] text-white/40">
-              {item.sourceCount} fontes · há {formatMinutesAgo(item.minutesAgo)}
+            <span className="flex flex-wrap items-center gap-2 text-micro text-white/60">
+              há {formatMinutesAgo(item.minutesAgo)} ·
+              <SourceLink source={item.source} url={item.url} />
             </span>
             <SaveButton saved={saved} onToggle={onToggleSave} />
           </div>
@@ -61,10 +81,18 @@ export function NewsDrawer({
       }
     >
       {item ? (
-        <div className="flex flex-col gap-5 p-5">
+        <div
+          className={
+            FULL ? "grid gap-6 p-6 lg:grid-cols-2 lg:items-start lg:p-8" : "flex flex-col gap-5 p-5"
+          }
+        >
           {/* Visual header */}
           <div
-            className="relative h-36 overflow-hidden rounded-[16px]"
+            className={
+              FULL
+                ? "cx-photo relative h-[38vh] min-h-[240px] overflow-hidden rounded-[20px] lg:col-span-2"
+                : "relative h-48 overflow-hidden rounded-[16px]"
+            }
             style={{ border: `1px solid ${col!.border}` }}
           >
             {HERO_IMAGES[item.id] ? (
@@ -72,12 +100,13 @@ export function NewsDrawer({
                 src={HERO_IMAGES[item.id]}
                 alt=""
                 aria-hidden
-                className="absolute inset-0 h-full w-full object-cover opacity-60"
+                className="absolute inset-0 h-full w-full object-cover opacity-80"
               />
             ) : (
               <StoryArt ticker={item.ticker} level={item.attentionLevel} />
             )}
             <div className="absolute inset-0 bg-gradient-to-t from-[rgba(8,12,22,0.95)] to-transparent" />
+            <PhotoCredit image={item.image} className="absolute right-3 top-3" />
             <div className="absolute inset-x-4 bottom-3 flex items-end justify-between gap-3">
               <div>
                 <span className="rounded-md bg-white/15 px-2 py-0.5 text-[12px] font-bold text-white backdrop-blur-md">
@@ -91,32 +120,53 @@ export function NewsDrawer({
             </div>
           </div>
 
-          <p className="text-pretty text-[13px] leading-relaxed text-white/70">{item.summary}</p>
+          <p
+            className={
+              FULL
+                ? "max-w-[860px] text-pretty text-[16px] leading-relaxed text-white/80 lg:col-span-2"
+                : "text-pretty text-[13px] leading-relaxed text-white/70"
+            }
+          >
+            {item.summary}
+          </p>
 
-          <div className="grid grid-cols-3 gap-2">
+          <div className="grid grid-cols-[repeat(auto-fit,minmax(0,1fr))] gap-2">
             {[
-              { label: "Preço", value: signed(item.priceChange), good: item.priceChange >= 0 },
-              { label: "Volume vs média", value: `+${item.volumeChange}%`, good: true },
+              {
+                label: "Preço",
+                value: signed(item.priceChange),
+                good: item.priceChange >= 0,
+                n: item.priceChange,
+              },
+              {
+                label: "Volume vs média",
+                value: `+${item.volumeChange}%`,
+                good: true,
+                n: item.volumeChange,
+              },
               {
                 label: "Volatilidade",
                 value: signed(item.volChange, "pp"),
                 good: item.volChange < 0,
+                n: item.volChange,
               },
-            ].map((k) => (
-              <div
-                key={k.label}
-                className="flex flex-col gap-1 rounded-[12px] p-3"
-                style={{ background: "var(--aurora-surface-2)" }}
-              >
-                <span className="text-[10px] text-white/45">{k.label}</span>
-                <span
-                  className="text-[15px] font-bold tabular-nums"
-                  style={{ color: k.good ? CHART.positive : CHART.negative }}
+            ]
+              .filter((k) => k.n !== 0)
+              .map((k) => (
+                <div
+                  key={k.label}
+                  className="flex flex-col gap-1 rounded-[12px] p-3"
+                  style={{ background: "var(--aurora-surface-2)" }}
                 >
-                  {k.value}
-                </span>
-              </div>
-            ))}
+                  <span className="text-micro text-white/45">{k.label}</span>
+                  <span
+                    className="text-[15px] font-bold tabular-nums"
+                    style={{ color: k.good ? CHART.positive : CHART.negative }}
+                  >
+                    {k.value}
+                  </span>
+                </div>
+              ))}
           </div>
 
           <div className="flex flex-wrap gap-1.5 text-[11px]">
@@ -135,7 +185,7 @@ export function NewsDrawer({
             {item.tags.map((t) => (
               <span
                 key={t}
-                className="rounded-full bg-white/6 px-2.5 py-1 text-[10px] text-white/50"
+                className="rounded-full bg-white/6 px-2.5 py-1 text-micro text-white/50"
               >
                 #{t}
               </span>
@@ -167,7 +217,7 @@ export function NewsDrawer({
                     >
                       <Icon size={12} className="mt-0.5 shrink-0 text-[var(--aurora-accent)]" />
                       <div>
-                        <span className="text-[10px] font-semibold uppercase tracking-[0.1em] text-white/40">
+                        <span className="text-micro font-semibold uppercase tracking-[0.1em] text-white/40">
                           {meta?.label ?? key}
                         </span>
                         <p className="mt-0.5 text-[12px] leading-relaxed text-white/70">{text}</p>
@@ -201,7 +251,7 @@ export function NewsDrawer({
             </p>
           </section>
 
-          <p className="flex items-start gap-2 text-[10px] leading-relaxed text-white/35">
+          <p className="flex items-start gap-2 text-micro leading-relaxed text-white/35">
             <AlertTriangle size={11} className="mt-0.5 shrink-0" />
             Contexto, evidência e níveis de confiança. Não constitui aconselhamento de investimento
             nem recomendação transacional.

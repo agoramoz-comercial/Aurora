@@ -1,0 +1,35 @@
+{
+ "data": "2026-11-24T22:40:01.478Z",
+ "L1.prompt": {
+  "ok": true,
+  "detail": "40/40 corretos (100.0%)"
+ },
+ "L1.invalidas": {
+  "ok": true,
+  "detail": "10/10 fórmulas inválidas rejeitadas"
+ },
+ "LIB.valores": {
+  "ok": true,
+  "detail": "SMA exata; RSI dentro de 0–100"
+ },
+ "L2.backtest": {
+  "ok": true,
+  "detail": "60 backtests válidos; publicação sem backtest recusada"
+ },
+ "L3.score": {
+  "ok": true,
+  "detail": "8/8 idênticos; 8/8 iguais após exportar/importar CSV"
+ },
+ "F1.tempo": {
+  "ok": true,
+  "detail": "8 notas em 2.4 ms"
+ },
+ "L3.coerencia": {
+  "ok": true,
+  "detail": "Ana 96 · Graça 93 · Carla 91 · Bruno 90 · Dércio 81 · Elisa 76 · Hélio 51 · Fábio 44"
+ },
+ "L4.conversa": {
+  "ok": true,
+  "detail": "8/8 turnos corretos; barras de parâmetros coerentes"
+ }
+}

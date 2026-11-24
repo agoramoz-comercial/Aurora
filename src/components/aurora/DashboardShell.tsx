@@ -1,6 +1,15 @@
-import { motion, AnimatePresence } from "framer-motion";
-import { LayoutTemplate, Plus } from "lucide-react";
-import { useState } from "react";
+import { motion, AnimatePresence, MotionConfig } from "framer-motion";
+import { AlertTriangle, Plus } from "lucide-react";
+import {
+  Component,
+  Suspense,
+  lazy,
+  useCallback,
+  useEffect,
+  useState,
+  type ErrorInfo,
+  type ReactNode,
+} from "react";
 import roomBg from "@/assets/room-bg.jpg";
 import {
   goals,
@@ -12,20 +21,73 @@ import {
   teamSelectedId,
   timeframes,
 } from "@/data/aurora";
-import { Sidebar } from "./Sidebar";
-import { BottomDock } from "./BottomDock";
-import { GlassCard, cardVariants } from "./GlassCard";
-import { AreaChartViz, BarChartViz } from "./Charts";
-import { Avatar, EmptyState, Pill, ProgressBar, WorkspaceHeader } from "./primitives";
-import { AnalyticsWorkspace } from "./analytics/AnalyticsWorkspace";
-import { HomeWorkspace } from "./home/HomeWorkspace";
-import { BusinessPlanWorkspace } from "./businessPlan/BusinessPlanWorkspace";
-import { BenchmarkWorkspace } from "./benchmark/BenchmarkWorkspace";
-import { TeslaModelWorkspace } from "./teslaModel/TeslaModelWorkspace";
-import { MarketplaceWorkspace } from "./marketplace/MarketplaceWorkspace";
+import { BrokerStoreProvider, useBrokerStore } from "@/data/brokerStore";
 import { MarketplaceStoreProvider } from "@/data/marketplaceStore";
 import { PortfolioStoreProvider } from "@/data/portfolioStore";
 import { cn } from "@/lib/utils";
+import { Sidebar } from "./Sidebar";
+import { BottomDock } from "./BottomDock";
+import { CommandPalette } from "./CommandPalette";
+import { GlassCard, cardVariants } from "./GlassCard";
+import { AreaChartViz, BarChartViz } from "./Charts";
+import {
+  ActionButton,
+  Avatar,
+  EmptyState,
+  Pill,
+  ProgressBar,
+  WorkspaceHeader,
+  formatUsd,
+} from "./primitives";
+import { BrokerMark } from "./brokers/BrokerMark";
+import { SECTIONS, type SectionId } from "./navigation";
+import { TopBar } from "./cockpit/TopBar";
+import { useAmbient } from "./cockpit/ambient";
+
+// Workspaces load on first visit: the shell paints immediately and heavy
+// modules (models, TradingView charts) only download when opened.
+const OperadoresWorkspace = lazy(() =>
+  import("./operadores/OperadoresWorkspace").then((m) => ({ default: m.OperadoresWorkspace })),
+);
+const HomeWorkspace = lazy(() =>
+  import("./home/HomeWorkspace").then((m) => ({ default: m.HomeWorkspace })),
+);
+const AnalyticsWorkspace = lazy(() =>
+  import("./analytics/AnalyticsWorkspace").then((m) => ({ default: m.AnalyticsWorkspace })),
+);
+const BrokersWorkspace = lazy(() =>
+  import("./brokers/BrokersWorkspace").then((m) => ({ default: m.BrokersWorkspace })),
+);
+const BenchmarkWorkspace = lazy(() =>
+  import("./benchmark/BenchmarkWorkspace").then((m) => ({ default: m.BenchmarkWorkspace })),
+);
+const BusinessPlanWorkspace = lazy(() =>
+  import("./businessPlan/BusinessPlanWorkspace").then((m) => ({
+    default: m.BusinessPlanWorkspace,
+  })),
+);
+const TeslaModelWorkspace = lazy(() =>
+  import("./teslaModel/TeslaModelWorkspace").then((m) => ({ default: m.TeslaModelWorkspace })),
+);
+const MarketplaceWorkspace = lazy(() =>
+  import("./marketplace/MarketplaceWorkspace").then((m) => ({
+    default: m.MarketplaceWorkspace,
+  })),
+);
+const ProofMarketWorkspace = lazy(() =>
+  import("./proofmarket/ProofMarketWorkspace").then((m) => ({ default: m.ProofMarketWorkspace })),
+);
+const PersonalFinanceWorkspace = lazy(() =>
+  import("./personalFinance/PersonalFinanceWorkspace").then((m) => ({
+    default: m.PersonalFinanceWorkspace,
+  })),
+);
+const PortfolioWorkspace = lazy(() =>
+  import("./portfolio/PortfolioWorkspace").then((m) => ({ default: m.PortfolioWorkspace })),
+);
+const SettingsWorkspace = lazy(() =>
+  import("./settings/SettingsWorkspace").then((m) => ({ default: m.SettingsWorkspace })),
+);
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -35,72 +97,323 @@ const containerVariants = {
   },
 };
 
-const sectionTitles: Record<string, string> = {
-  home: "Notícias",
-  grid: "Ollympius Dashboard",
-  bars: "Analytics",
-  benchmarkPage: "Benchmark & Projeções",
-  businessPlan: "Plano de Negócios",
-  teslaModel: "Modelo Financeiro & DCF Hub (TSLA · MSFT · GOOGL · AAPL · NVDA · AMZN)",
-  marketplace: "Marketplace",
-  settings: "Settings",
-  new: "New workspace",
+const PREFS_KEY = "aurora-prefs-v1";
+
+function loadReduceMotion(): boolean {
+  try {
+    return JSON.parse(localStorage.getItem(PREFS_KEY) ?? "{}").reduceMotion === true;
+  } catch {
+    return false;
+  }
+}
+
+export function DashboardShell({ defaultActive = "home" }: { defaultActive?: SectionId }) {
+  return (
+    <BrokerStoreProvider>
+      <svg width="0" height="0" aria-hidden focusable="false" style={{ position: "absolute" }}>
+        {/* P&L Contribution bar finish, shared by every bar chart (see styles.css) */}
+        <defs>
+          <linearGradient id="aurora-bar-fade-v" x1="0" y1="1" x2="0" y2="0">
+            <stop offset="0%" stopColor="#fff" stopOpacity="0.42" />
+            <stop offset="100%" stopColor="#fff" stopOpacity="0.95" />
+          </linearGradient>
+          <linearGradient id="aurora-bar-fade-h" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%" stopColor="#fff" stopOpacity="0.42" />
+            <stop offset="100%" stopColor="#fff" stopOpacity="0.95" />
+          </linearGradient>
+          <linearGradient id="aurora-bar-fade-hn" x1="1" y1="0" x2="0" y2="0">
+            <stop offset="0%" stopColor="#fff" stopOpacity="0.42" />
+            <stop offset="100%" stopColor="#fff" stopOpacity="0.95" />
+          </linearGradient>
+          <mask id="aurora-bar-mask-hn" maskContentUnits="objectBoundingBox">
+            <rect width="1" height="1" fill="url(#aurora-bar-fade-hn)" />
+          </mask>
+          <mask id="aurora-bar-mask-v" maskContentUnits="objectBoundingBox">
+            <rect width="1" height="1" fill="url(#aurora-bar-fade-v)" />
+          </mask>
+          <mask id="aurora-bar-mask-h" maskContentUnits="objectBoundingBox">
+            <rect width="1" height="1" fill="url(#aurora-bar-fade-h)" />
+          </mask>
+        </defs>
+      </svg>
+      <Shell defaultActive={defaultActive} />
+    </BrokerStoreProvider>
+  );
+}
+
+/** Where each area's ambient wash sits on the stage (crossfades on navigation). */
+const STAGE_SPOT: Record<SectionId, string> = {
+  home: "78% 12%",
+  proofmarket: "22% 18%",
+  financas: "70% 20%",
+  grid: "50% 34%",
+  bars: "82% 30%",
+  brokers: "30% 22%",
+  benchmarkPage: "60% 15%",
+  businessPlan: "25% 30%",
+  teslaModel: "75% 40%",
+  operadores: "65% 25%",
+  marketplace: "40% 20%",
+  settings: "50% 10%",
 };
 
-export function DashboardShell({ defaultActive = "home" }: { defaultActive?: string }) {
-  const [active, setActive] = useState(defaultActive);
+function Shell({ defaultActive }: { defaultActive: SectionId }) {
+  const [active, setActive] = useState<SectionId>(defaultActive);
+  const [paletteOpen, setPaletteOpen] = useState(false);
+  const [wizardSignal, setWizardSignal] = useState(0);
+  const [reduceMotion, setReduceMotion] = useState(loadReduceMotion);
+  // Cockpit Aurora (v3) is the default shell; ?design=v2 keeps the previous one.
+  const [v3] = useState(
+    () =>
+      typeof window === "undefined" ||
+      new URLSearchParams(window.location.search).get("design") !== "v2",
+  );
+  const [mode, setMode] = useAmbient();
+  useEffect(() => {
+    if (v3) document.documentElement.dataset.design = "v3";
+    else delete document.documentElement.dataset.design;
+  }, [v3]);
 
-  return (
-    <div
-      className="relative min-h-screen w-full text-white lg:h-screen lg:overflow-hidden"
-      style={{ fontFamily: "var(--font-display)" }}
-    >
-      <img
-        src={roomBg}
-        alt=""
-        aria-hidden
-        width={1920}
-        height={1216}
-        className="pointer-events-none fixed inset-0 -z-20 h-full w-full object-cover"
-      />
-      <div
-        aria-hidden
-        className="pointer-events-none fixed inset-0 -z-10"
-        style={{
-          background: "linear-gradient(180deg, rgba(0,0,0,0.05) 0%, rgba(0,0,0,0.18) 100%)",
-        }}
-      />
+  useEffect(() => {
+    try {
+      localStorage.setItem(PREFS_KEY, JSON.stringify({ reduceMotion }));
+    } catch {
+      // Preference stays in memory for this session.
+    }
+  }, [reduceMotion]);
+  useEffect(() => {
+    document.documentElement.dataset.reduceMotion = String(reduceMotion);
+  }, [reduceMotion]);
 
-      <main className="relative mx-auto flex min-h-screen w-full max-w-[1560px] flex-col gap-3 px-3 py-4 sm:gap-4 sm:px-4 sm:py-5 lg:h-full lg:min-h-0 lg:px-8 lg:py-6">
-        <div className="flex justify-center lg:hidden">
-          <Sidebar active={active} onSelect={setActive} orientation="horizontal" />
-        </div>
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
+        e.preventDefault();
+        setPaletteOpen((o) => !o);
+      }
+      // Alt + ← / → moves between areas (console-style shoulder buttons).
+      if (e.altKey && (e.key === "ArrowRight" || e.key === "ArrowLeft")) {
+        e.preventDefault();
+        setActive((cur) => {
+          const i = SECTIONS.findIndex((x) => x.id === cur);
+          const n = (i + (e.key === "ArrowRight" ? 1 : SECTIONS.length - 1)) % SECTIONS.length;
+          return SECTIONS[n]!.id;
+        });
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
 
-        <div className="flex flex-col gap-3 sm:gap-4 lg:min-h-0 lg:flex-1 lg:flex-row lg:items-stretch lg:gap-5">
-          <div className="hidden items-center lg:flex">
-            <Sidebar active={active} onSelect={setActive} />
+  const openPalette = useCallback(() => setPaletteOpen(true), []);
+  const addBroker = useCallback(() => {
+    setActive("brokers");
+    setWizardSignal((n) => n + 1);
+  }, []);
+
+  let workspace: ReactNode;
+  switch (active) {
+    case "grid":
+      workspace = (
+        <PortfolioStoreProvider>
+          <PortfolioWorkspace />
+        </PortfolioStoreProvider>
+      );
+      break;
+    case "proofmarket":
+      workspace = <ProofMarketWorkspace />;
+      break;
+    case "financas":
+      workspace = <PersonalFinanceWorkspace />;
+      break;
+    case "home":
+      workspace = <HomeWorkspace />;
+      break;
+    case "bars":
+      workspace = <AnalyticsWorkspace />;
+      break;
+    case "brokers":
+      workspace = <BrokersWorkspace wizardSignal={wizardSignal} />;
+      break;
+    case "benchmarkPage":
+      workspace = (
+        <PortfolioStoreProvider>
+          <BenchmarkWorkspace />
+        </PortfolioStoreProvider>
+      );
+      break;
+    case "businessPlan":
+      workspace = (
+        <PortfolioStoreProvider>
+          <BusinessPlanWorkspace />
+        </PortfolioStoreProvider>
+      );
+      break;
+    case "teslaModel":
+      workspace = <TeslaModelWorkspace />;
+      break;
+    case "operadores":
+      workspace = <OperadoresWorkspace />;
+      break;
+    case "marketplace":
+      workspace = (
+        <MarketplaceStoreProvider>
+          <MarketplaceWorkspace />
+        </MarketplaceStoreProvider>
+      );
+      break;
+    case "settings":
+      workspace = (
+        <SettingsWorkspace reduceMotion={reduceMotion} onReduceMotion={setReduceMotion} />
+      );
+      break;
+  }
+
+  const content = (
+    <AnimatePresence mode="wait">
+      <motion.div
+        key={active}
+        initial={{ opacity: 0, y: 6 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: -6 }}
+        transition={{ duration: 0.3 }}
+        className="flex flex-1 flex-col lg:min-h-0"
+      >
+        <WorkspaceBoundary onHome={() => setActive("grid")}>
+          <Suspense fallback={<WorkspaceSkeleton />}>{workspace}</Suspense>
+        </WorkspaceBoundary>
+      </motion.div>
+    </AnimatePresence>
+  );
+
+  if (v3)
+    return (
+      <MotionConfig reducedMotion={reduceMotion ? "always" : "user"}>
+        <div
+          className="relative min-h-screen w-full text-[var(--cx-ink-1)] lg:h-screen lg:overflow-hidden"
+          data-glass={active === "grid" ? "ollympius" : undefined}
+          style={{ fontFamily: "var(--font-display)", background: "var(--cx-bg)" }}
+        >
+          {/* Stage: one backdrop, an area-specific ambient wash that crossfades */}
+          <div aria-hidden className="pointer-events-none fixed inset-0 -z-10">
+            <img
+              src={roomBg}
+              alt=""
+              width={1920}
+              height={1216}
+              className="h-full w-full object-cover opacity-60"
+            />
+            <div
+              className="absolute inset-0"
+              style={{
+                background:
+                  "linear-gradient(180deg, rgba(5,7,12,.82) 0%, rgba(5,7,12,.66) 45%, rgba(5,7,12,.9) 100%)",
+              }}
+            />
+            <AnimatePresence>
+              <motion.div
+                key={active}
+                className="cx-stage-layer absolute inset-0"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.6 }}
+                style={{
+                  background: `radial-gradient(1100px 560px at ${STAGE_SPOT[active]}, rgba(var(--ambient-rgb), .13), transparent 62%)`,
+                }}
+              />
+            </AnimatePresence>
+            <div className="cx-ambient-line absolute inset-x-0 bottom-0" />
           </div>
 
-          <motion.section
-            initial={{ opacity: 0, scale: 0.985 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-            className="glass flex min-w-0 flex-1 flex-col p-4 md:p-5 lg:min-h-0"
-            style={{ borderRadius: 28 }}
-          >
-            <AnimatePresence mode="wait">
-              {active === "grid" ? (
-                <motion.div
-                  key="overview"
-                  initial={{ opacity: 0, y: 6 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -6 }}
-                  transition={{ duration: 0.3 }}
-                  className="flex flex-1 flex-col lg:min-h-0"
-                >
-                  <OverviewContent />
-                </motion.div>
-              ) : (
+          <main className="relative mx-auto flex min-h-screen w-full max-w-[1560px] flex-col gap-4 px-3 py-4 sm:px-5 lg:h-full lg:min-h-0 lg:px-8 lg:py-5">
+            <TopBar
+              active={active}
+              onSelect={setActive}
+              onCommand={openPalette}
+              mode={mode}
+              onMode={setMode}
+            />
+            <motion.section
+              initial={{ opacity: 0, scale: 0.985 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.3, ease: [0.23, 1, 0.32, 1] }}
+              className={cn(
+                "flex min-w-0 flex-1 flex-col lg:min-h-0",
+                active !== "proofmarket" && active !== "home" && "cx-glass p-4 md:p-5",
+              )}
+              style={
+                active !== "proofmarket" && active !== "home"
+                  ? { borderRadius: "var(--cx-r4)" }
+                  : undefined
+              }
+            >
+              {content}
+            </motion.section>
+          </main>
+
+          <CommandPalette
+            open={paletteOpen}
+            onOpenChange={setPaletteOpen}
+            onNavigate={setActive}
+            onAddBroker={addBroker}
+          />
+        </div>
+      </MotionConfig>
+    );
+
+  return (
+    <MotionConfig reducedMotion={reduceMotion ? "always" : "user"}>
+      <div
+        className="relative min-h-screen w-full text-white lg:h-screen lg:overflow-hidden"
+        data-glass={active === "grid" ? "ollympius" : undefined}
+        style={{ fontFamily: "var(--font-display)" }}
+      >
+        <img
+          src={roomBg}
+          alt=""
+          aria-hidden
+          width={1920}
+          height={1216}
+          className="pointer-events-none fixed inset-0 -z-20 h-full w-full object-cover"
+        />
+        <div
+          aria-hidden
+          className="pointer-events-none fixed inset-0 -z-10"
+          style={{
+            background:
+              active === "grid"
+                ? "linear-gradient(180deg, rgba(0,0,0,0.05) 0%, rgba(0,0,0,0.18) 100%)"
+                : "linear-gradient(180deg, rgba(8,6,5,0.34) 0%, rgba(8,6,5,0.52) 100%)",
+          }}
+        />
+
+        <main className="relative mx-auto flex min-h-screen w-full max-w-[1560px] flex-col gap-3 px-3 py-4 sm:gap-4 sm:px-4 sm:py-5 lg:h-full lg:min-h-0 lg:px-8 lg:py-6">
+          <div className="flex justify-center lg:hidden">
+            <Sidebar
+              active={active}
+              onSelect={setActive}
+              onCommand={openPalette}
+              orientation="horizontal"
+            />
+          </div>
+
+          <div className="flex flex-col gap-3 sm:gap-4 lg:min-h-0 lg:flex-1 lg:flex-row lg:items-stretch lg:gap-5">
+            <div className="hidden items-center lg:flex">
+              <Sidebar active={active} onSelect={setActive} onCommand={openPalette} />
+            </div>
+
+            <motion.section
+              initial={{ opacity: 0, scale: 0.985 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.3, ease: [0.23, 1, 0.32, 1] }}
+              className={cn(
+                "flex min-w-0 flex-1 flex-col lg:min-h-0",
+                active !== "proofmarket" && "glass p-4 md:p-5",
+              )}
+              style={active !== "proofmarket" ? { borderRadius: 28 } : undefined}
+            >
+              <AnimatePresence mode="wait">
                 <motion.div
                   key={active}
                   initial={{ opacity: 0, y: 6 }}
@@ -109,246 +422,87 @@ export function DashboardShell({ defaultActive = "home" }: { defaultActive?: str
                   transition={{ duration: 0.3 }}
                   className="flex flex-1 flex-col lg:min-h-0"
                 >
-                  {active === "home" ? (
-                    <HomeWorkspace />
-                  ) : active === "bars" ? (
-                    <AnalyticsWorkspace />
-                  ) : active === "benchmarkPage" ? (
-                    <PortfolioStoreProvider>
-                      <BenchmarkWorkspace />
-                    </PortfolioStoreProvider>
-                  ) : active === "businessPlan" ? (
-                    <PortfolioStoreProvider>
-                      <BusinessPlanWorkspace />
-                    </PortfolioStoreProvider>
-                  ) : active === "teslaModel" ? (
-                    <TeslaModelWorkspace />
-                  ) : active === "marketplace" ? (
-                    <MarketplaceStoreProvider>
-                      <MarketplaceWorkspace />
-                    </MarketplaceStoreProvider>
-                  ) : (
-                    <EmptyEnvironment title={sectionTitles[active] ?? "Workspace"} />
-                  )}
+                  <WorkspaceBoundary onHome={() => setActive("grid")}>
+                    <Suspense fallback={<WorkspaceSkeleton />}>{workspace}</Suspense>
+                  </WorkspaceBoundary>
                 </motion.div>
-              )}
-            </AnimatePresence>
-          </motion.section>
-        </div>
+              </AnimatePresence>
+            </motion.section>
+          </div>
 
-        <div className="hidden shrink-0 justify-center sm:flex">
-          <BottomDock />
-        </div>
-      </main>
-    </div>
-  );
-}
+          <div className="hidden shrink-0 justify-center sm:flex">
+            <BottomDock onNavigate={setActive} onCommand={openPalette} />
+          </div>
+        </main>
 
-function EmptyEnvironment({ title }: { title: string }) {
-  return (
-    <div className="flex min-h-0 flex-1 flex-col">
-      <WorkspaceHeader title={title} subtitle="Ambiente vazio · pronto a compor" />
-      <div className="flex min-h-0 flex-1 items-center justify-center p-6">
-        <EmptyState
-          icon={LayoutTemplate}
-          title={title}
-          hint="Este espaço ainda não tem módulos. Escolha outra aba na barra lateral."
-          className="w-full max-w-md"
+        <CommandPalette
+          open={paletteOpen}
+          onOpenChange={setPaletteOpen}
+          onNavigate={setActive}
+          onAddBroker={addBroker}
         />
       </div>
-    </div>
+    </MotionConfig>
   );
 }
 
-function OverviewContent() {
+/**
+ * Contains a failing workspace (render error or a chunk that failed to load)
+ * so the shell, navigation and other sections keep working. Remounted per
+ * section via the parent's `key`, which clears the error on navigation.
+ */
+class WorkspaceBoundary extends Component<
+  { children: ReactNode; onHome: () => void },
+  { error: Error | null }
+> {
+  state = { error: null as Error | null };
+
+  static getDerivedStateFromError(error: Error) {
+    return { error };
+  }
+
+  componentDidCatch(error: Error, info: ErrorInfo) {
+    console.error("Workspace failed", error, info.componentStack);
+  }
+
+  render() {
+    if (!this.state.error) return this.props.children;
+    return (
+      <div className="flex min-h-0 flex-1 items-center justify-center p-6">
+        <EmptyState
+          icon={AlertTriangle}
+          title="Esta secção não carregou"
+          hint="As restantes secções continuam disponíveis. Tente novamente ou volte à visão geral."
+          className="w-full max-w-md"
+          action={
+            <div className="mt-2 flex gap-2">
+              <ActionButton tone="ghost" onClick={() => this.setState({ error: null })}>
+                Tentar novamente
+              </ActionButton>
+              <ActionButton onClick={this.props.onHome}>Visão geral</ActionButton>
+            </div>
+          }
+        />
+      </div>
+    );
+  }
+}
+
+/** Placeholder with the shape of a workspace while its chunk downloads. */
+function WorkspaceSkeleton() {
   return (
-    <>
-      <WorkspaceHeader
-        title="Ollympius Dashboard"
-        subtitle="Live performance overview · updated just now"
-        right={
-          <>
-            <Pill className="hidden sm:inline-flex">Overview</Pill>
-            <Pill className="hidden sm:inline-flex" tone="mute">
-              Reports
-            </Pill>
-            <Avatar initials="LV" />
-            <Pill className="hidden md:inline-flex">+ Invite team</Pill>
-          </>
-        }
-      />
-
-      <motion.div
-        variants={containerVariants}
-        initial="hidden"
-        animate="show"
-        className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:min-h-0 lg:flex-1 lg:grid-cols-4 lg:grid-rows-[1.35fr_1fr_1fr]"
-      >
-        <GlassCard className="sm:col-span-2 lg:col-span-2 lg:h-full lg:min-h-0 !p-4">
-          <div className="flex shrink-0 flex-wrap items-center justify-between gap-3">
-            <Pill className="!px-3 !py-1 !text-[12px] !font-semibold">Revenue trend</Pill>
-            <div className="flex gap-1.5">
-              {timeframes.map((t, i) => (
-                <Pill
-                  key={t}
-                  tone={i === 2 ? "active" : "mute"}
-                  className="!px-2.5 !py-0.5 !text-[11px]"
-                >
-                  {t}
-                </Pill>
-              ))}
-            </div>
-          </div>
-          <div className="relative mt-2 min-h-[180px] flex-1 lg:min-h-0">
-            <AreaChartViz />
-          </div>
-          <div className="mt-2 flex shrink-0 flex-wrap gap-1.5">
-            {heroStats.map((s) => (
-              <div
-                key={s.label}
-                className="glass-pill flex items-center gap-2 px-2.5 py-1 text-[11px]"
-              >
-                <span className="text-white/60">{s.label}</span>
-                <span className="font-semibold tabular-nums text-white">{s.value}</span>
-              </div>
-            ))}
-          </div>
-        </GlassCard>
-
-        <GlassCard className="lg:h-full lg:min-h-0 !p-4">
-          <Pill className="shrink-0 !px-3 !py-1 !text-[12px] !font-semibold">Weekly volume</Pill>
-          <p className="mt-1 shrink-0 text-[11px] text-white/55">Conversions per week</p>
-          <div className="relative mt-2 min-h-[160px] flex-1 lg:min-h-0">
-            <BarChartViz />
-          </div>
-        </GlassCard>
-
-        <GlassCard className="lg:h-full lg:min-h-0 !p-4">
-          <Pill className="shrink-0 !px-3 !py-1 !text-[12px] !font-semibold">Recent activity</Pill>
-          <ul className="mt-2 flex flex-1 flex-col gap-1.5 lg:min-h-0 lg:overflow-hidden">
-            {recentActivity.map((row) => (
-              <li key={row.id} className="flex items-center gap-2.5 rounded-xl px-1 py-0.5">
-                <Avatar initials={row.initials} />
-                <div className="min-w-0 flex-1">
-                  <p className="truncate text-[12px] font-medium text-white/95">{row.name}</p>
-                  <p className="truncate text-[10px] text-white/55">{row.note}</p>
-                </div>
-                <Pill className="!px-2 !py-0.5 !text-[10px] tabular-nums">{row.value}</Pill>
-              </li>
-            ))}
-          </ul>
-        </GlassCard>
-
-        {kpiCards.map((k) => (
-          <GlassCard key={k.id} className="lg:h-full lg:min-h-0 justify-between !p-4">
-            <Pill className="self-start !px-2.5 !py-1 !text-[11px] text-white/70">
-              {k.primary.label}
-            </Pill>
-            <div className="flex items-end justify-between gap-2">
-              <span className="text-2xl font-semibold tabular-nums text-white">
-                {k.primary.value}
-              </span>
-              <Pill tone="mute" className="!text-[10px]">
-                {k.secondary.label}
-              </Pill>
-            </div>
-          </GlassCard>
+    <div className="flex min-h-0 flex-1 flex-col gap-4" aria-busy="true" aria-label="A carregar">
+      <div className="h-9 w-56 animate-pulse rounded-full bg-white/10 motion-reduce:animate-none" />
+      <div className="grid grid-cols-2 gap-2.5 lg:grid-cols-4">
+        {[0, 1, 2, 3].map((i) => (
+          <div
+            key={i}
+            className="glass h-[78px] animate-pulse motion-reduce:animate-none"
+            style={{ animationDelay: `${i * 80}ms` }}
+          />
         ))}
-
-        <GlassCard className="lg:h-full lg:min-h-0 !p-4">
-          <div className="flex shrink-0 items-center justify-between">
-            <Pill className="!px-3 !py-1 !text-[12px] !font-semibold">Goals</Pill>
-            <button
-              aria-label="Add goal"
-              className="glass-soft grid h-7 w-7 place-items-center text-white/80 hover:bg-white/25"
-            >
-              <Plus size={14} />
-            </button>
-          </div>
-          <ul className="mt-3 flex min-h-0 flex-1 flex-col justify-around gap-2">
-            {goals.map((g) => (
-              <li key={g.id} className="flex flex-col gap-1.5">
-                <div className="flex items-center justify-between text-[11px]">
-                  <span className="text-white/80">{g.label}</span>
-                  <span className="font-semibold tabular-nums text-white">{g.value}</span>
-                </div>
-                <ProgressBar value={g.progress} />
-              </li>
-            ))}
-          </ul>
-        </GlassCard>
-
-        <GlassCard className="lg:h-full lg:min-h-0 !p-4">
-          <div className="flex shrink-0 items-center justify-between">
-            <Pill className="!px-3 !py-1 !text-[12px] !font-semibold">Team</Pill>
-            <button
-              aria-label="Add member"
-              className="glass-soft grid h-7 w-7 place-items-center text-white/80 hover:bg-white/25"
-            >
-              <Plus size={14} />
-            </button>
-          </div>
-          <ul className="mt-2 flex min-h-0 flex-1 flex-col gap-1 overflow-hidden">
-            {teamMembers.map((m) => {
-              const selected = m.id === teamSelectedId;
-              return (
-                <li
-                  key={m.id}
-                  className={cn(
-                    "flex items-center gap-2.5 rounded-2xl px-1.5 py-1 transition",
-                    selected && "bg-white/20",
-                  )}
-                  style={
-                    selected
-                      ? {
-                          boxShadow:
-                            "inset 0 0 0 1px rgba(74,158,255,0.35), 0 0 18px rgba(74,158,255,0.18)",
-                        }
-                      : undefined
-                  }
-                >
-                  <Avatar initials={m.initials} />
-                  <div className="min-w-0 flex-1">
-                    <p className="truncate text-[12px] font-medium text-white/95">{m.name}</p>
-                    <p className="truncate text-[10px] text-white/55">{m.note}</p>
-                  </div>
-                  <Pill className="!px-2 !py-0.5 !text-[10px]">{m.value}</Pill>
-                </li>
-              );
-            })}
-          </ul>
-        </GlassCard>
-
-        {microCards.map((m) => (
-          <GlassCard key={m.id} className="lg:h-full lg:min-h-0 justify-between !p-4">
-            <Pill className="self-start !px-2.5 !py-1 !text-[11px] text-white/70">
-              {m.primary.label}
-            </Pill>
-            <div className="flex items-end justify-between gap-2">
-              <span className="text-xl font-semibold tabular-nums text-white">
-                {m.primary.value}
-              </span>
-              <Pill tone="mute" className="!text-[10px]">
-                {m.secondary.label}
-              </Pill>
-            </div>
-          </GlassCard>
-        ))}
-
-        <motion.button
-          variants={cardVariants}
-          whileHover={{ y: -2 }}
-          className="glass grid min-h-[120px] place-items-center lg:h-full lg:min-h-0 text-white/60 transition hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60"
-          aria-label="Add card"
-        >
-          <span
-            className="grid h-10 w-10 place-items-center rounded-2xl"
-            style={{ border: "1px dashed rgba(255,255,255,0.4)" }}
-          >
-            <Plus size={18} />
-          </span>
-        </motion.button>
-      </motion.div>
-    </>
+      </div>
+      <div className="glass min-h-[240px] flex-1 animate-pulse motion-reduce:animate-none" />
+    </div>
   );
 }

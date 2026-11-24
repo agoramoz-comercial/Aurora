@@ -158,7 +158,12 @@ export function BenchmarkWorkspace() {
         <SegmentedTabs tabs={[...TABS]} active={tab} onSelect={setTab} />
       </div>
 
-      <div className="thin-scrollbar mt-3 min-h-0 flex-1 overflow-y-auto pr-0.5">
+      <div
+        tabIndex={0}
+        role="region"
+        aria-label="Secções do benchmark"
+        className="thin-scrollbar mt-3 min-h-0 flex-1 overflow-y-auto pr-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40"
+      >
         <AnimatePresence mode="wait">
           <motion.div
             key={tab}

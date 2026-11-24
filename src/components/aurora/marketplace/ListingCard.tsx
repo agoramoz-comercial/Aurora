@@ -73,7 +73,7 @@ export function ListingImage({
           onLoad={() => setLoaded(true)}
           onError={() => setFailed(true)}
           className={cn(
-            "img-outline absolute inset-0 h-full w-full object-cover transition-[opacity,transform] duration-700 ease-out",
+            "img-outline absolute inset-0 h-full w-full object-cover transition-[opacity,transform] duration-300 ease-out",
             loaded ? "opacity-100" : "opacity-0",
             zoomOnHover && "group-hover:scale-[1.06]",
           )}
@@ -89,7 +89,7 @@ export function CategoryBadge({ category, className }: { category: Category; cla
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold backdrop-blur-md",
+        "inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-micro font-semibold backdrop-blur-md",
         className,
       )}
       style={{ background: "rgba(0,0,0,0.45)", border: `1px solid ${meta.color}66`, color: "#fff" }}
@@ -137,7 +137,7 @@ export function ListingCard({
         <div className="absolute left-2.5 top-2.5 flex flex-wrap gap-1.5">
           <CategoryBadge category={listing.category} />
           {listing.mine ? (
-            <span className="rounded-full bg-[var(--aurora-accent)] px-2 py-0.5 text-[10px] font-bold text-white">
+            <span className="rounded-full bg-white/92 px-2 py-0.5 text-micro font-bold text-[#0b0f17]">
               O seu anúncio
             </span>
           ) : null}
@@ -155,7 +155,7 @@ export function ListingCard({
             }}
           />
         </div>
-        <div className="absolute inset-x-2.5 bottom-2.5 flex items-center justify-between text-[10px] text-white/80">
+        <div className="absolute inset-x-2.5 bottom-2.5 flex items-center justify-between text-micro text-white/80">
           <span className="rounded-full bg-black/45 px-2 py-0.5 backdrop-blur-md">
             {listing.location}
           </span>
@@ -178,7 +178,7 @@ export function ListingCard({
 
       {/* Body */}
       <div className="flex flex-1 flex-col gap-2 px-2 pb-1.5 pt-3">
-        <div className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-white/45">
+        <div className="flex items-center gap-1.5 text-micro font-semibold uppercase tracking-[0.12em] text-white/45">
           {listing.brand}
           {listing.seller.verified ? (
             <BadgeCheck
@@ -199,7 +199,7 @@ export function ListingCard({
         >
           {listing.specs.slice(0, 3).map((s) => (
             <div key={s.label} className="min-w-0 rounded-[9px] px-2 py-1.5">
-              <dt className="truncate text-[9px] uppercase tracking-[0.08em] text-white/40">
+              <dt className="truncate text-micro uppercase tracking-[0.08em] text-white/40">
                 {s.label}
               </dt>
               <dd className="truncate text-[11px] font-semibold tabular-nums text-white/90">
@@ -211,14 +211,14 @@ export function ListingCard({
 
         <div className="mt-auto flex items-end justify-between gap-2 pt-1">
           <div>
-            <span className="block text-[9px] uppercase tracking-[0.12em] text-white/40">
+            <span className="block text-micro uppercase tracking-[0.12em] text-white/40">
               {listing.category === "tickets" ? "Por lugar" : "Preço"}
             </span>
             <span className="text-[18px] font-bold tabular-nums tracking-[-0.01em] text-white">
               {formatPrice(listing.priceUsd)}
             </span>
           </div>
-          <span className="text-[10px] text-white/40">{listing.condition}</span>
+          <span className="text-micro text-white/40">{listing.condition}</span>
         </div>
       </div>
     </motion.article>

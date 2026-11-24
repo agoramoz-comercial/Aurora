@@ -195,7 +195,7 @@ const META: Record<string, BaselineMeta> = {
 };
 
 // Deterministic seeded RNG (mulberry32) per symbol so baseline is stable.
-function rng(seed: number) {
+export function rng(seed: number) {
   return function () {
     seed |= 0;
     seed = (seed + 0x6d2b79f5) | 0;
@@ -205,7 +205,7 @@ function rng(seed: number) {
   };
 }
 
-function seedFor(sym: string): number {
+export function seedFor(sym: string): number {
   let h = 2166136261;
   for (let i = 0; i < sym.length; i++) {
     h ^= sym.charCodeAt(i);
@@ -214,28 +214,41 @@ function seedFor(sym: string): number {
   return h >>> 0;
 }
 
-function gaussian(r: () => number): number {
+export function gaussian(r: () => number): number {
   // Box-Muller
   const u = Math.max(1e-9, r());
   const v = r();
   return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v);
 }
 
+const round2 = (n: number) => Math.round(n * 100) / 100;
+
 function buildSeries(meta: BaselineMeta, sym: string): SeriesPoint[] {
   const r = rng(seedFor(sym));
+  // Intraday shape (open/high/low/volume) draws from its own stream so the
+  // close path — which every model downstream reads — stays byte-identical.
+  const rBar = rng(seedFor(sym) ^ 0x9e3779b9);
   const N = 260; // ~1Y trading days
   const out: SeriesPoint[] = [];
   let price = meta.startPrice;
+  let prevClose = meta.startPrice;
   const today = new Date();
   for (let i = N - 1; i >= 0; i--) {
     const d = new Date(today);
     d.setDate(today.getDate() - i);
     const step = meta.drift + meta.vol * gaussian(r);
     price = price * Math.exp(step);
-    out.push({
-      date: d.toISOString().slice(0, 10),
-      close: Math.max(1, Math.round(price * 100) / 100),
-    });
+    const close = Math.max(1, round2(price));
+    const open = Math.max(1, round2(prevClose * (1 + meta.vol * 0.35 * gaussian(rBar))));
+    const wick = meta.vol * (0.25 + rBar() * 0.6);
+    const high = round2(Math.max(open, close) * (1 + wick * rBar()));
+    const low = Math.max(0.5, round2(Math.min(open, close) * (1 - wick * rBar())));
+    // Same turnover convention as the snapshot (~0.3% of shares outstanding), with
+    // heavier prints on large moves.
+    const baseVolume = (meta.marketCap / close) * 0.003;
+    const volume = Math.round(baseVolume * (0.6 + rBar() * 0.8) * (1 + Math.abs(step) * 25));
+    out.push({ date: d.toISOString().slice(0, 10), close, open, high, low, volume });
+    prevClose = close;
   }
   return out;
 }

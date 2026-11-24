@@ -34,7 +34,7 @@ function TapeRow({ hidden = false }: { hidden?: boolean }) {
               className="flex items-center gap-0.5 font-semibold tabular-nums"
               style={{ color: up ? CHART.positive : CHART.negative }}
             >
-              <span className="text-[8px]">{up ? "▲" : "▼"}</span>
+              <span className="text-micro">{up ? "▲" : "▼"}</span>
               {Math.abs(t.change).toFixed(1)}%
             </span>
           </li>
@@ -54,7 +54,7 @@ export function TickerTape() {
         maskImage: "linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent)",
         WebkitMaskImage: "linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent)",
       }}
-      aria-label="Mercados em tempo real"
+      aria-label="Fecho de mercado de 18 de novembro, segundo a Reuters"
     >
       <div className="ticker-marquee flex w-max">
         <TapeRow />

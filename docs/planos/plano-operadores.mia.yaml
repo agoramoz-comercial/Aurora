@@ -1,0 +1,100 @@
+# @MIA-VS:1 · fonte única do plano (lossless → `python3 plano_tool.py render`)
+meta: {id: OPS-01, cliente: C-01, data: 2026-06-11, estado: em_execucao, metodo: [ZB3000, PromptEng, LoopEng], base_aurora: [marketplace, businessPlan, bars, teslaModel, financas]}
+produtos:
+  A: {nome: "Score de Operadores", faz: "importa histórico (ficheiro/API) → rentabilidade, consistência, risco → nota em segundos", valor: "prova verificável da qualidade do trader"}
+  B: {nome: "Estúdio e Marketplace de Indicadores", faz: "prompt PT → indicador → backtest → venda", valor: "criar indicadores sem programar e ganhar"}
+  C: {nome: "Gerador de Planos de Negócio", faz: "formulário + conversa → Word + PDF + Excel com fontes", valor: "plano profissional em horas"}
+  D: {nome: "Ranking e Contratos", faz: "ranking → perfil → contrato digital → copy trading supervisionado → tokenização", valor: "capital de investidores para traders"}
+ordem: [A, B, C, D]
+redteam:  # risco: [porquê, decisão]
+  tokens_valor_mobiliario: [token ligado ao desempenho = instrumento regulado (MZ BdM/BVM; UE MiCA/MiFID; EUA SEC), F6 bloqueada até parecer + licença]
+  copy_trading_terceiros: [gestão de carteiras/aconselhamento licenciado, começar com sinais confirmados; automático só com licença/parceiro]
+  biometria: ["dado sensível (RGPD; lei MZ); evidência fraca", "opcional com consentimento; fora da nota"]
+  score_manipulavel: [ficheiros editáveis, selos Declarado (ficheiro) vs Verificado (API só leitura)]
+  patente_pct: [métodos de negócio raramente patenteáveis, marca + direitos de autor + segredo; patente só p/ invenção técnica]
+  indicadores_ia_errados: [perdas e reclamações, DSL fechada + testes + backtest obrigatório]
+  promessas_lucro: [publicidade enganosa, aviso "desempenho passado ≠ futuro" em todo o retorno]
+fases:  # id: [semanas, depende, entregas, gate]
+  F0: [3-4, [], entrevistas 20 traders + 10 investidores; parecer jurídico; país-piloto, parecer escrito ∧ ≥60% traders aceitam ligar conta]
+  F1: [6-8, [F0], import CSV/Excel + MT5 + Binance (leitura); nota explicada; perfil, nota ≤10s ∧ reprodutível ∧ 50 traders piloto]
+  F2: [6-8, [F1], prompt→fórmula→gráfico→backtest→guardar, P1 ≥95% em 200 casos]
+  F4: [6-8, [F1], formulário + conversa + Word/PDF/Excel + fontes, 10 planos nota consultor ≥3/4]
+  F3: [4-6, [F2], publicar/comprar/aplicar; avaliações; ranking; gamificação; comissões, 1ª venda ∧ 0 publicados sem backtest]
+  F5: [6-8, [F3, F4], painel ranking; contratos em testnet; sinais confirmados, auditoria contrato ∧ aprovação jurídica]
+  F6: [licença, [F5], execução automática com limites; distribuição lucros; tokens, licença/parceiro ∧ auditoria externa]
+spec:
+  A:
+    entrada: [CSV, Excel, MT5, Binance, IBKR, eToro, Coinbase]  # acesso API a confirmar em F0
+    normalizar: [data, ativo, lado, qtd, preco_in, preco_out, comissoes, moeda, fx_diario]
+    nota: {rent_ajust_risco: [.30, [sharpe, sortino, ret_anual]], consistencia: [.25, [pct_meses_pos, estab_curva, n_ops]], risco: [.25, [max_dd, var, alav_media, uso_stop]], disciplina: [.10, [overtrading, tilt]], verificacao: [.10, [selo, meses_hist≥6]]}
+    biometria: opcional_fora_da_nota
+    saida: [nota_0_100, grafico, forcas, fraquezas, selo, data]
+  B:
+    dsl: [SMA, EMA, FIB, RSI, MACD, BB, STOCH, ATR, VWAP, cross_above, cross_below, AND, OR, "<", ">"]
+    exemplo: "EMA(close,21) cross_above EMA(close,50) AND RSI(14) < 40"
+    backtest: [periodo, n_sinais, acerto, retorno, max_dd, vs_buy_hold]
+    registo: [titulo, descricao, tags, "parametros(min..max)"]
+    marketplace: [venda_avulsa, subscricao, avaliacoes_so_compradores, ranking_criadores, niveis, distintivos, desafios_mensais]
+  C:
+    formularios: {pequeno: [ideia, localizacao, clientes, capital, produtos_fornecedores, locais_venda, custos, impactos, ano_ref, paginas_opcional], grande: [resumo, local_setor, capital_recursos, produtos, mercado, concorrencia, drivers, historico, custos_fornec, locais_venda, impactos, riscos, projecoes, mvv, ano_ref, paginas_opcional]}
+    financiamento: {tipo: [proprio, banco, misto], detalhe: [prazo, taxa, amortizacao]}
+    seccoes: [resumo, macro_micro, drivers, historico, financeira, dcf_multiplos, cashflow, dre, balanco, kpis, financiamento, capex_opex_dep, variacoes, benchmark_int, cenarios_3, estrategico_operacional, cronograma, riscos_5, raci, legal_regional, custos_fase, gantt, impactos_3, conclusao]
+    regras: [ano_ref_obrigatorio, fonte_em_cada_dado, sem_fonte→estimativa+metodo, dados_cliente_so_com_permissao]
+    paginas: {pequeno: 10, grande: 40, indicado: respeitar}
+    exporta: {word: completo, pdf: pitch, excel: [valuation, cashflow, dre, balanco, kpis, financiamento, capex_opex, graficos]}
+  D:
+    ecra: {cabecalho: azul/branco, ranking: [posicao, trader, nota, rentab, estado, medalhas_top3, filtros: [top10, categoria, rentab]], perfil: [foto, nome, nota, rentab_media, dd, consistencia, ver_detalhes, conectar_investidor], contrato: [valor, pct_lucro, duracao, carteira, assinar, estados: [ativo, encerrado, em_verificacao]], historico: [linha_rentab, ultimas_5], confianca: [blockchain, cadeado, auditavel, selo_verificado], estilo: [azul, verde, cinza, responsivo, AA, teclado]}
+    rede: {F5: testnet, F6: mainnet_com_licenca}
+arquitetura: {front: aurora_react_design_v3, servicos: [import_normaliza, score, dsl_backtest, docgen, marketplace_pagamentos, contratos], dados: [relacional, ficheiros, auditoria], ia: so_interpretar_e_redigir, numeros: calculo_deterministico, seguranca: [api_so_leitura_cifrada, aprovacao_humana_ordens_dinheiro]}
+prompts:  # id: [entrada, saida, proibe, teste, aceita]
+  P1: [pedido, "{formula, parametros[{nome,valor,min,max}], explicacao, ambiguidades}", codigo_livre ∨ fora_DSL, 200 casos PT/EN, "≥95% ∧ 100% inválidas rejeitadas"]
+  P2: [metricas, 2 forças + 2 fraquezas + 1 sugestão, inventar_numeros ∨ prometer_lucro, 50 casos analista, "≥90% útil"]
+  P3: [formulario, lacunas ≤5/ronda, adivinhar_dados, 20 incompletos, 100% lacunas]
+  P4: [dados+fontes, secções C, numero_sem_fonte, 10 planos, 0 sem origem]
+  P5: [titulo+desc+avaliacoes, aprovado|rejeitado+motivo, —, 100 casos, "≥95%"]
+loops:  # id: [ciclo, sai_quando, limite]
+  L1: [testes P1 → erros → ajustar → repetir, "≥95% em 2 corridas", 5 iter → humano]
+  L2: [calcular → vs buy&hold → dados suficientes, resultado gravado, sem backtest ⇒ não publica]
+  L3: [recalcular → comparar, igual ao cêntimo 2x, diferença ⇒ bloqueia nota]
+  L4: [gerar → verificar secções/fontes → corrigir → regenerar, todas secções ∧ fontes, 3 rondas]
+  L5: [sinal → limites → IA+humano → executar → reconciliar, executado ∧ reconciliado, limite violado ⇒ pára + alerta]
+  L6: [publicar → KPIs → 5 entrevistas → priorizar, KPIs da fase, quinzenal]
+receita:  # fonte: [modelo, fase]
+  score: [licença anual fixa, F1]
+  marketplace: [comissão 20-30% + Criador Premium + assinatura compradores, F3]
+  planos: [por relatório ∨ assinatura consultores, F4]
+  contratos: [taxa fixa + 5-10% lucro, F5]
+  tokens: [royalties 5-10%, F6]
+raci:  # papel: [F1, F2-3, F4, F5-6]
+  dono_produto: [A, A, A, A]
+  fullstack_x2: [R, R, R, R]
+  dados_quant: [R, R, C, R]
+  prompts_avaliacao: [C, R, R, C]
+  designer: [R, R, R, R]
+  jurista_ext: [C, C, C, A]
+  auditor_contratos_ext: [-, -, -, R]
+kpis:  # kpi: [meta, fase]
+  traders_com_nota: [50→500, F1]
+  pct_verificado: ["≥40%", F1]
+  indicadores_criados_publicados: [300/60, F2-3]
+  conversao_marketplace: ["≥2%", F3]
+  planos_nota_ge3: ["≥80%", F4]
+  reclamacoes_calculo: [0, all]
+requisitos:  # id: [requisito, fase, estado]
+  R1: [avaliação contínua rentab/consist/risco, F1, PARTIAL_ficheiro_sim_api_nao]
+  R2: [biometria opcional, F1, NOT_STARTED]
+  R3: [score ≤10s, F1, VERIFIED_F1.tempo]
+  R4: [import CSV/Excel + 5 APIs, F1, PARTIAL_csv_mt5_sim_apis_BLOCKED_chaves]
+  R5: [indicadores por linguagem natural, F2, VERIFIED_L1_40casos_100pct]
+  R6: [gráficos interativos, F2, VERIFIED]
+  R7: [registo título/descrição/tags/parâmetros, F2, VERIFIED]
+  R8: [marketplace + comunidade + gamificação, F3, VERIFIED_demo]
+  R9: [backtest automático, F2, VERIFIED_L2]
+  R10: [monetização colaborativa, F3, PARTIAL_comissao_sem_pagamentos]
+  R11: [gerador de planos com fontes, F4, NOT_STARTED]
+  R12: [painel ranking e contratos, F5, PARTIAL_simulacao_local]
+  R13: [licenciamento fixo/royalties/misto, F5, BLOCKED_juridico]
+  R14: [copy trading com smart contracts, F6, BLOCKED_licenca]
+  R15: [tokenização do trader, F6, BLOCKED_licenca]
+  R16: ["PCT, direitos de autor, marca", F0, NOT_STARTED]
+proximas: [país-piloto, parecer jurídico, 20 traders + 10 investidores, acesso APIs MT5 + Binance, aprovar F0]
