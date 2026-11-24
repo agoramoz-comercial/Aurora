@@ -27,6 +27,8 @@ import { TickerTape } from "./TickerTape";
 import { NewsHero } from "./NewsHero";
 import { ImpactRadar, NewsFeed, SecondaryList, TrendingTopics } from "./NewsFeed";
 import { NewsDrawer } from "./NewsDrawer";
+import { NewsStage } from "./NewsStage";
+import { isV3 } from "../cockpit/ambient";
 import { HORIZON_LABEL, searchText, trendingTopics } from "./newsUtils";
 
 const SAVED_KEY = "ollympius.news.saved";
@@ -49,6 +51,8 @@ const HORIZON_FILTERS: Horizon[] = ["intraday", "1-5d", "1-4w", "structural"];
 
 /* Front page = the three highest-impact stories. */
 const LEADS = [...primaryNews].sort((a, b) => b.impactScore - a.impactScore).slice(0, 3);
+const V3 = isV3();
+const STORIES = [...primaryNews].sort((a, b) => b.impactScore - a.impactScore);
 const TOPICS = trendingTopics([...primaryNews, ...secondaryNews], 12);
 
 export function HomeWorkspace() {
@@ -119,39 +123,55 @@ export function HomeWorkspace() {
 
   return (
     <div className="flex min-h-0 flex-1 flex-col">
-      <WorkspaceHeader
-        title="Notícias"
-        subtitle="Newsroom portfolio-aware · primárias com impacto direto · regime & macro"
-        badge={<AccentBadge>Newsroom</AccentBadge>}
-        right={
-          <>
-            <LiveBadge />
-            <Pill className="hidden md:inline-flex" tone="mute">
-              {primaryNews.length + secondaryNews.length} sinais
-            </Pill>
-          </>
-        }
-      />
+      {V3 ? null : (
+        <WorkspaceHeader
+          title="Notícias"
+          subtitle="Newsroom portfolio-aware · primárias com impacto direto · regime & macro"
+          badge={<AccentBadge>Newsroom</AccentBadge>}
+          right={
+            <>
+              <LiveBadge />
+              <Pill className="hidden md:inline-flex" tone="mute">
+                {primaryNews.length + secondaryNews.length} sinais
+              </Pill>
+            </>
+          }
+        />
+      )}
+      {V3 ? null : (
+        <div className="mt-3">
+          <TickerTape />
+        </div>
+      )}
 
-      <div className="mt-3">
-        <TickerTape />
-      </div>
-
-      <div className="thin-scrollbar mt-3 min-h-0 flex-1 overflow-y-auto pr-0.5">
-        <div className="grid gap-4 pb-2 lg:grid-cols-[minmax(0,1fr)_300px] lg:items-start">
+      <div className={`thin-scrollbar min-h-0 flex-1 overflow-y-auto pr-0.5 ${V3 ? "" : "mt-3"}`}>
+        {V3 ? (
+          <NewsStage
+            stories={STORIES}
+            market={impactPanelAssets}
+            onOpen={setOpenId}
+            isSaved={isSaved}
+            onToggleSave={toggleSave}
+          />
+        ) : null}
+        <div
+          className={`grid gap-4 pb-2 lg:grid-cols-[minmax(0,1fr)_300px] lg:items-start ${V3 ? "cx-glass mt-4 p-4 md:p-5" : ""}`}
+        >
           {/* ── Main column ─────────────────────────────────────────── */}
           <div className="flex min-w-0 flex-col gap-4">
-            <NewsHero
-              leads={LEADS}
-              leadIndex={leadIndex}
-              onAdvance={() => setLeadIndex((i) => (i + 1) % LEADS.length)}
-              onSelectLead={setLeadIndex}
-              paused={hoverPause || openId !== null}
-              onPauseChange={setHoverPause}
-              onOpen={setOpenId}
-              isSaved={isSaved}
-              onToggleSave={toggleSave}
-            />
+            {V3 ? null : (
+              <NewsHero
+                leads={LEADS}
+                leadIndex={leadIndex}
+                onAdvance={() => setLeadIndex((i) => (i + 1) % LEADS.length)}
+                onSelectLead={setLeadIndex}
+                paused={hoverPause || openId !== null}
+                onPauseChange={setHoverPause}
+                onOpen={setOpenId}
+                isSaved={isSaved}
+                onToggleSave={toggleSave}
+              />
+            )}
 
             {/* Toolbar */}
             <div className="flex flex-col gap-2.5">

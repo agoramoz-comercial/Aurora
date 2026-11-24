@@ -28,3 +28,8 @@ export function useAmbient(): [AmbientMode, (m: AmbientMode) => void] {
   }, [mode]);
   return [mode, setMode];
 }
+
+/** Cockpit Aurora (v3) is the default; ?design=v2 keeps the previous design. */
+export const isV3 = () =>
+  typeof window === "undefined" ||
+  new URLSearchParams(window.location.search).get("design") !== "v2";

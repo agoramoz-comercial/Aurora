@@ -1,4 +1,6 @@
 import { PortfolioKPIs } from "../PortfolioKPIs";
+import { PmCockpit } from "../PmCockpit";
+import { isV3 } from "../../cockpit/ambient";
 import { PortfolioCharts } from "../PortfolioCharts";
 import { evaluateAlerts, type AlertSeverity } from "@/data/alertsEngine";
 import { AlertTriangle, ShieldAlert, Info } from "lucide-react";
@@ -16,6 +18,14 @@ const SEVERITY_CONFIG: Record<
 
 export function DashboardTab() {
   const alerts = evaluateAlerts().slice(0, 3);
+
+  if (isV3())
+    return (
+      <div className="space-y-4">
+        <PmCockpit />
+        <PortfolioCharts />
+      </div>
+    );
 
   return (
     <div className="space-y-4">

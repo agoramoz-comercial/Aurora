@@ -181,16 +181,28 @@ export function Gauge({
         </g>
       </svg>
       <div className="absolute inset-0 flex flex-col items-center justify-center pt-4 text-center">
-        <span
-          className="font-extrabold tabular-nums tracking-[-0.02em] text-[var(--cx-ink-1)]"
-          style={{ fontSize: big ? 44 : 30, fontFamily: '"Inter Display", Inter, sans-serif' }}
-        >
-          {valueText}
-        </span>
-        <span className="cx-eyebrow mt-1.5">{label}</span>
-        {sub ? (
-          <span className="mt-1.5 text-[12px] tabular-nums text-[var(--cx-ink-2)]">{sub}</span>
-        ) : null}
+        <div className="flex flex-col items-center" style={{ maxWidth: size * 0.6 }}>
+          <span
+            className="whitespace-nowrap font-extrabold tabular-nums tracking-[-0.02em] text-[var(--cx-ink-1)]"
+            style={{
+              fontSize: big ? 44 : valueText.length > 6 ? 24 : 30,
+              fontFamily: '"Inter Display", Inter, sans-serif',
+            }}
+          >
+            {valueText}
+          </span>
+          <span
+            className="cx-eyebrow mt-1.5 leading-tight"
+            style={big ? undefined : { letterSpacing: "0.08em" }}
+          >
+            {label}
+          </span>
+          {sub ? (
+            <span className="mt-1.5 text-[12px] leading-snug tabular-nums text-[var(--cx-ink-2)]">
+              {sub}
+            </span>
+          ) : null}
+        </div>
       </div>
     </div>
   );

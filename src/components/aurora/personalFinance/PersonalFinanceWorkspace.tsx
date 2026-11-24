@@ -81,6 +81,8 @@ import {
   type Strategy,
 } from "@/lib/finance/personal";
 import { Field, Meter, Metric, Money, MoneyInput, fieldCls } from "./atoms";
+import { FinanceInstruments } from "./FinanceInstruments";
+import { isV3 } from "../cockpit/ambient";
 import { WealthStoreProvider } from "@/data/personalFinance/wealthStore";
 import { ImportView, InvestView, PaymentsView, PricesView, WealthView } from "./WealthViews";
 
@@ -354,6 +356,14 @@ function Overview({ d, go }: { d: D; go: (v: View) => void }) {
 
   return (
     <>
+      {isV3() ? (
+        <FinanceInstruments
+          assigned={d.rows.reduce((s, r) => s + r.assigned, 0)}
+          spent={d.rows.reduce((s, r) => s + r.spent, 0)}
+          runway={d.runway}
+          rate={rate}
+        />
+      ) : null}
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-3 xl:grid-cols-6">
         <Metric
           label="Seguro gastar hoje"

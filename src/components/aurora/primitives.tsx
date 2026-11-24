@@ -211,7 +211,7 @@ export function MetricCard({
       )}
     >
       <div className="flex items-start justify-between gap-2">
-        <span className="glass-pill inline-flex max-w-full items-center truncate px-2.5 py-1 text-micro font-bold uppercase tracking-wider text-white/80">
+        <span className="glass-pill inline-flex max-w-full items-center px-2.5 py-1 text-left text-micro font-bold uppercase leading-tight tracking-wider text-white/80">
           {label}
         </span>
         {action}

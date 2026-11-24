@@ -330,9 +330,13 @@ function Shell({ defaultActive }: { defaultActive: SectionId }) {
               transition={{ duration: 0.3, ease: [0.23, 1, 0.32, 1] }}
               className={cn(
                 "flex min-w-0 flex-1 flex-col lg:min-h-0",
-                active !== "proofmarket" && "cx-glass p-4 md:p-5",
+                active !== "proofmarket" && active !== "home" && "cx-glass p-4 md:p-5",
               )}
-              style={active !== "proofmarket" ? { borderRadius: "var(--cx-r4)" } : undefined}
+              style={
+                active !== "proofmarket" && active !== "home"
+                  ? { borderRadius: "var(--cx-r4)" }
+                  : undefined
+              }
             >
               {content}
             </motion.section>

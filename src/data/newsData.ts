@@ -57,6 +57,8 @@ export interface PrimaryNewsItem {
   source: string;
   url: string;
   image?: NewsImage;
+  /** Big figure for cards without a photo (e.g. "87%"). */
+  stat?: string;
 }
 
 export interface NewsImage {
@@ -162,6 +164,7 @@ const ago = (iso: string) => Math.max(1, Math.round((Date.now() - Date.parse(iso
 export const primaryNews: PrimaryNewsItem[] = [
   {
     id: "p1",
+    stat: "−2,4%",
     ticker: "NVDA",
     assetName: "NVIDIA Corp.",
     assetClass: "equity",
@@ -197,6 +200,7 @@ export const primaryNews: PrimaryNewsItem[] = [
   },
   {
     id: "p2",
+    stat: "50%",
     ticker: "XOM",
     assetName: "ExxonMobil",
     assetClass: "equity",
@@ -233,6 +237,7 @@ export const primaryNews: PrimaryNewsItem[] = [
   },
   {
     id: "p3",
+    stat: "87%",
     ticker: "FED",
     assetName: "Reserva Federal (EUA)",
     assetClass: "bond",
@@ -270,6 +275,7 @@ export const primaryNews: PrimaryNewsItem[] = [
   },
   {
     id: "p4",
+    stat: "−4%",
     ticker: "CL",
     assetName: "Petróleo WTI",
     assetClass: "commodity",
@@ -303,6 +309,7 @@ export const primaryNews: PrimaryNewsItem[] = [
   },
   {
     id: "p5",
+    stat: "IPO",
     ticker: "IPO",
     assetName: "Anthropic",
     assetClass: "equity",
@@ -335,6 +342,7 @@ export const primaryNews: PrimaryNewsItem[] = [
   },
   {
     id: "p6",
+    stat: "2,3%",
     ticker: "MZN",
     assetName: "Economia de Moçambique",
     assetClass: "fx",

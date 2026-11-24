@@ -20,11 +20,13 @@ export function Rail({
   label,
   items,
   onOpen,
+  onFocusItem,
   width = 236,
 }: {
   label: string;
   items: RailItem[];
   onOpen?: (id: string) => void;
+  onFocusItem?: (id: string) => void;
   width?: number;
 }) {
   const [active, setActive] = useState(0);
@@ -51,8 +53,14 @@ export function Rail({
             type="button"
             tabIndex={on ? 0 : -1}
             data-focused={on}
-            onFocus={() => setActive(i)}
-            onMouseEnter={() => setActive(i)}
+            onFocus={() => {
+              setActive(i);
+              onFocusItem?.(it.id);
+            }}
+            onMouseEnter={() => {
+              setActive(i);
+              onFocusItem?.(it.id);
+            }}
             onClick={() => onOpen?.(it.id)}
             onKeyDown={(e) => {
               if (e.key === "ArrowRight") {
@@ -66,7 +74,7 @@ export function Rail({
             className="cx-focusable relative flex shrink-0 origin-bottom flex-col justify-end overflow-hidden rounded-[var(--cx-r3)] border border-[var(--cx-hair)] p-4 text-left"
             style={{
               width: on ? width * 1.3 : width,
-              height: on ? 250 : 210,
+              height: it.art ? (on ? 250 : 210) : on ? 190 : 156,
               background: "var(--cx-glass-regular)",
               transition:
                 "width var(--cx-t-view) var(--cx-ease), height var(--cx-t-view) var(--cx-ease), transform var(--cx-t-comp) var(--cx-ease), box-shadow var(--cx-t-comp) var(--cx-ease)",

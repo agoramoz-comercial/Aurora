@@ -1282,7 +1282,12 @@ function Rebalance({ say }: { say: (m: string, t?: "ok" | "warn") => void }) {
         <Panel title="Desvio vs alvo" subtitle="Pontos percentuais · a vermelho fora da banda">
           <div className="h-[260px]">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart className="aurora-hbar" data={chart} layout="vertical" margin={{ left: 12 }}>
+              <BarChart
+                className="aurora-hbar"
+                data={chart}
+                layout="vertical"
+                margin={{ left: 12 }}
+              >
                 <CartesianGrid horizontal={false} stroke={CHART.grid} />
                 <XAxis type="number" {...axisProps} tickFormatter={(v: number) => `${v}pp`} />
                 <YAxis type="category" dataKey="name" {...axisProps} width={128} />
