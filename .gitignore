@@ -34,3 +34,4 @@ dist-ssr
 # Unrelated binaries and projects that live in this working folder
 *.exe
 ECC-main/
+.loops/

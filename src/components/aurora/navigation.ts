@@ -9,6 +9,7 @@ import {
   Briefcase,
   MessageCircleHeart,
   Settings,
+  Trophy,
   Wallet,
 } from "lucide-react";
 
@@ -57,6 +58,12 @@ export const SECTIONS = [
     icon: FileSpreadsheet,
     label: "Modelo Financeiro & DCF Hub",
     hint: "Pipeline de 38 folhas",
+  },
+  {
+    id: "operadores",
+    icon: Trophy,
+    label: "Operadores",
+    hint: "Nota de traders, indicadores e contratos",
   },
   { id: "marketplace", icon: Gem, label: "Marketplace", hint: "Listagens e pedidos" },
   { id: "settings", icon: Settings, label: "Definições", hint: "Preferências e dados locais" },

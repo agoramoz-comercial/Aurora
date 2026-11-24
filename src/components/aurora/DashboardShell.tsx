@@ -46,6 +46,9 @@ import { useAmbient } from "./cockpit/ambient";
 
 // Workspaces load on first visit: the shell paints immediately and heavy
 // modules (models, TradingView charts) only download when opened.
+const OperadoresWorkspace = lazy(() =>
+  import("./operadores/OperadoresWorkspace").then((m) => ({ default: m.OperadoresWorkspace })),
+);
 const HomeWorkspace = lazy(() =>
   import("./home/HomeWorkspace").then((m) => ({ default: m.HomeWorkspace })),
 );
@@ -149,6 +152,7 @@ const STAGE_SPOT: Record<SectionId, string> = {
   benchmarkPage: "60% 15%",
   businessPlan: "25% 30%",
   teslaModel: "75% 40%",
+  operadores: "65% 25%",
   marketplace: "40% 20%",
   settings: "50% 10%",
 };
@@ -244,6 +248,9 @@ function Shell({ defaultActive }: { defaultActive: SectionId }) {
       break;
     case "teslaModel":
       workspace = <TeslaModelWorkspace />;
+      break;
+    case "operadores":
+      workspace = <OperadoresWorkspace />;
       break;
     case "marketplace":
       workspace = (
