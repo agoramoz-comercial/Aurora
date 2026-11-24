@@ -295,7 +295,7 @@ export function TrendingTopics({
               aria-pressed={isActive}
               onClick={() => onSelect(isActive ? null : tag)}
               className={cn(
-                "flex items-center gap-1.5 rounded-full px-2.5 py-1 text-micro font-medium transition-[background-color,color,box-shadow] duration-150",
+                "flex min-h-6 items-center gap-1.5 rounded-full px-2.5 py-1 text-micro font-medium transition-[background-color,color,box-shadow] duration-150",
                 isActive
                   ? "bg-[rgba(74,158,255,0.22)] text-white shadow-[inset_0_0_0_1px_rgba(74,158,255,0.5)]"
                   : "bg-white/6 text-white/60 hover:bg-white/12 hover:text-white",

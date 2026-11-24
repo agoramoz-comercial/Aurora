@@ -33,7 +33,7 @@ export function TopBar({
         type="button"
         onClick={() => onSelect("home")}
         aria-label="Aurora — início"
-        className="flex items-center gap-2.5 rounded-full text-[15px] font-bold tracking-[0.02em] text-[var(--cx-ink-1)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60"
+        className="flex h-10 items-center gap-2.5 rounded-full text-[15px] font-bold tracking-[0.02em] text-[var(--cx-ink-1)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60"
       >
         <span
           aria-hidden

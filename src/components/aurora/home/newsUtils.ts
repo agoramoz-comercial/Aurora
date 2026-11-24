@@ -139,7 +139,8 @@ export function formatMinutesAgo(min: number) {
   return m ? `${h}h ${m}m` : `${h}h`;
 }
 
-export const signed = (n: number, unit = "%") => `${n >= 0 ? "+" : ""}${n}${unit}`;
+export const signed = (n: number, unit = "%") =>
+  `${n > 0 ? "+" : n < 0 ? "−" : ""}${String(Math.abs(n)).replace(".", ",")}${unit}`;
 
 /** Lower-cased haystack for the newsroom search. */
 export function searchText(item: PrimaryNewsItem | SecondaryNewsItem) {

@@ -2,6 +2,7 @@ import { useRef } from "react";
 import { AlertTriangle, CheckCircle2, Layers } from "lucide-react";
 import type { PrimaryNewsItem } from "@/data/newsData";
 import { CHART } from "../chartTheme";
+import { isV3 } from "../cockpit/ambient";
 import { Drawer } from "../primitives";
 import {
   AttentionBadge,
@@ -23,6 +24,15 @@ import {
   formatMinutesAgo,
   signed,
 } from "./newsUtils";
+
+const FULL = isV3();
+const STATUS_PT: Record<PrimaryNewsItem["status"], string> = {
+  new: "nova",
+  confirmed: "confirmada",
+  developing: "em desenvolvimento",
+  denied: "desmentida",
+  closed: "encerrada",
+};
 
 export function NewsDrawer({
   item: current,
@@ -46,12 +56,13 @@ export function NewsDrawer({
       open={current !== null}
       onClose={onClose}
       accent={col?.border}
+      fullscreen={FULL}
       eyebrow={
         item ? (
           <>
             <AttentionBadge level={item.attentionLevel} />
             <span className="rounded-full bg-white/8 px-2.5 py-1 text-micro font-semibold text-white/65">
-              {EVENT_LABEL[item.eventType]} · {item.status}
+              {EVENT_LABEL[item.eventType]} · {STATUS_PT[item.status]}
             </span>
           </>
         ) : null
@@ -70,10 +81,18 @@ export function NewsDrawer({
       }
     >
       {item ? (
-        <div className="flex flex-col gap-5 p-5">
+        <div
+          className={
+            FULL ? "grid gap-6 p-6 lg:grid-cols-2 lg:items-start lg:p-8" : "flex flex-col gap-5 p-5"
+          }
+        >
           {/* Visual header */}
           <div
-            className="relative h-48 overflow-hidden rounded-[16px]"
+            className={
+              FULL
+                ? "relative h-[38vh] min-h-[240px] overflow-hidden rounded-[20px] lg:col-span-2"
+                : "relative h-48 overflow-hidden rounded-[16px]"
+            }
             style={{ border: `1px solid ${col!.border}` }}
           >
             {HERO_IMAGES[item.id] ? (
@@ -101,7 +120,15 @@ export function NewsDrawer({
             </div>
           </div>
 
-          <p className="text-pretty text-[13px] leading-relaxed text-white/70">{item.summary}</p>
+          <p
+            className={
+              FULL
+                ? "max-w-[860px] text-pretty text-[16px] leading-relaxed text-white/80 lg:col-span-2"
+                : "text-pretty text-[13px] leading-relaxed text-white/70"
+            }
+          >
+            {item.summary}
+          </p>
 
           <div className="grid grid-cols-[repeat(auto-fit,minmax(0,1fr))] gap-2">
             {[

@@ -108,7 +108,7 @@ const VIEWS: { id: View; label: string; shortLabel: string; icon: React.ElementT
   { id: "objetivos", label: "Objetivos", shortLabel: "Objetivos", icon: Target },
   { id: "previsao", label: "Previsão", shortLabel: "Previsão", icon: TrendingUp },
   { id: "investir", label: "Investir", shortLabel: "Investir", icon: CandlestickChart },
-  { id: "pagamentos", label: "Pagamentos", shortLabel: "Pagar", icon: Send },
+  { id: "pagamentos", label: "Pagamentos", shortLabel: "Pagamentos", icon: Send },
   { id: "importar", label: "Extratos e recibos", shortLabel: "Importar", icon: ScanLine },
   { id: "precos", label: "Preços", shortLabel: "Preços", icon: Tags },
   { id: "patrimonio", label: "Património", shortLabel: "Património", icon: Gem },

@@ -1,0 +1,312 @@
+{
+ "flows": [
+  {
+   "id": "F1",
+   "nome": "Ler notícia e ver impacto em ecrã inteiro",
+   "dispositivo": "desktop",
+   "passos": 2,
+   "ms_conteudo": 80,
+   "ms_total": 163,
+   "interactivos": 80,
+   "alvos_lt24": 2,
+   "cls": 0,
+   "ok": true
+  },
+  {
+   "id": "F2",
+   "nome": "Ver risco da carteira (zero layer)",
+   "dispositivo": "desktop",
+   "passos": 1,
+   "ms_conteudo": 931,
+   "ms_total": 934,
+   "interactivos": 32,
+   "alvos_lt24": 0,
+   "cls": 0,
+   "ok": true
+  },
+  {
+   "id": "F3",
+   "nome": "Abrir registo de despesa",
+   "dispositivo": "desktop",
+   "passos": 2,
+   "ms_conteudo": 1000,
+   "ms_total": 1203,
+   "interactivos": 48,
+   "alvos_lt24": 0,
+   "cls": 0,
+   "ok": true
+  },
+  {
+   "id": "F4",
+   "nome": "Pagar uma conta",
+   "dispositivo": "desktop",
+   "passos": 3,
+   "ms_conteudo": 420,
+   "ms_total": 706,
+   "interactivos": 42,
+   "alvos_lt24": 0,
+   "cls": 0,
+   "ok": true
+  },
+  {
+   "id": "F5",
+   "nome": "Importar extrato bancário",
+   "dispositivo": "desktop",
+   "passos": 4,
+   "ms_conteudo": 207,
+   "ms_total": 1000,
+   "interactivos": 39,
+   "alvos_lt24": 3,
+   "cls": 0,
+   "ok": true
+  },
+  {
+   "id": "F6",
+   "nome": "Comprar um ativo",
+   "dispositivo": "desktop",
+   "passos": 3,
+   "ms_conteudo": 560,
+   "ms_total": 690,
+   "interactivos": 38,
+   "alvos_lt24": 0,
+   "cls": 0,
+   "ok": true
+  },
+  {
+   "id": "F7",
+   "nome": "Analisar ação em ecrã inteiro",
+   "dispositivo": "desktop",
+   "passos": 2,
+   "ms_conteudo": 1519,
+   "ms_total": 1655,
+   "interactivos": 41,
+   "alvos_lt24": 2,
+   "cls": 0,
+   "ok": true
+  },
+  {
+   "id": "F8",
+   "nome": "Pesquisar com ⌘K e navegar",
+   "dispositivo": "desktop",
+   "passos": 3,
+   "ms_conteudo": 330,
+   "ms_total": 332,
+   "interactivos": 38,
+   "alvos_lt24": 1,
+   "cls": 0,
+   "ok": true
+  },
+  {
+   "id": "F9",
+   "nome": "Mudar modo de luz",
+   "dispositivo": "desktop",
+   "passos": 1,
+   "ms_conteudo": 199,
+   "ms_total": 201,
+   "interactivos": 37,
+   "alvos_lt24": 1,
+   "cls": 0,
+   "ok": true
+  },
+  {
+   "id": "F1",
+   "nome": "Ler notícia e ver impacto em ecrã inteiro",
+   "dispositivo": "móvel",
+   "passos": 2,
+   "ms_conteudo": 83,
+   "ms_total": 164,
+   "interactivos": 77,
+   "alvos_lt24": 2,
+   "cls": 0,
+   "ok": true
+  },
+  {
+   "id": "F2",
+   "nome": "Ver risco da carteira (zero layer)",
+   "dispositivo": "móvel",
+   "passos": 1,
+   "ms_conteudo": 910,
+   "ms_total": 912,
+   "interactivos": 32,
+   "alvos_lt24": 0,
+   "cls": 0,
+   "ok": true
+  },
+  {
+   "id": "F3",
+   "nome": "Abrir registo de despesa",
+   "dispositivo": "móvel",
+   "passos": 2,
+   "ms_conteudo": 912,
+   "ms_total": 979,
+   "interactivos": 44,
+   "alvos_lt24": 0,
+   "cls": 0,
+   "ok": true
+  },
+  {
+   "id": "F4",
+   "nome": "Pagar uma conta",
+   "dispositivo": "móvel",
+   "passos": 3,
+   "ms_conteudo": 345,
+   "ms_total": 417,
+   "interactivos": 38,
+   "alvos_lt24": 0,
+   "cls": 0,
+   "ok": true
+  },
+  {
+   "id": "F5",
+   "nome": "Importar extrato bancário",
+   "dispositivo": "móvel",
+   "passos": 4,
+   "ms_conteudo": 77,
+   "ms_total": 432,
+   "interactivos": 35,
+   "alvos_lt24": 3,
+   "cls": 0,
+   "ok": true
+  },
+  {
+   "id": "F6",
+   "nome": "Comprar um ativo",
+   "dispositivo": "móvel",
+   "passos": 3,
+   "ms_conteudo": 253,
+   "ms_total": 320,
+   "interactivos": 34,
+   "alvos_lt24": 0,
+   "cls": 0,
+   "ok": true
+  },
+  {
+   "id": "F7",
+   "nome": "Analisar ação em ecrã inteiro",
+   "dispositivo": "móvel",
+   "passos": 2,
+   "ms_conteudo": 1151,
+   "ms_total": 1194,
+   "interactivos": 38,
+   "alvos_lt24": 2,
+   "cls": 0,
+   "ok": true
+  },
+  {
+   "id": "F8",
+   "nome": "Pesquisar com ⌘K e navegar",
+   "dispositivo": "móvel",
+   "passos": 3,
+   "ms_conteudo": 109,
+   "ms_total": 111,
+   "interactivos": 35,
+   "alvos_lt24": 1,
+   "cls": 0,
+   "ok": true
+  },
+  {
+   "id": "F9",
+   "nome": "Mudar modo de luz",
+   "dispositivo": "móvel",
+   "passos": 1,
+   "ms_conteudo": 835,
+   "ms_total": 887,
+   "interactivos": 21,
+   "alvos_lt24": 0,
+   "cls": 0,
+   "ok": true
+  }
+ ],
+ "consistencia": [
+  {
+   "area": "Notícias",
+   "tamanhos_fonte": 8,
+   "raios": 7,
+   "cores_texto": 24,
+   "usa_instrumentos": 0,
+   "usa_vidro_v3": 7
+  },
+  {
+   "area": "Aurora Chat",
+   "tamanhos_fonte": 10,
+   "raios": 6,
+   "cores_texto": 17,
+   "usa_instrumentos": 0,
+   "usa_vidro_v3": 4
+  },
+  {
+   "area": "Finanças Pessoais",
+   "tamanhos_fonte": 7,
+   "raios": 7,
+   "cores_texto": 18,
+   "usa_instrumentos": 8,
+   "usa_vidro_v3": 6
+  },
+  {
+   "area": "Portfolio Management",
+   "tamanhos_fonte": 10,
+   "raios": 8,
+   "cores_texto": 15,
+   "usa_instrumentos": 3,
+   "usa_vidro_v3": 7
+  },
+  {
+   "area": "Analytics",
+   "tamanhos_fonte": 6,
+   "raios": 9,
+   "cores_texto": 21,
+   "usa_instrumentos": 0,
+   "usa_vidro_v3": 5
+  },
+  {
+   "area": "Corretoras",
+   "tamanhos_fonte": 6,
+   "raios": 7,
+   "cores_texto": 21,
+   "usa_instrumentos": 0,
+   "usa_vidro_v3": 5
+  },
+  {
+   "area": "Benchmark & Projeções",
+   "tamanhos_fonte": 5,
+   "raios": 9,
+   "cores_texto": 21,
+   "usa_instrumentos": 0,
+   "usa_vidro_v3": 5
+  },
+  {
+   "area": "Plano de Negócios",
+   "tamanhos_fonte": 6,
+   "raios": 7,
+   "cores_texto": 15,
+   "usa_instrumentos": 0,
+   "usa_vidro_v3": 5
+  },
+  {
+   "area": "Modelo Financeiro & DCF Hub",
+   "tamanhos_fonte": 6,
+   "raios": 9,
+   "cores_texto": 16,
+   "usa_instrumentos": 0,
+   "usa_vidro_v3": 5
+  },
+  {
+   "area": "Marketplace",
+   "tamanhos_fonte": 9,
+   "raios": 10,
+   "cores_texto": 18,
+   "usa_instrumentos": 0,
+   "usa_vidro_v3": 5
+  },
+  {
+   "area": "Definições",
+   "tamanhos_fonte": 4,
+   "raios": 6,
+   "cores_texto": 11,
+   "usa_instrumentos": 0,
+   "usa_vidro_v3": 6
+  }
+ ],
+ "erros_desktop": [],
+ "erros_movel": []
+}

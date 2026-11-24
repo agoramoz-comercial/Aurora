@@ -1,3 +1,5 @@
+import { ModeSwitch } from "../cockpit/ModeSwitch";
+import { useAmbient } from "../cockpit/ambient";
 import { useState } from "react";
 import { Check, Gauge, HardDrive, Info, Keyboard, RotateCcw } from "lucide-react";
 import { useBrokerStore } from "@/data/brokerStore";
@@ -22,6 +24,7 @@ export function SettingsWorkspace({
   reduceMotion: boolean;
   onReduceMotion: (v: boolean) => void;
 }) {
+  const [ambient, setAmbient] = useAmbient();
   const { resetToDemo } = useBrokerStore();
   const [done, setDone] = useState<Record<string, boolean>>({});
   const mark = (id: string) => setDone((d) => ({ ...d, [id]: true }));
@@ -54,6 +57,12 @@ export function SettingsWorkspace({
         subtitle="Preferências e dados locais · guardados apenas neste browser"
       />
       <div className="thin-scrollbar mt-4 grid min-h-0 flex-1 grid-cols-1 content-start gap-3 overflow-y-auto pr-1 lg:grid-cols-2">
+        <Panel
+          title="Luz ambiente"
+          subtitle="Cor de destaque de agulhas, brilhos e foco — como os modos de condução"
+        >
+          <ModeSwitch value={ambient} onChange={setAmbient} />
+        </Panel>
         <Panel title="Movimento" subtitle="Acessibilidade e conforto visual">
           <div className="flex items-start justify-between gap-4">
             <div className="flex items-start gap-3">

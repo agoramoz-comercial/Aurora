@@ -206,7 +206,7 @@ export function PhotoCredit({ image, className }: { image?: NewsImage; className
       rel="noreferrer"
       onClick={(e) => e.stopPropagation()}
       className={
-        "rounded-full bg-black/55 px-2 py-0.5 text-micro text-white/80 backdrop-blur-md transition-colors duration-150 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60 " +
+        "inline-flex min-h-6 items-center rounded-full bg-black/55 px-2 py-0.5 text-micro text-white/80 backdrop-blur-md transition-colors duration-150 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60 " +
         (className ?? "")
       }
     >
@@ -223,7 +223,7 @@ export function SourceLink({ source, url }: { source: string; url: string }) {
       target="_blank"
       rel="noreferrer"
       onClick={(e) => e.stopPropagation()}
-      className="inline-flex items-center gap-1 text-micro font-semibold text-white/80 underline-offset-2 transition-colors duration-150 hover:text-white hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60"
+      className="inline-flex min-h-6 items-center gap-1 text-micro font-semibold text-white/80 underline-offset-2 transition-colors duration-150 hover:text-white hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60"
     >
       {source} · Ler na fonte ↗
     </a>

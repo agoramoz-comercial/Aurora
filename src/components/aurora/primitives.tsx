@@ -664,6 +664,7 @@ export function Drawer({
   footer,
   width = 560,
   accent,
+  fullscreen = false,
 }: {
   open: boolean;
   onClose: () => void;
@@ -673,6 +674,8 @@ export function Drawer({
   footer?: ReactNode;
   width?: number;
   accent?: string;
+  /** Cockpit Aurora: open as a full-screen view instead of a side panel. */
+  fullscreen?: boolean;
 }) {
   const titleId = useId();
   const titleRef = useRef<HTMLHeadingElement>(null);
@@ -729,7 +732,7 @@ export function Drawer({
       {open ? (
         <div
           key="drawer"
-          className="fixed inset-0 z-50 flex justify-end text-white"
+          className={`fixed inset-0 z-50 flex text-white ${fullscreen ? "justify-center" : "justify-end"}`}
           style={{ fontFamily: "var(--font-display)" }}
         >
           <motion.div
@@ -745,13 +748,17 @@ export function Drawer({
             role="dialog"
             aria-modal="true"
             aria-labelledby={titleId}
-            initial={{ x: 48, opacity: 0 }}
-            animate={{ x: 0, opacity: 1 }}
-            exit={{ x: 32, opacity: 0, transition: { duration: 0.16 } }}
+            initial={fullscreen ? { scale: 0.98, opacity: 0 } : { x: 48, opacity: 0 }}
+            animate={fullscreen ? { scale: 1, opacity: 1 } : { x: 0, opacity: 1 }}
+            exit={
+              fullscreen
+                ? { scale: 0.98, opacity: 0, transition: { duration: 0.16 } }
+                : { x: 32, opacity: 0, transition: { duration: 0.16 } }
+            }
             transition={{ duration: 0.32, ease: [0.32, 0.72, 0, 1] }}
             className="relative m-0 flex h-full w-full flex-col overflow-hidden sm:m-3 sm:h-[calc(100%-24px)] sm:rounded-[24px]"
             style={{
-              maxWidth: width,
+              maxWidth: fullscreen ? "none" : width,
               background:
                 "linear-gradient(160deg, rgba(18,22,34,0.97) 0%, rgba(8,12,22,0.97) 100%)",
               backdropFilter: "blur(40px) saturate(160%)",
@@ -785,7 +792,13 @@ export function Drawer({
                 <X size={15} />
               </button>
             </header>
-            <div className="thin-scrollbar min-h-0 flex-1 overflow-y-auto">{children}</div>
+            <div className="thin-scrollbar min-h-0 flex-1 overflow-y-auto">
+              {fullscreen ? (
+                <div className="mx-auto w-full max-w-[1240px]">{children}</div>
+              ) : (
+                children
+              )}
+            </div>
             {footer ? (
               <footer
                 className="shrink-0 px-5 py-3.5"
