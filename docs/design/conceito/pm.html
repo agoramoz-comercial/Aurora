@@ -1,0 +1,96 @@
+<!doctype html><html lang="pt"><head><meta charset="utf-8"><link rel="stylesheet" href="cockpit.css">
+<style>
+.stage img { filter: saturate(.6) brightness(.55) blur(2px); }
+.stage::after { background: radial-gradient(900px 420px at 50% 52%, rgba(var(--ambient-rgb), .10), transparent 70%), linear-gradient(0deg, rgba(5,7,12,.98), rgba(5,7,12,.72) 60%, rgba(5,7,12,.86)); }
+.head { position: fixed; left: 48px; top: 104px; right: 48px; display: flex; justify-content: space-between; align-items: flex-end; }
+.aum { font-size: 60px; font-weight: 800; letter-spacing: -0.03em; line-height: 1; margin-top: 8px; }
+.aum small { font-size: 15px; font-weight: 600; color: var(--ink-2); letter-spacing: 0; margin-left: 12px; }
+.tabs { white-space: nowrap; flex: none; display: flex; gap: 4px; padding: 4px; border-radius: 999px; background: var(--glass-1); border: 1px solid var(--hair); font-size: 12px; font-weight: 600; color: var(--ink-3); backdrop-filter: blur(20px); }
+.tabs span { padding: 8px 13px; border-radius: 999px; }
+.tabs span.on { color: var(--ink-1); background: rgba(255,255,255,.1); }
+.tabs span.alert::after { content: "11"; margin-left: 6px; background: #c62828; color: #fff; border-radius: 9px; padding: 1px 6px; font-size: 11px; }
+.cluster { position: fixed; left: 48px; right: 48px; top: 222px; height: 330px; display: grid; grid-template-columns: 1fr 260px 380px 260px 1fr; align-items: center;
+  border-radius: var(--r4); padding: 0 28px;
+  background: linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.01)), rgba(8,11,18,.62);
+  border: 1px solid var(--hair); backdrop-filter: blur(30px) saturate(160%);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.08), inset 0 -40px 80px -40px rgba(var(--ambient-rgb), .18), 0 30px 80px rgba(0,0,0,.5); }
+.cluster::after { content: ""; position: absolute; left: 10%; right: 10%; bottom: -1px; height: 1px; background: linear-gradient(90deg, transparent, var(--ambient), transparent); box-shadow: 0 0 18px var(--ambient); }
+.g { position: relative; display: grid; place-items: center; justify-self: center; }
+.g-center { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding-top: 16px; }
+.g-val { font-weight: 800; letter-spacing: -0.02em; }
+.g-lab { font-size: 11px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--ink-3); margin-top: 6px; }
+.g-sub { font-size: 12px; color: var(--ink-2); margin-top: 6px; }
+.stack { display: flex; flex-direction: column; gap: 18px; }
+.stat .k { font-size: 11px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-3); }
+.stat .v { font-size: 24px; font-weight: 700; margin-top: 4px; }
+.pos { color: var(--good); } .neg { color: var(--bad); }
+.bottom { position: fixed; left: 48px; right: 48px; top: 576px; bottom: 44px; display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+.panel { padding: 18px 20px; }
+.panel h2 { font-size: 15px; font-weight: 700; display: flex; justify-content: space-between; align-items: baseline; }
+.panel h2 span { font-size: 11px; font-weight: 600; color: var(--ink-3); }
+.alerts { display: flex; gap: 12px; margin-top: 14px; align-items: stretch; }
+.al { flex: 1; border-radius: var(--r2); padding: 14px; border: 1px solid rgba(255,93,108,.22); background: rgba(255,93,108,.07); }
+.al .t { font-size: 13px; font-weight: 700; margin-top: 10px; }
+.al .d { font-size: 11px; color: var(--ink-2); line-height: 1.5; margin-top: 6px; }
+.al.focus { flex: 1.35; border-color: rgba(255,93,108,.7); background: rgba(255,93,108,.13); box-shadow: 0 0 0 1px rgba(255,93,108,.35), 0 0 36px rgba(255,93,108,.28); }
+.al.focus .t { font-size: 15px; }
+.bar { display: flex; height: 10px; border-radius: 99px; overflow: hidden; margin-top: 14px; gap: 2px; }
+.leg { display: flex; flex-wrap: wrap; gap: 6px 14px; margin-top: 10px; font-size: 11px; color: var(--ink-2); }
+.leg i { display: inline-block; width: 8px; height: 8px; border-radius: 2px; margin-right: 6px; }
+</style></head><body>
+<div class="stage"><img src="room-bg.jpg"></div>
+<div class="ambient"></div>
+<div class="head">
+  <div><div class="eyebrow">Portfolio Management · Institucional · snapshot julho 2017</div>
+    <div class="aum display num">$100.612<small>AUM · 100% investido</small></div></div>
+  <nav class="tabs"><span class="on">Cockpit</span><span>Dados</span><span>Preço</span><span>Técnica</span><span>Avaliação</span><span>Risco</span><span class="alert">Alertas</span><span>Sentimento</span><span>Carteira</span></nav>
+</div>
+<section class="cluster">
+  <div class="stack" style="justify-self:start">
+    <div class="stat"><div class="k">Alpha YTD</div><div class="v num pos">+7,64%</div></div>
+    <div class="stat"><div class="k">Desde o início</div><div class="v num">+35,07%</div></div>
+    <div class="stat"><div class="k">MTD</div><div class="v num">+0,64%</div></div>
+  </div>
+  <div class="g" id="g1"></div>
+  <div class="g" id="g2"></div>
+  <div class="g" id="g3"></div>
+  <div class="stack" style="justify-self:end;text-align:right">
+    <div class="stat"><div class="k">Beta líquido</div><div class="v num">98,69%</div></div>
+    <div class="stat"><div class="k">Maior setor</div><div class="v num neg">52,94%</div></div>
+    <div class="stat"><div class="k">Alertas críticos</div><div class="v num neg">3</div></div>
+  </div>
+</section>
+<section class="bottom">
+  <div class="glass panel">
+    <h2>Alertas prioritários <span>← → para navegar · Enter para agir</span></h2>
+    <div class="alerts">
+      <div class="al focus"><span class="chip crit">Crítico</span><div class="t">Concentração setorial acima de 30%</div><div class="d">Tecnologia de informação: 53,3% da carteira. Reduzir para o limite exige vender cerca de 23 p.p.</div></div>
+      <div class="al"><span class="chip crit">Crítico</span><div class="t">Beta setorial &gt; 30%</div><div class="d">Exposição beta a tecnologia: 52,9%.</div></div>
+      <div class="al"><span class="chip crit">Crítico</span><div class="t">Perto do stop-loss</div><div class="d">KO a 4,7% · F a 1,7% do stop.</div></div>
+    </div>
+  </div>
+  <div class="glass panel">
+    <h2>Desempenho acumulado 2017 <span><b class="pos">Carteira +21,0%</b> · S&amp;P 500 +19,5%</span></h2>
+    <svg viewBox="0 0 620 120" width="100%" height="120" style="margin-top:8px" aria-hidden="true">
+      <defs><linearGradient id="ar" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="rgba(56,225,214,.35)"/><stop offset="1" stop-color="rgba(56,225,214,0)"/></linearGradient></defs>
+      <g stroke="rgba(255,255,255,.06)"><line x1="0" y1="30" x2="620" y2="30"/><line x1="0" y1="70" x2="620" y2="70"/><line x1="0" y1="110" x2="620" y2="110"/></g>
+      <path id="pl" fill="url(#ar)"/><path id="pp" fill="none" stroke="#38e1d6" stroke-width="2.2"/><path id="bm" fill="none" stroke="rgba(255,255,255,.55)" stroke-width="1.5" stroke-dasharray="4 4"/>
+    </svg>
+    <div class="bar" id="bar"></div><div class="leg" id="leg"></div>
+  </div>
+</section>
+<div class="legend">Conceito F1 · Cockpit Aurora · não publicado · dados de demonstração do Portfolio Management</div>
+<script src="shell.js"></script><script>
+topbar("Portfolio");
+gauge(document.getElementById("g1"), { id:"a", size: 240, min: 0, max: 100, value: 53.3, text: "53,3%", label: "Concentração", sub: "limite 30%", color: "#ff5d6c", zones: [{from:30,to:100,color:"rgba(255,93,108,.45)"}], font: 30 });
+gauge(document.getElementById("g2"), { id:"b", size: 340, min: 0, max: 30, value: 19.64, marker: 19.5, text: "+19,64%", label: "Retorno YTD", sub: "S&P 500 +19,5% · marcador branco", font: 44 });
+gauge(document.getElementById("g3"), { id:"c", size: 240, min: 0, max: 150, value: 100, text: "100%", label: "Exposição líquida", sub: "beta 98,69%", zones: [{from:120,to:150,color:"rgba(255,181,71,.5)"}], font: 30 });
+const p=[2,7,10,8.5,12,16,13,17,18,16,20.5,21], b=[1,5.5,6,7,8,9,11,11,13,15,17.5,19.5];
+const xy=(a)=>a.map((v,i)=>[i*(620/11),110-v*4.4]);
+const line=(a)=>xy(a).map((q,i)=>(i?"L":"M")+q[0].toFixed(1)+","+q[1].toFixed(1)).join(" ");
+document.getElementById("pp").setAttribute("d",line(p));document.getElementById("bm").setAttribute("d",line(b));
+document.getElementById("pl").setAttribute("d",line(p)+" L620,110 L0,110 Z");
+const S=[["Tecnologia",53.3,"#38e1d6"],["Indústria",26.0,"#6cb8ff"],["Energia",8.1,"#ffb547"],["Saúde",7.0,"#ff7ab6"],["Consumo básico",4.4,"#b48cff"],["Consumo discr.",1.2,"#ff5d6c"]];
+document.getElementById("bar").innerHTML=S.map(s=>`<span style="flex:${s[1]};background:${s[2]}"></span>`).join("");
+document.getElementById("leg").innerHTML=S.map(s=>`<span><i style="background:${s[2]}"></i>${s[0]} <b class="num">${String(s[1]).replace(".",",")}%</b></span>`).join("");
+</script></body></html>

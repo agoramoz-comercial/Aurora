@@ -1,0 +1,82 @@
+<!doctype html><html lang="pt"><head><meta charset="utf-8"><link rel="stylesheet" href="cockpit.css">
+<style>
+.hero { position: fixed; left: 64px; top: 128px; width: 640px; }
+.hero h1 { font-size: 46px; line-height: 1.06; letter-spacing: -0.02em; font-weight: 800; margin: 18px 0 16px; }
+.hero p { font-size: 15px; line-height: 1.6; color: var(--ink-2); max-width: 560px; }
+.meta { display: flex; align-items: center; gap: 14px; margin-top: 18px; font-size: 13px; color: var(--ink-2); }
+.meta a { color: var(--ink-1); font-weight: 600; text-decoration: none; }
+.btns { display: flex; gap: 10px; margin-top: 24px; }
+.btn { height: 44px; padding: 0 22px; border-radius: 999px; display: inline-flex; align-items: center; gap: 8px; font-weight: 700; font-size: 13px; }
+.btn.pri { background: #fff; color: #05070c; box-shadow: 0 0 30px rgba(var(--ambient-rgb), .45); }
+.btn.sec { background: rgba(255,255,255,.08); border: 1px solid var(--hair-2); backdrop-filter: blur(16px); }
+.ring { position: relative; width: 64px; height: 64px; }
+.ring b { position: absolute; inset: 0; display: grid; place-items: center; font-size: 18px; font-weight: 800; }
+.radar { position: fixed; right: 32px; top: 112px; width: 300px; padding: 16px 18px; }
+.radar .row { display: flex; justify-content: space-between; align-items: center; font-size: 13px; padding: 9px 0; border-top: 1px solid var(--hair); }
+.radar .row:first-of-type { border-top: 0; }
+.down { color: var(--bad); font-weight: 700; }
+.railwrap { position: fixed; left: 64px; right: 0; top: 566px; }
+.railhead { display: flex; align-items: baseline; gap: 14px; margin-bottom: 14px; }
+.railhead h2 { font-size: 15px; font-weight: 700; }
+.cards { display: flex; gap: 18px; align-items: flex-end; }
+.card { position: relative; width: 236px; height: 214px; border-radius: var(--r3); overflow: hidden; border: 1px solid var(--hair); background: var(--glass-2); flex: none; }
+.card .art { position: absolute; inset: 0; }
+.card .shade { position: absolute; inset: 0; background: linear-gradient(0deg, rgba(5,7,12,.96) 0%, rgba(5,7,12,.35) 60%, rgba(5,7,12,.1) 100%); }
+.card .body { position: absolute; left: 16px; right: 16px; bottom: 14px; }
+.card h3 { font-size: 14px; line-height: 1.3; font-weight: 700; margin-top: 8px; }
+.card .src { font-size: 11px; color: var(--ink-3); margin-top: 8px; }
+.card.focus { width: 340px; height: 262px; border-color: rgba(var(--ambient-rgb), .8);
+  box-shadow: 0 0 0 1px rgba(var(--ambient-rgb), .5), 0 0 46px rgba(var(--ambient-rgb), .35), 0 24px 60px rgba(0,0,0,.6); }
+.card.focus h3 { font-size: 17px; }
+.card.focus .detail { font-size: 12px; color: var(--ink-2); line-height: 1.5; margin-top: 6px; }
+.big { position: absolute; right: 16px; top: 10px; font-size: 64px; font-weight: 800; letter-spacing: -0.04em; opacity: .9; }
+.hint { position: fixed; left: 64px; bottom: 22px; display: flex; gap: 18px; font-size: 11px; color: var(--ink-3); }
+.hint b { color: var(--ink-2); border: 1px solid var(--hair-2); border-radius: 5px; padding: 1px 6px; margin-right: 6px; font-weight: 600; }
+</style></head><body>
+<div class="stage"><img src="nvidia.jpg" style="object-position: 70% 40%; left: 30%; width: 70%;"></div>
+<div class="ambient"></div>
+<section class="hero">
+  <div style="display:flex;align-items:center;gap:10px">
+    <span class="chip crit">Crítico</span><span class="chip">Resultados</span><span class="chip" style="color:#ffd0d5">NVDA <span class="num">−2,4%</span></span>
+  </div>
+  <h1 class="display">Wall Street fecha misto depois dos resultados da Nvidia e das atas da Fed</h1>
+  <p>A Nvidia superou as estimativas de vendas, mas a ação recuou. Os investidores pesaram o tom duro das atas da Reserva Federal antes da entrada em bolsa da Anthropic.</p>
+  <div class="meta">
+    <svg class="ring" viewBox="0 0 64 64"><circle cx="32" cy="32" r="27" stroke="rgba(255,255,255,.1)" stroke-width="5" fill="none"/><circle cx="32" cy="32" r="27" stroke="#ff5d6c" stroke-width="5" fill="none" stroke-dasharray="156 170" stroke-linecap="round" transform="rotate(-90 32 32)"/><text x="32" y="38" text-anchor="middle" fill="#fff" font-size="17" font-weight="800" font-family="Inter">92</text></svg>
+    <span>Impacto em carteira</span><span>·</span><span>há 5 dias</span><span>·</span><a>Reuters · Ler na fonte ↗</a>
+  </div>
+  <div class="btns"><span class="btn pri">Ver impacto na carteira</span><span class="btn sec">Guardar</span></div>
+</section>
+<span class="credit" style="position:fixed;right:32px;top:520px">Foto: Will Buckner · CC BY 2.0</span>
+<aside class="radar glass">
+  <div class="eyebrow" style="margin-bottom:8px">Fecho · 18 nov · Reuters</div>
+  <div class="row"><span>Nvidia</span><span class="down num">▼ 2,4%</span></div>
+  <div class="row"><span>Petróleo WTI</span><span class="down num">▼ 4,0%</span></div>
+  <div class="row"><span>Dow Jones</span><span class="down num">▼ 0,8%</span></div>
+</aside>
+<section class="railwrap">
+  <div class="railhead"><h2>Em foco</h2><span class="eyebrow">6 notícias com impacto · 7 sinais de regime</span></div>
+  <div class="cards">
+    <article class="card focus">
+      <img class="art" src="lng.jpg" style="width:100%;height:100%;object-fit:cover">
+      <div class="shade"></div>
+      <span class="credit" style="position:absolute;right:10px;top:10px">Foto: Gordon Leggett · CC BY-SA 4.0</span>
+      <div class="body"><span class="chip crit">Crítico</span>
+        <h3>ExxonMobil sobe para 50% no Rovuma LNG e aponta decisão final até dezembro</h3>
+        <div class="detail">Coral Norte 70% concluído · arranque em 2028 · 7 000 empregos</div>
+        <div class="src">O.Económico · 17 nov</div></div>
+    </article>
+    <article class="card"><div class="art" style="background:radial-gradient(260px 200px at 80% 10%, rgba(108,184,255,.45), transparent), linear-gradient(160deg,#0d1b33,#070b14)"></div><span class="big num" style="color:#9fd0ff">87%</span><div class="shade" style="opacity:.6"></div>
+      <div class="body"><span class="chip crit">Crítico</span><h3>Fed inclina-se para subir juros a 9 de dezembro</h3><div class="src">Reuters · Yahoo Finance</div></div></article>
+    <article class="card"><div class="art" style="background:radial-gradient(260px 200px at 80% 10%, rgba(255,181,71,.45), transparent), linear-gradient(160deg,#2a1708,#0b0805)"></div><span class="big num" style="color:#ffc978">−4%</span><div class="shade" style="opacity:.6"></div>
+      <div class="body"><span class="chip">Alta</span><h3>Petróleo cai com subida de inventários e dólar forte</h3><div class="src">Reuters · 18 nov</div></div></article>
+    <article class="card"><div class="art" style="background:radial-gradient(260px 200px at 80% 10%, rgba(180,140,255,.45), transparent), linear-gradient(160deg,#1a1030,#08060f)"></div><span class="big" style="color:#d2bcff">IPO</span><div class="shade" style="opacity:.6"></div>
+      <div class="body"><span class="chip">Alta</span><h3>Entrada em bolsa da Anthropic testa o apetite por IA</h3><div class="src">Morningstar · 16 nov</div></div></article>
+    <article class="card"><div class="art" style="background:radial-gradient(260px 200px at 80% 10%, rgba(62,224,143,.4), transparent), linear-gradient(160deg,#08221a,#050c09)"></div><span class="big num" style="color:#8ff0bd">2,3%</span><div class="shade" style="opacity:.6"></div>
+      <div class="body"><span class="chip">Alta</span><h3>Standard Bank prevê crescimento de 2,3% em 2027</h3><div class="src">Diário Económico · 6 nov</div></div></article>
+  </div>
+</section>
+<div class="hint"><span><b>← →</b>mudar notícia</span><span><b>Enter</b>abrir</span><span><b>S</b>guardar</span><span><b>Esc</b>voltar</span></div>
+<div class="legend">Conceito F1 · Cockpit Aurora · não publicado</div>
+<script src="shell.js"></script><script>topbar("Notícias")</script>
+</body></html>
